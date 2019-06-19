@@ -1359,4 +1359,30 @@ function log_server_notify($orderid, $url, $notifystr, $httpCode, $return) {
     }
     return false;
 }
+
+
+function md5cropy( $param, $Md5key ) {
+    ksort($param);
+    reset($param);
+    $md5str = "";
+    foreach ($param as $key => $val) {
+        $md5str = $md5str . $key . "=" . $val . "&";
+    }
+    return strtoupper(md5($md5str . "key=" . $Md5key));
+}
+
+
+function createSign($Md5key, $params){
+    ksort($params);
+    $md5str = "";
+    foreach ($params as $key => $val) {
+        if (!empty($val)) {
+            $md5str = $md5str . $key . "=" . $val . "&";
+        }
+    }
+    $sign = strtoupper(md5($md5str . "key=" . $Md5key));
+    return $sign;
+}
+
+
 ?>
