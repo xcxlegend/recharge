@@ -59,7 +59,8 @@ foreach ($native as $key => $val) {
     $md5str = $md5str . $key . "=" . $val . "&";
 }
 //echo($md5str . "key=" . $Md5key);
-$sign = strtoupper(md5($md5str . "key=" . $Md5key));
+$md5str .= "key=" . $Md5key;
+$sign = md5($md5str);
 $native["pay_md5sign"] = $sign;
 $native['pay_attach'] = "1234|456";
 $native['pay_productname'] ='测试商品';

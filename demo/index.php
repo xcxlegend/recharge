@@ -1,7 +1,7 @@
 <?php
 error_reporting(0);
 $pay_orderid = 'E'.date("YmdHis").rand(10000,99999);    //订单号
-$pay_amount = "50.00";    //交易金额
+$pay_amount = "5000";    //交易金额
 $product_name="测试订单";
 ?>
 
@@ -157,7 +157,7 @@ $product_name="测试订单";
     <div class="order-amount12-right">
         <span>订单金额：</span>
         <strong><input type="text" name="amount" value="<?php echo $pay_amount;?>"></strong>
-        <span>元</span>
+        <span>分</span>
     </div>
 </div>
 <!--支付方式-->
@@ -175,7 +175,7 @@ $product_name="测试订单";
 
             
 			<li class="pay_li active" data_power_id="3000000011" data_product_id="3000000001">
-            <input value="903" checked="checked" name="channel" id="zfb" type="radio">
+            <input value="ali_scan_pay" checked="checked" name="channel" id="zfb" type="radio">
                 <i class="i1"></i>
                 <span>支付宝扫码</span>
             </li></label>
@@ -196,7 +196,7 @@ $product_name="测试订单";
 
             <label for="zfbh5">
             <li class="pay_li" data_power_id="3000000012" data_product_id="3000000002">
-                <input value="904" name="channel" id="zfb" type="radio">
+                <input value="ali_wap_pay" name="channel" id="zfb" type="radio">
                 <i class="i1"></i>
                 <span>支付宝H5</span>
             </li></label>
@@ -204,7 +204,7 @@ $product_name="测试订单";
 
             <label for="wxh5">
                 <li class="pay_li" data_power_id="3000000031" data_product_id="3000000031">
-                    <input value="902" name="channel" id="wx" type="radio">
+                    <input value="wx_scan_pay" name="channel" id="wx" type="radio">
                     <i class="i2"></i>
                     <span>微信扫码</span>
                 </li>  </label>
@@ -266,7 +266,7 @@ $product_name="测试订单";
 <!--立即支付-->
 <div class="w1080 immediate-pay12" style="border-radius: 1em; padding-top:1em; padding-bottom: 1em;padding-right: 1em;">
     <div class="immediate-pay12-right">
-        <span>需支付：<strong><?php echo $pay_amount;?></strong>元</span>
+        <span>需支付：<strong><?php echo $pay_amount;?></strong>分</span>
 
         <button type="submit" class="immediate_pay" >立即支付</button>
     </div>

@@ -628,7 +628,9 @@ function sendForm($url,$data,$referer){
     curl_setopt($ch, CURLOPT_URL, $url);
     curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($data));
     curl_setopt($ch, CURLOPT_HTTPHEADER, $headerArr);
-    curl_setopt($ch, CURLOPT_REFERER, "http://".$referer."/");
+    if ($referer) {
+        curl_setopt($ch, CURLOPT_REFERER, "http://" . $referer . "/");
+    }
     $data = curl_exec($ch);
     curl_close($ch);
     return $data;
@@ -1376,13 +1378,21 @@ function createSign($Md5key, $params){
     ksort($params);
     $md5str = "";
     foreach ($params as $key => $val) {
-        if (!empty($val)) {
+//        if (!empty($val)) {
             $md5str = $md5str . $key . "=" . $val . "&";
-        }
+//        }
     }
-    $sign = strtoupper(md5($md5str . "key=" . $Md5key));
+    $md5str .= "key=" . $Md5key;
+
+    logResult("md5str:". $md5str);
+
+    $sign = md5($md5str);
+    logResult("md5:". $sign);
+
     return $sign;
 }
+
+
 
 
 ?>

@@ -36,7 +36,7 @@ class PoolController extends PayController
 
 
 
-    public function getPhone() {
+   /* public function getPhone() {
         M()->startTrans();
         $phone = M('pool_phones')->lock(true)->where(['lock' => 0, 'money' => 1000])->find();
         print_r($phone);
@@ -45,7 +45,7 @@ class PoolController extends PayController
             M('pool_phones')->save($phone);
         }
         M()->commit();
-    }
+    }*/
 
 
 

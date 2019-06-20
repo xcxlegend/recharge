@@ -12,9 +12,11 @@ namespace Pay\Controller;
 class PayController
 {
 
+    protected $_site;
+
     public function __construct()
     {
-
+        $this->_site = ((is_https()) ? 'https' : 'http') . '://' . C("DOMAIN") . '/';
     }
 
     protected function result( $data ) {
@@ -23,18 +25,24 @@ class PayController
     }
 
 
-    protected function result_error( $info ) {
+    protected function result_error( $info , $with_log = false) {
         $data = [
-            'status'=> 1,
-            "info"  => $info,
+            'status'=> "error",
+            "message"  => $info,
         ];
+        if ($with_log) {
+            if ( !is_string($with_log) ){
+                $with_log = json_encode($with_log);
+            }
+            \Think\Log::write($info . ': ' . $with_log, \Think\Log::WARN);
+        }
         $this->result($data);
     }
 
     protected function result_success( $param, $info = "ok") {
         $data = [
-            'status' => 0,
-            'info'   => $info,
+            'status' => "success",
+            'message'   => $info,
             'data'   => $param
         ];
         $this->result($data);

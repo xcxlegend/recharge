@@ -7,6 +7,12 @@ return [
         '7'=>'高级代理商户',
     ],
 
+    'RPC_POOL_PHONE' => 'http://127.0.0.1:8080',
+    'RPC_POOL_PHONE_SECRET' => 'af63e960f62aeb43ae26931471bcbf2c',
+
+    'RPC_PHONE_MID'  => '',
+    'RPC_PHONE_MKEY' => '',
+
     'ARTICLE_GROUP_ID'=>[
         '0'=>'平台可见',
         '1'=>'商户可见',
