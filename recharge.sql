@@ -7,7 +7,7 @@
 #
 # Host: 127.0.0.1 (MySQL 5.7.16)
 # Database: recharge
-# Generation Time: 2019-06-19 13:02:22 +0000
+# Generation Time: 2019-06-20 14:42:43 +0000
 # ************************************************************
 
 
@@ -348,7 +348,7 @@ LOCK TABLES `pay_channel` WRITE;
 
 INSERT INTO `pay_channel` (`id`, `code`, `title`, `mch_id`, `signkey`, `appid`, `appsecret`, `gateway`, `pagereturn`, `serverreturn`, `defaultrate`, `fengding`, `rate`, `updatetime`, `unlockdomain`, `status`, `paytype`, `start_time`, `end_time`, `paying_money`, `all_money`, `last_paying_time`, `min_money`, `max_money`, `control_status`, `offline_status`, `t0defaultrate`, `t0fengding`, `t0rate`)
 VALUES
-	(1,NULL,'1',NULL,NULL,NULL,NULL,NULL,NULL,NULL,0.0000,0.0000,0.0000,0,'',0,0,0,0,0.00,0.00,0,0.00,0.00,0,1,0.0000,0.0000,0.0000);
+	(1,'Pool','Pool','','','','','','','',0.0000,0.0000,0.0000,1561037405,'',1,1,0,0,0.00,0.00,0,0.00,0.00,0,1,0.0000,0.0000,0.0000);
 
 /*!40000 ALTER TABLE `pay_channel` ENABLE KEYS */;
 UNLOCK TABLES;
@@ -572,6 +572,7 @@ CREATE TABLE `pay_order` (
   `pay_orderid` varchar(100) NOT NULL COMMENT '系统订单号',
   `pay_amount` decimal(15,4) unsigned NOT NULL DEFAULT '0.0000',
   `pay_actualamount` decimal(15,4) unsigned NOT NULL DEFAULT '0.0000',
+  `pay_poundage` decimal(15,4) NOT NULL DEFAULT '0.0000',
   `pay_applydate` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '订单创建日期',
   `pay_successdate` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '订单支付成功时间',
   `pay_code` varchar(100) DEFAULT NULL COMMENT '支付编码',
@@ -595,6 +596,8 @@ CREATE TABLE `pay_order` (
   `channel_id` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '渠道id',
   `last_reissue_time` int(11) NOT NULL DEFAULT '11' COMMENT '最后补发时间',
   `pool_phone_id` int(11) DEFAULT NULL COMMENT '号码池ID',
+  `trade_id` varchar(50) DEFAULT NULL COMMENT '外部支付订单号',
+  `t` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   UNIQUE KEY `IND_ORD` (`pay_orderid`),
   KEY `account_id` (`account_id`),
@@ -602,6 +605,15 @@ CREATE TABLE `pay_order` (
   KEY `m_out_id` (`pay_memberid`,`out_trade_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
+LOCK TABLES `pay_order` WRITE;
+/*!40000 ALTER TABLE `pay_order` DISABLE KEYS */;
+
+INSERT INTO `pay_order` (`id`, `pay_memberid`, `pay_orderid`, `pay_amount`, `pay_actualamount`, `pay_poundage`, `pay_applydate`, `pay_successdate`, `pay_code`, `pay_notifyurl`, `pay_callbackurl`, `pay_bankname`, `pay_status`, `pay_productname`, `pay_zh_tongdao`, `out_trade_id`, `num`, `memberid`, `account`, `isdel`, `attach`, `pay_url`, `pay_channel_account`, `cost`, `cost_rate`, `account_id`, `channel_id`, `last_reissue_time`, `pool_phone_id`, `trade_id`, `t`)
+VALUES
+	(3,'62','MP20190620221104546',10.0000,9.9500,0.0500,1561039864,0,'ali_scan_pay','http://recharge.com/demo/server.php','',NULL,0,'测试商品','Pool','E2019062014005575548',0,'1',NULL,0,'1234|456','http://test.code',NULL,0.0000,0.0000,0,0,11,3,'testNo123',0);
+
+/*!40000 ALTER TABLE `pay_order` ENABLE KEYS */;
+UNLOCK TABLES;
 
 
 # Dump of table pay_order_notify
@@ -690,12 +702,12 @@ CREATE TABLE `pay_pool_phones` (
   `money` int(11) NOT NULL DEFAULT '0' COMMENT '充值金额 分',
   `notify_url` varchar(255) DEFAULT NULL COMMENT '商户回调地址',
   `time` int(11) NOT NULL DEFAULT '0' COMMENT '时间戳',
-  `channel` tinyint(1) NOT NULL DEFAULT '0' COMMENT '运营商标识 1=移动 2=联调 3=电信',
-  `out_trade_id` varchar(255) NOT NULL DEFAULT '' COMMENT '商户订单号',
-  `order_id` varchar(255) NOT NULL DEFAULT '' COMMENT '平台订单号',
+  `channel` tinyint(1) NOT NULL DEFAULT '0' COMMENT '运营商标识 1=移动 2=电信 3=联通',
+  `out_trade_id` varchar(50) NOT NULL DEFAULT '' COMMENT '商户订单号 号码商订单号',
+  `order_id` varchar(50) NOT NULL DEFAULT '' COMMENT '平台订单号',
   `lock` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否锁定 表示匹配支付',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `pid_out_trade_id` (`pid`,`out_trade_id`),
+  UNIQUE KEY `out_id_pid` (`out_trade_id`,`pid`),
   KEY `pool_id` (`pid`),
   KEY `lock_time` (`lock`,`time`),
   KEY `lock_money` (`lock`,`money`)
@@ -706,7 +718,7 @@ LOCK TABLES `pay_pool_phones` WRITE;
 
 INSERT INTO `pay_pool_phones` (`id`, `pid`, `phone`, `money`, `notify_url`, `time`, `channel`, `out_trade_id`, `order_id`, `lock`)
 VALUES
-	(3,1,'18081159865',1000,'http://127.0.0.1:8080/v1/test/notify',1560856652,3,'123456','P2019061819173230',0),
+	(3,1,'18081159865',1000,'http://127.0.0.1:8080/v1/test/notify',1560856652,3,'123456','P2019061819173230',1),
 	(4,1,'18081159866',1000,'http://127.0.0.1:8080/v1/test/notify',1560931628,3,'12345677777','P2019061916070836',0);
 
 /*!40000 ALTER TABLE `pay_pool_phones` ENABLE KEYS */;
@@ -746,11 +758,16 @@ DROP TABLE IF EXISTS `pay_pool_rec`;
 
 CREATE TABLE `pay_pool_rec` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `count` int(11) NOT NULL DEFAULT '0' COMMENT '数量',
-  `time` int(11) NOT NULL DEFAULT '0' COMMENT '批次时间戳',
+  `pool_id` int(11) NOT NULL DEFAULT '0',
+  `pid` int(11) NOT NULL DEFAULT '0',
+  `out_trade_id` varchar(50) NOT NULL DEFAULT '',
+  `order_id` varchar(50) NOT NULL DEFAULT '',
+  `data` mediumtext,
+  `status` tinyint(1) NOT NULL COMMENT '0=未回调 1=回调完成',
   PRIMARY KEY (`id`),
-  KEY `time` (`time`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+  UNIQUE KEY `out_id_pid` (`out_trade_id`,`pid`),
+  KEY `pool_id` (`pool_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='号码商订单成功表';
 
 
 
@@ -769,7 +786,8 @@ CREATE TABLE `pay_product` (
   `isdisplay` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '用户端显示 1 显示 0 不显示',
   `channel` smallint(6) unsigned NOT NULL DEFAULT '0' COMMENT '通道ID',
   `weight` text COMMENT '平台默认通道权重',
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `code` (`code`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 LOCK TABLES `pay_product` WRITE;
@@ -777,10 +795,10 @@ LOCK TABLES `pay_product` WRITE;
 
 INSERT INTO `pay_product` (`id`, `name`, `code`, `polling`, `paytype`, `status`, `isdisplay`, `channel`, `weight`)
 VALUES
-	(1,'微信H5','Wxh5',0,1,1,1,1,''),
-	(2,'微信扫码','Wxsan',0,1,1,1,244,''),
-	(3,'支付宝扫码','Aliscan',0,1,1,1,1,''),
-	(4,'支付宝H5','Alipaywap',0,1,1,1,1,'');
+	(1,'微信H5','wx_wap_pay',0,1,1,1,0,''),
+	(2,'微信扫码','wx_scan_pay',0,1,1,1,0,''),
+	(3,'支付宝扫码','ali_scan_pay',0,1,1,1,0,''),
+	(4,'支付宝H5','ali_wap_pay',0,1,1,1,0,'');
 
 /*!40000 ALTER TABLE `pay_product` ENABLE KEYS */;
 UNLOCK TABLES;
@@ -802,6 +820,18 @@ CREATE TABLE `pay_product_user` (
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
+LOCK TABLES `pay_product_user` WRITE;
+/*!40000 ALTER TABLE `pay_product_user` DISABLE KEYS */;
+
+INSERT INTO `pay_product_user` (`id`, `userid`, `pid`, `polling`, `status`, `channel`, `weight`)
+VALUES
+	(1,62,1,0,1,0,''),
+	(2,62,2,0,1,0,''),
+	(3,62,3,0,1,0,''),
+	(4,62,4,0,1,0,'');
+
+/*!40000 ALTER TABLE `pay_product_user` ENABLE KEYS */;
+UNLOCK TABLES;
 
 
 # Dump of table pay_reconciliation
@@ -1086,6 +1116,18 @@ CREATE TABLE `pay_userrate` (
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='商户通道费率';
 
+LOCK TABLES `pay_userrate` WRITE;
+/*!40000 ALTER TABLE `pay_userrate` DISABLE KEYS */;
+
+INSERT INTO `pay_userrate` (`id`, `userid`, `payapiid`, `feilv`, `fengding`, `t0feilv`, `t0fengding`)
+VALUES
+	(1,62,1,0.0000,0.0000,0.0050,0.0000),
+	(2,62,2,0.0000,0.0000,0.0050,0.0000),
+	(3,62,3,0.0000,0.0000,0.0050,0.0000),
+	(4,62,4,0.0000,0.0000,0.0050,0.0000);
+
+/*!40000 ALTER TABLE `pay_userrate` ENABLE KEYS */;
+UNLOCK TABLES;
 
 
 # Dump of table pay_version
