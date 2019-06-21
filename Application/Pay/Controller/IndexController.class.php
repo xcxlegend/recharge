@@ -262,7 +262,7 @@ class IndexController extends OrderController
         $data = json_decode($data, true);
 
         if (!$data || $data['status'] != 0) {
-            $this->result_error("RPC ".$data['code'] ?: '订单请求失败');
+            $this->result_error("RPC ".$data['info'] ?: '订单请求失败');
             return false;
         }
 
