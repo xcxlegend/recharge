@@ -127,7 +127,7 @@ class IndexController extends OrderController
             'memberid' => $poolOrder['pool_pid'],
             'attach' => $this->request['pay_attach'],
             'pay_productname' => $this->request['pay_productname'],
-            'pay_url' => $poolOrder['order']['code_url'] ?: '',
+            'pay_url' => $poolOrder['order']['wap_url'] ?: $poolOrder['order']['code_url'] ?: '',
             'pool_phone_id' => $poolOrder['pool_id'],
             'trade_id' => $poolOrder['order']['no'],
         ];
