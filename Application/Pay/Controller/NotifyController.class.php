@@ -7,18 +7,16 @@
  */
 
 namespace Pay\Controller;
+use \Think\Log;
 
 
 class NotifyController extends OrderController
 {
     protected $request;
 
-    protected $timestamp;
-
     public function __construct()
     {
         parent::__construct();
-        $this->timestamp = time();
     }
 
 
@@ -39,6 +37,7 @@ class NotifyController extends OrderController
 
         // 1. 回调参数/签名判定
 
+        Log::write("notify request:" . http_build_query($this->request));
         if ($this->request['status'] != 1) {
             $this->result_error( "status" );
             return;
@@ -49,46 +48,33 @@ class NotifyController extends OrderController
             return;
         }
 
-        $order = M('Order')->where(['pay_orderid' => $this->request['merchant_order_no']])->find();
-        if (!$order) {
-            $this->result_error('no order', $this->request);
-            return;
-        }
+//        $order = M('Order')->where(['pay_orderid' => $this->request['merchant_order_no']])->find();
+//        if (!$order) {
+//            $this->result_error('no order', $this->request);
+//            return;
+//        }
+//
+//        // 如果状态不为0 则直接返回ok
+//        if ($order['pay_status'] != 0) {
+//            exit('success');
+//        }
+//
+//        $pool = M('PoolPhones')->where(['id' => $order['pool_phone_id']])->find();
+//        if (!$pool) {
+//            $this->result_error('no pool info', $this->request);
+//            return;
+//        }
 
-        // 如果状态不为0 则直接返回ok
-        if ($order['pay_status'] != 0) {
-            exit('success');
-        }
+        Log::write(" Pay_Notify notify: " . http_build_query($this->request));
+        $this->EditMoney($this->request['merchant_order_no']);
+        exit('success');
+//        M()->startTrans();
+//        M('Order')->where(['id' => $order['id']])->save([
+//            'pay_status' => 1,
+//            'pay_successdate' => $this->timestamp,
+//        ]);
 
-        $pool = M('PoolPhones')->where(['id' => $order['pool_phone_id']])->find();
-        if (!$pool) {
-            $this->result_error('no pool info', $this->request);
-            return;
-        }
-
-        M()->startTrans();
-        M('Order')->where(['id' => $order['id']])->save([
-            'pay_status' => 1,
-            'pay_successdate' => $this->timestamp,
-        ]);
-
-        // #TODO 处理商户金额 ???
-
-        // 2. 验证订单情况
-                // 确定订单状态已处理 直接返回success
-        // 3. 订单状态修改为已处理
-
-        // 4. 保存号码商订单
-
-
-
-
-        // 5. 回调处理
-
-            // 第一次同步回调 然后处理订单状态
-
-
-        // 6. or 异步回调
+        
 
     }
 
@@ -96,14 +82,14 @@ class NotifyController extends OrderController
     protected function check()
     {
         return createSign(C('RPC_PHONE_MKEY'), [
-                'status'            => $this->result(['status']),
-                'msg'               => $this->result(['msg']),
-                'amount'            => $this->result(['amount']),
-                'merchant_order_no' => $this->result(['merchant_order_no']),
-                'no'                => $this->result(['no']),
-                'payment_time'      => $this->result(['payment_time']),
-                'pay_channel'       => $this->result(['pay_channel']),
-                'pay_channel_name'  => $this->result(['pay_channel_name']),
+                'status'            => $this->request['status'],
+                'msg'               => $this->request['msg'],
+                'amount'            => $this->request['amount'],
+                'merchant_order_no' => $this->request['merchant_order_no'],
+                'no'                => $this->request['no'],
+                'payment_time'      => $this->request['payment_time'],
+                'pay_channel'       => $this->request['pay_channel'],
+                'pay_channel_name'  => $this->request['pay_channel_name'],
             ]) === $this->request['sign'];
 
 

@@ -13,9 +13,11 @@ class PayController
 {
 
     protected $_site;
+    protected $timestamp;
 
     public function __construct()
     {
+        $this->timestamp = time();
         $this->_site = ((is_https()) ? 'https' : 'http') . '://' . C("DOMAIN") . '/';
     }
 
@@ -27,8 +29,8 @@ class PayController
 
     protected function result_error( $info , $with_log = false) {
         $data = [
-            'status'=> "error",
-            "message"  => $info,
+            'status'  => "error",
+            "message" => $info,
         ];
         if ($with_log) {
             if ( !is_string($with_log) ){
