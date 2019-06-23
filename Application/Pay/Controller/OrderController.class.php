@@ -303,16 +303,16 @@ class OrderController extends PayController
             // 商户充值金额变动
             $moneychange_data = [
                 'userid'     => $userid,
-                'ymoney'     => $ymoney, //原金额或原冻结资金
+                'ymoney'     => $ymoney ?: 0, //原金额或原冻结资金
                 'money'      => $actualAmount,
-                'gmoney'     => $gmoney, //改动后的金额或冻结资金
+                'gmoney'     => $gmoney ?: 0, //改动后的金额或冻结资金
                 'datetime'   => date('Y-m-d H:i:s'),
                 'tongdao'    => $product['id'],
                 'transid'    => $order_info['pay_orderid'],
                 'orderid'    => $order_info['out_trade_id'],
-                'contentstr' => $order_info['out_trade_id'] . '订单充值,结算方式：t+' . $order_info['t'],
+                'contentstr' => $order_info['out_trade_id'] . '订单充值,结算方式：t+' . ($order_info['t'] ?: 0),
                 'lx'         => 1,
-                't'          => $order_info['t'],
+                't'          => $order_info['t'] ?: 0,
             ];
 
             $moneychange_result = $this->MoenyChange($moneychange_data); // 资金变动记录
