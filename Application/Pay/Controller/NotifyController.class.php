@@ -38,7 +38,7 @@ class NotifyController extends OrderController
         // 1. 回调参数/签名判定
 
         Log::write("notify request:" . http_build_query($this->request));
-        if ($this->request['status'] != 1) {
+        if ($this->request['status'] != "Success") {
             $this->result_error( "status" );
             return;
         }
@@ -74,7 +74,7 @@ class NotifyController extends OrderController
 //            'pay_successdate' => $this->timestamp,
 //        ]);
 
-        
+
 
     }
 
