@@ -212,28 +212,28 @@ $product_name="测试订单";
 
         <label for="wxh5">
           <li class="pay_li pc_dis active" data_power_id="3000000021" data_product_id="3000000001">
-             <input value="901" checked="checked" name="channel" id="wxh5" type="radio">
+             <input value="wx_wap_pay" checked="checked" name="channel" id="wxh5" type="radio">
              <i class="i2"></i>
              <span>微信原生H5</span>
             </li>  </label>
 
         <label for="Aliwap">
           <li class="pay_li pc_dis" data_power_id="3000000011" data_product_id="3000000001">
-            <input value="902" name="channel" id="Aliwap" type="radio">
+            <input value="wx_scan_pay" name="channel" id="Aliwap" type="radio">
             <i class="i2"></i>
             <span>微信扫码</span>
           </li></label>
 
 	    <label for="Aliscan">
 		   <li class="pay_li" data_power_id="3000000011" data_product_id="3000000001">
-             <input value="903" name="channel" id="zfb" type="radio">
+             <input value="ali_scan_pay" name="channel" id="zfb" type="radio">
              <i class="i1"></i>
              <span>支付宝扫码</span>
            </li>  </label>
 
           <label for="Alish5">
               <li class="pay_li" data_power_id="3000000011" data_product_id="3000000001">
-                  <input value="904" name="channel" id="zfb" type="radio">
+                  <input value="ali_wap_pay" name="channel" id="zfb" type="radio">
                   <i class="i1"></i>
                   <span>支付宝H5</span>
               </li>  </label>
