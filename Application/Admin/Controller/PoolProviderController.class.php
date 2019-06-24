@@ -30,7 +30,7 @@ class PoolProviderController extends BaseController
 
             $data["name"] = $post['name'];
             $data["appkey"] = substr(md5($str), 8, 16);
-            $data["secret"] = md5($str);
+            $data["appsecret"] = md5($str);
             $data["create_time"]=time();
 
             $status = D('PoolProvider')->add($data);
@@ -67,7 +67,7 @@ class PoolProviderController extends BaseController
         }
         $str = $this->randomStr();
 
-        $data["secret"] = md5($str);
+        $data["appsecret"] = md5($str);
         $data["update_time"]=time();
         $data["id"]=$id;
 
