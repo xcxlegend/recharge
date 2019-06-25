@@ -10,8 +10,8 @@ return [
     'RPC_POOL_PHONE' => 'http://127.0.0.1:8080',
     'RPC_POOL_PHONE_SECRET' => 'af63e960f62aeb43ae26931471bcbf2c',
 
-    'RPC_PHONE_MID'  => '',
-    'RPC_PHONE_MKEY' => '',
+    'RPC_PHONE_MID'  => '2019828315',
+    'RPC_PHONE_MKEY' => 'a854278887892da7e3dadad7d7ae34f7',
 
     'ARTICLE_GROUP_ID'=>[
         '0'=>'平台可见',
