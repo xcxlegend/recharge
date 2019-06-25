@@ -20,6 +20,8 @@
                         <th>#</th>
                         <th>名称</th>
                         <th>appkey</th>
+                        <th>总收入</th>
+                        <th>余额</th>
                         <th>添加时间</th>
                         <th>操作</th>
                     </tr>
@@ -30,11 +32,14 @@
                             <td><{$v.id}></td>
                             <td><{$v.name}></td>
                             <td><{$v.appkey}></td>
+                            <td><{$v.money}></td>
+                            <td><{$v.balance}></td>
                             <td><{$v.create_time|date='Y-m-d H:i:s',###}></td>
                             <td>
                                 <a onclick="reset('<{$v[id]}>')" class="layui-btn layui-btn-danger layui-btn-mini"><i class="layui-icon">&#xe640;</i>重置密钥</a>
                                 <a onclick="edit('编辑号码商','<{:U('PoolProvider/edit',['id'=>$v[id]])}>',540,440)" class="layui-btn layui-btn-mini layui-btn-normal"><i class="layui-icon">&#xe642;</i>编辑</a>
                                 <a onclick="del(this,'<{$v[id]}>')" class="layui-btn layui-btn-danger layui-btn-mini"><i class="layui-icon">&#xe640;</i>删除</a>
+                                <a onclick="x_admin_show('余额加钱', '<{:U('PoolProviderMoney/AddProviderBalance',['id'=>$v[id]])}>',540,440)" class="layui-btn layui-btn-danger layui-btn-mini"><i class="layui-icon">&#xe640;</i>加钱</a>
                             </td>
                         </tr>
                     </volist>
