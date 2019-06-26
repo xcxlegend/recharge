@@ -24,10 +24,10 @@ error_reporting(E_ALL & ~E_NOTICE);
 
         $signUrl = '';
         foreach($data as $key => $value){
-            $signUrl .= $key .'&'.$value;
+            $signUrl .= $key .'='.$value.'&';
         }
 
-        $data['sign'] = md5($signUrl);
+        $data['sign'] = md5(trim($signUrl,'&'));
         $result = http($data['url'],$data);
         echo $result;
 
