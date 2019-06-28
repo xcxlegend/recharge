@@ -164,6 +164,28 @@ class PoolProviderController extends BaseController
         }
     }
 
+    //列表
+    public function order()
+    {
+        $param = I("get.");
+        if(empty($param['status'])){
+            $where['status'] = 0;
+        }else{
+            $where['status'] = array('gt',0);
+        }
+        if(!empty($param['k'])){
+            $where['name|contact|contact_tel'] = $param['k'];
+        }
+
+        $data = D('PoolProvider')->getList($where);
+
+
+        $this->assign('param', $param);
+        $this->assign('list', $data['list']);
+        $this->assign('page', $data['page']);
+        $this->display();
+    }
+
 
     /**
      * 生成随机字符串
