@@ -820,7 +820,6 @@ class OrderController extends PayController
 
     public function bufa()
     {
-
         header('Content-type:text/html;charset=utf-8');
         $TransID    = I("get.TransID");
         $PayName    = I("get.tongdao");
@@ -832,8 +831,23 @@ class OrderController extends PayController
         } else {
             echo "补发失败";
         }
-
     }
+
+    public function poolbufa() {
+        header('Content-type:text/html;charset=utf-8');
+        $id    = I("get.id");
+        $pool          = M("PoolRec")->find($id);
+        if (!$pool) {
+            exit('补发失败');
+        }
+        if ($pool['status'] == 0) {
+            echo ("订单号：" . $pool['order_id']  . "已补发服务器点对点通知，请稍后刷新查看结果！<a href='javascript:window.close();'>关闭</a>");
+            $this->sendPoolNotify($pool);
+        } else {
+            echo "补发失败";
+        }
+    }
+
 
     /**
      * 扫码订单状态检查
