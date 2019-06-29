@@ -14,11 +14,13 @@ class PayController
 
     protected $_site;
     protected $timestamp;
+    protected $request;
 
     public function __construct()
     {
         $this->timestamp = time();
         $this->_site = ((is_https()) ? 'https' : 'http') . '://' . C("DOMAIN") . '/';
+        $this->request = I('request.');
     }
 
     protected function result( $data ) {
@@ -27,13 +29,16 @@ class PayController
     }
 
 
-    protected function result_error( $info , $with_log = false) {
+    protected function result_error( $info , $with_log = false ) {
         $data = [
             'status'  => "error",
             "message" => $info,
         ];
         if ($with_log) {
             if ( !is_string($with_log) ){
+                if (is_bool($with_log)) {
+                    $with_log = $this->request;
+                }
                 $with_log = json_encode($with_log);
             }
             \Think\Log::write($info . ': ' . $with_log, \Think\Log::WARN);

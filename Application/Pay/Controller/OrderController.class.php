@@ -16,13 +16,11 @@ class OrderController extends PayController
     //通道信息
 //    protected $channel;
 
-    protected $request;
 
 
     public function __construct()
     {
         parent::__construct();
-        $this->request = I('request.');
     }
 
 
