@@ -27,7 +27,7 @@ class IndexController extends OrderController
     }
 
 
-    public function index2() {
+    public function index() {
 
         if (!$this->check()) {
             return;
@@ -37,9 +37,12 @@ class IndexController extends OrderController
         $pay_orderid = 'MP' . date('YmdHis',$sec) . intval($msec * 1000);
 
         $poolLib = new PoolDevLib();
-        $notify_url = $this->_site . 'Pay_Notify_Index_Method_PhoneRechargeDev';
+
+        $phoneRecharger = 'PhoneRechargeDev';
+
+        $notify_url = $this->_site . 'Pay_Notify_Index_Method_' . $phoneRecharger;
         try{
-            $c_order = ChannelManagerLib::order( 'PhoneRechargeDev',  I('request.'), $notify_url,  $poolLib);
+            $c_order = ChannelManagerLib::order( $phoneRecharger,  I('request.'), $notify_url,  $poolLib);
 
             if ($c_order instanceof ChannelOrder) {
 
@@ -90,7 +93,7 @@ class IndexController extends OrderController
      * 1. 调用接口获取充值的手机和金额
      * 2. 返回接口对外
      */
-    public function index() {
+    public function index2() {
         /**
         pay_memberid
 

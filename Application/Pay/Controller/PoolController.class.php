@@ -74,10 +74,17 @@ out_trade_id
             return;
         }
 
+
+        if (M('PoolPhones')->where(['out_trade_id' => $this->request['out_trade_id'], 'pid' => $provider['id']])->count()) {
+            $this->result_error("out_trade_id exist", $sign);
+            return;
+        }
+
         $data = $signArray;
         unset($data['appkey']);
         $data['pid'] = $provider['id'];
         $data['order_id'] = createUUID('PL');
+        $data['time'] = $this->timestamp;
 
         if (!M('PoolPhones')->add($data)){
             $this->result_error("save db error", true);

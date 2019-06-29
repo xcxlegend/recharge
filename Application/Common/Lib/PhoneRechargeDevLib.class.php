@@ -7,6 +7,7 @@
  */
 
 namespace Common\Lib;
+use Think\Exception;
 use \Think\Log;
 
 /**
@@ -49,8 +50,6 @@ class PhoneRechargeDevLib extends IPhoneRechagerLib
             "sign_type"         => 1,
         ];
 
-        var_dump($query);exit();
-
         $signData = $query;
 
         foreach ($signData as $key => $value) {
@@ -64,6 +63,7 @@ class PhoneRechargeDevLib extends IPhoneRechagerLib
         $data = json_decode($data, true);
         if ($data['code'] != 1) {
             Log::write(json_encode($data), Log::WARN);
+            throw new Exception($data['msg']);
             return false;
         }
 
@@ -71,6 +71,7 @@ class PhoneRechargeDevLib extends IPhoneRechagerLib
     }
     // 查询订单
     public function query( $pay_orderid ) {}
+
     // 回调验证并且返回transID
     public function notify( array $request ) {
 
