@@ -437,3 +437,14 @@ function get_column($array,$type=1,$fid=0,$level=0)
 
     return $column;
 }
+
+//格式化金额
+function format_money($money)
+{
+    if(!empty($money)){
+        return substr($money,0,strlen($money)-2).'.'. substr($money, -2);
+    }else{
+        return '0.00';
+    }
+     
+}

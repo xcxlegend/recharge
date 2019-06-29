@@ -168,22 +168,85 @@ class PoolProviderController extends BaseController
     public function order()
     {
         $param = I("get.");
-        if(empty($param['status'])){
-            $where['status'] = 0;
-        }else{
-            $where['status'] = array('gt',0);
+       
+        $where['a.pid'] = $param['id'];
+        if(!empty($param['pay_memberid'])){
+            $where['b.pay_memberid'] = $param['pay_memberid'];
         }
-        if(!empty($param['k'])){
-            $where['name|contact|contact_tel'] = $param['k'];
+        if(!empty($param['order_id'])){
+            $where['a.order_id'] = $param['order_id'];
+        }
+        if(!empty($param['trade_id'])){
+            $where['b.trade_id'] = $param['trade_id'];
+        }
+        if(!empty($param['phone'])){
+            $where['a.phone'] = $param['phone'];
+        }
+        if(!empty($param['create_time'])){
+            $where['b.pay_applydate'] = $param['pay_applydate'];
+            list($stime, $etime)  = explode('|', $param['create_time']);
+            $where['b.pay_applydate'] = ['between', [strtotime($stime), strtotime($etime) ? strtotime($etime) : time()]];
+        }
+        if(!empty($param['money'])){
+            $where['a.money'] = $param['money']*100;//分
+        }
+        if(!empty($param['sp'])){
+            $where['a.sp'] = $param['sp'];
+        }
+        if(isset($param['status'])){
+            $where['a.status'] = $param['status'];
         }
 
-        $data = D('PoolProvider')->getList($where);
+        $data = D('PoolProviderSuccess')->getList($where);
+        
 
+        //交易总额
+        $totalWhere['pid'] = $param['id'];
+        $money['total'] = D('PoolProviderSuccess')->field('sum(`money`) as money')->where($totalWhere)->find();
+
+        //上月
+        $monthWhere['month'] = date('m',strtotime('last month'));
+        $monthWhere['pid'] = $param['id'];
+        $money['month'] = D('PoolProviderSuccess')->field('sum(`money`) as money')->where($monthWhere)->find();
+
+        //上周
+        $sWeek =  date("Y-m-d H:i:s",mktime(0, 0 , 0,date("m"),date("d")-date("w")+1-7,date("Y")));
+        $eweek =  date("Y-m-d H:i:s",mktime(23,59,59,date("m"),date("d")-date("w")+7-7,date("Y")));
+        $weekWhere['time'] = ['between', [strtotime($sWeek), strtotime($eweek)]];
+        $weekWhere['pid'] = $param['id'];
+        $money['week'] = D('PoolProviderSuccess')->field('sum(`money`) money')->where($weekWhere)->find();
+        //今日
+        $todayWhere['day'] = date("d");
+        $todayWhere['pid'] = $param['id'];
+        $money['today'] = D('PoolProviderSuccess')->field('sum(`money`) as money')->where($todayWhere)->find();
+
+        //成功总额
+        $money['success_total'] = D('PoolProviderSuccess')->field('sum(`money`) as money')->where($totalWhere)->find();
+
+        //今日成功总额
+        $money['success_today'] = D('PoolProviderSuccess')->field('sum(`money`) as money')->where($todayWhere)->find();
+
+        //订单总量
+        $money['total']['count'] = D('PoolProviderSuccess')->where($totalWhere)->count();
+
+        //今日订单量
+        $money['today']['count'] = D('PoolProviderSuccess')->where($todayWhere)->count();
+
+        //成功订单总量
+        $money['success_total']['count'] = D('PoolProviderSuccess')->where($totalWhere)->count();
+
+        //今日成功总量
+        $money['success_today']['count'] = D('PoolProviderSuccess')->where($todayWhere)->count();
+
+        $sp_list = array('1'=>'移动','2'=>'联通','3'=>'电信');
 
         $this->assign('param', $param);
+        $this->assign('count', $money);
+        $this->assign('sp_list', $sp_list);
         $this->assign('list', $data['list']);
         $this->assign('page', $data['page']);
         $this->display();
+
     }
 
 

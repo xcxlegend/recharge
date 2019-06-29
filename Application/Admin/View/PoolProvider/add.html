@@ -10,6 +10,26 @@
         </div>
       </div>
       <div class="layui-form-item">
+            <label class="layui-form-label">联系人：</label>
+            <div class="layui-input-inline">
+                <input type="text" name="contact" lay-verify="required" placeholder="请输入联系人" autocomplete="off"  id="name" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">联系电话：</label>
+            <div class="layui-input-inline">
+                <input type="text" name="contact_tel"  lay-verify="required" placeholder="请输入联系人电话" autocomplete="off"  id="name" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">状态：</label>
+            <div class="layui-col-md12">  
+                <input type="radio" name="status" value="1" title="已认证" checked>
+                <input type="radio" name="status" value="0" title="未认证" >
+                <input type="radio" name="status" value="2" title="已关闭" >
+            </div>
+        </div>
+      <div class="layui-form-item">
         <div class="layui-input-block">
           <button class="layui-btn" lay-submit lay-filter="info">立即提交</button>
           <button type="reset" class="layui-btn layui-btn-primary">重置</button>
