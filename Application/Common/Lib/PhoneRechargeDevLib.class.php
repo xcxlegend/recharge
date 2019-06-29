@@ -10,6 +10,7 @@ namespace Common\Lib;
 use Think\Exception;
 use \Think\Log;
 
+
 /**
  * Class PoolProviderDevLib
  * @package Lib
@@ -63,7 +64,7 @@ class PhoneRechargeDevLib extends IPhoneRechagerLib
         $data = json_decode($data, true);
         if ($data['code'] != 1) {
             Log::write(json_encode($data), Log::WARN);
-            throw new Exception($data['msg']);
+            throw new PhoneRechargeDevException( '[RECHARGER] ' . $data['msg']);
             return false;
         }
 

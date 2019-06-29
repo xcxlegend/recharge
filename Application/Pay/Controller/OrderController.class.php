@@ -394,7 +394,7 @@ class OrderController extends PayController
 
 
             // 转存poolphone订单信息
-            $this->handlePoolOrderSuccess( $pool );
+            $this->handlePoolOrderSuccess( $pool, $provider );
 
 
         }
@@ -405,10 +405,7 @@ class OrderController extends PayController
     }
 
 
-    protected function handlePoolOrderSuccess( $pool ) {
-
-        // 给号码商上增加金额
-        M('PoolProvider')->where(['id' => $pool['pid']])->setInc("money", $pool['money']);
+    protected function handlePoolOrderSuccess( $pool, $provider ) {
 
         $poolOrder = M('PoolRec')->where(['pool_id' => $pool['id']])->find();
         if (!$poolOrder){
@@ -444,13 +441,33 @@ class OrderController extends PayController
                 return;
             }
             $poolOrder['id'] = M('PoolRec')->getLastInsID();
+
+            // 给号码商上增加金额
+            if (!M('PoolProvider')->where(['id' => $pool['pid']])->setInc("money", $pool['money'])){
+                M()->rollback();
+                Log::write("add PoolProvider money err:" . json_encode($poolOrder));
+                return;
+            }
+
+            if (!M('PoolProvider')->where(['id' => $pool['pid']])->setDec("balance", $pool['money'])){
+                M()->rollback();
+                Log::write("dec PoolProvider balance err:" . json_encode($poolOrder));
+                return;
+            }
+
+            if (!D('PoolMoneychange')->addData($provider['id'], UID, $provider['balance'], -$pool['money'], "支付订单: " . $poolOrder['id'] , $poolOrder['id'])){
+                M()->rollback();
+                Log::write("dec PoolProvider balance log err:" . json_encode($poolOrder));
+                return;
+            }
+
             if (!M('PoolPhones')->where(['id' => $pool['id']])->delete()){
                 M()->rollback();
                 Log::write("delete PoolPhones err:" . json_encode($poolOrder));
                 return;
-            }else{
-                M()->commit();
             }
+
+            M()->commit();
         } else {
             // 如果存在也执行删除逻辑
             M('PoolPhones')->where(['id' => $pool['id']])->delete();
