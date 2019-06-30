@@ -26,6 +26,138 @@ class OrderController extends BaseController
         parent::__construct();
     }
 
+    //列表
+    public function lists()
+    {
+        $param = I("get.");
+        if(!empty($param['pay_memberid'])){
+            $where['pay_memberid'] = $param['pay_memberid'];
+        }
+        if(!empty($param['order_id'])){
+            $where['order_id'] = $param['order_id'];
+        }
+        if(!empty($param['trade_id'])){
+            $where['trade_id'] = $param['trade_id'];
+        }
+        if(!empty($param['phone'])){
+            $where['phone'] = $param['phone'];
+        }
+        if(!empty($param['create_time'])){
+            $where['pay_applydate'] = $param['pay_applydate'];
+            list($stime, $etime)  = explode('|', $param['create_time']);
+            $where['pay_applydate'] = ['between', [strtotime($stime), strtotime($etime) ? strtotime($etime) : time()]];
+        }
+        if(!empty($param['money'])){
+            $where['pay_actualamount'] = $param['money']*100;//分
+        }
+        if(!empty($param['sp'])){
+            $where['sp'] = $param['sp'];
+        }
+        if(is_numeric($param['pay_status'])){
+            $where['pay_status'] = $param['status'];
+        }
+
+        
+
+        if(!empty($param['export'])){
+            
+            $data = M('Order')->where($where)->order('id DESC')->select();
+            $list = array();
+            foreach ($data as $item) {
+                switch ($item['status']) {
+                    case 0:
+                        $status = '未支付';
+                        break;
+                    case 1:
+                        $status = '已支付，未返回';
+                        break;
+                    case 2:
+                        $status = '已支付，已返回';
+                        break;
+                }
+
+                $list[] = array(
+                    'order_id'    => $item['pay_orderid'],
+                    'trade_id'      => $item['trade_id'],
+                    'out_trade_id'    => $item['out_trade_id'],
+                    'pay_memberid'    => $item['pay_memberid'],
+                    'pay_actualamount'      => $item['pay_actualamount'],
+                    'sp'      => '',
+                    'pay_name'      => $item['pay_bankname'],
+                    'pay_applydate'      =>date('Y-m-d H:i:s',$item['pay_applydate']),
+                    'pay_successdate'      => date('Y-m-d H:i:s',$item['pay_successdate']),
+                    'status'  => $status,
+                );
+            }
+            $title = array('平台订单号', '充值流水号', '商户订单号','商户ID', '金额', '运营商', '支付方式', '创建时间', '成功时间', '状态');
+            exportexcel($list, $title);
+            exit;
+            
+        }
+
+        
+
+        $count = M('Order')->where($where)->count();
+        $page = new \Think\Page($count, 20);
+        $list = M('Order')->where($where)->limit($page->firstRow, $page->listRows)->select();
+        $data = array(
+            'list' => $list,
+            'page' => $page->show(),
+        );
+
+        
+
+        //交易总额
+        $money['total'] = M('Order')->field('sum(`money`) as money')->find();
+        //订单总量
+        $money['total']['count'] = M('Order')->count();
+
+        //上月
+        $monthWhere['month'] = date('m',strtotime('last month'));
+        $money['month'] = M('Order')->field('sum(`money`) as money')->where($monthWhere)->find();
+
+        //上周
+        $sWeek =  date("Y-m-d H:i:s",mktime(0, 0 , 0,date("m"),date("d")-date("w")+1-7,date("Y")));
+        $eweek =  date("Y-m-d H:i:s",mktime(23,59,59,date("m"),date("d")-date("w")+7-7,date("Y")));
+        $weekWhere['time'] = ['between', [strtotime($sWeek), strtotime($eweek)]];
+        $money['week'] = M('Order')->field('sum(`money`) money')->where($weekWhere)->find();
+        //今日
+        $todayWhere['day'] = date("d");
+        $money['today'] = M('Order')->field('sum(`money`) as money')->where($todayWhere)->find();
+        //今日订单量
+        $money['today']['count'] = M('Order')->where($todayWhere)->count();
+
+        //成功总额
+        $totalWhere['pay_status'] =array('gt',0);
+        $money['success_total'] = M('Order')->field('sum(`money`) as money')->where($totalWhere)->find();
+        //成功订单总量
+        $money['success_total']['count'] = M('Order')->where($totalWhere)->count();
+
+        //今日成功总额
+        $todayWhere['pay_status'] =array('gt',0);
+        $money['success_today'] = M('Order')->field('sum(`money`) as money')->where($todayWhere)->find();
+        //今日成功总量
+        $money['success_today']['count'] = M('Order')->where($todayWhere)->count();
+
+        
+
+        $this->assign('param', $param);
+        $this->assign('count', $money);
+        $this->assign('sp_list', $sp_list);
+        $this->assign('list', $data['list']);
+        $this->assign('page', $data['page']);
+        $this->display();
+    }
+
+
+    public function info()
+    {
+        $id = I("get.id");
+        $info = M('Order')->where(['id'=>$id])->find();
+        $this->assign('info', $info);
+        $this->display();
+    }
+
     /**
      * 订单列表
      */

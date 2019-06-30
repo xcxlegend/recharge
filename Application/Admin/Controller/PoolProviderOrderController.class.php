@@ -36,9 +36,48 @@ class PoolProviderOrderController extends BaseController
         if(!empty($param['sp'])){
             $where['a.sp'] = $param['sp'];
         }
-        if(isset($param['status'])){
+        if(is_numeric($param['status'])){
             $where['a.status'] = $param['status'];
         }
+
+        $sp_list = array('1'=>'移动','2'=>'电信','3'=>'联通');
+
+        if(!empty($param['export'])){
+            
+            $data = D('PoolProviderSuccess')->getAllList($where);
+            $list = array();
+            foreach ($data as $item) {
+                switch ($item['status']) {
+                    case 0:
+                        $status = '未回调';
+                        break;
+                    case 1:
+                        $status = '回调成功';
+                        break;
+                }
+
+                $list[] = array(
+                    'order_id'    => $item['order_id'],
+                    'trade_id'      => $item['trade_id'],
+                    'pool_order_id'     => $item['pool_order_id'],
+                    'pay_memberid'    => $item['pay_memberid'],
+                    'pid'    => $item['pid'],
+                    'phone'    => $item['phone'],
+                    'money'      => $item['money'],
+                    'sp'      => $sp_list[$item['sp']],
+                    'pay_name'      => $item['pay_name'],
+                    'pay_applydate'      =>date('Y-m-d H:i:s',$item['pay_applydate']),
+                    'pay_successdate'      => date('Y-m-d H:i:s',$item['pay_successdate']),
+                    'status'  => $status,
+                    'time'      => date('Y-m-d H:i:s',$item['time']),
+                );
+            }
+            $title = array('平台订单号', '充值流水号', '商户订单号','商户ID', '号码商ID', '手机号', '金额', '运营商', '支付方式', '创建时间', '成功时间', '状态', '添加时间');
+            exportexcel($list, $title);
+            exit;
+            
+        }
+
         $data = D('PoolProviderSuccess')->getList($where);
         
 
@@ -58,11 +97,6 @@ class PoolProviderOrderController extends BaseController
         $todayWhere['day'] = date("d");
         $money['today'] = D('PoolProviderSuccess')->field('sum(`money`) as money')->where($todayWhere)->find();
 
-        //成功总额
-        $money['success_total'] = D('PoolProviderSuccess')->field('sum(`money`) as money')->find();
-
-        //今日成功总额
-        $money['success_today'] = D('PoolProviderSuccess')->field('sum(`money`) as money')->where($todayWhere)->find();
 
         //订单总量
         $money['total']['count'] = D('PoolProviderSuccess')->count();
@@ -70,13 +104,8 @@ class PoolProviderOrderController extends BaseController
         //今日订单量
         $money['today']['count'] = D('PoolProviderSuccess')->where($todayWhere)->count();
 
-        //成功订单总量
-        $money['success_total']['count'] = D('PoolProviderSuccess')->count();
 
-        //今日成功总量
-        $money['success_today']['count'] = D('PoolProviderSuccess')->where($todayWhere)->count();
-
-        $sp_list = array('1'=>'移动','2'=>'联通','3'=>'电信');
+        
 
         $this->assign('param', $param);
         $this->assign('count', $money);

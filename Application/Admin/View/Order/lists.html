@@ -3,11 +3,11 @@
     <div class="col-md-12">
         <div class="ibox float-e-margins">
             <div class="ibox-title">
-                <h5>话充订单管理</h5>
+                <h5>订单管理</h5>
             </div>
 
             <div class="ibox-content">
-                    <form class="layui-form" action="" method="get" autocomplete="off" id="sform">
+                    <form class="layui-form" action="" method="get" autocomplete="off">
                         <input type="hidden" name="p" value="1">
                         <div class="layui-form-item">
                         <div class="layui-inline">
@@ -49,8 +49,9 @@
                             <div class="layui-input-inline">
                               <select name="status">
                                 <option value="">全部状态</option>
-                                <option <if condition="$param['status'] neq '' && $status eq 0">selected</if> value="0">未回调</option>
-                                <option <if condition="$param['status'] eq 1">selected</if> value="1">回调完成</option>
+                                <option <if condition="$param['status'] neq '' && $status eq 0">selected</if> value="0">未支付</option>
+                                <option <if condition="$param['status'] eq 1">selected</if> value="1">已支付，未返回</option>
+                                <option <if condition="$param['status'] eq 2">selected</if> value="2">已支付，已返回</option>
                               </select>
                             </div>
                           
@@ -71,11 +72,16 @@
                             上月总额：<span class="label label-info"><{$count.month.money|format_money}>元</span>
                            上周总额：<span class="label label-info"><{$count.week.money|format_money}>元</span>
                            今日总额：<span class="label label-info"><{$count.today.money|format_money}>元</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    
+                           成功交易总额：<span class="label label-info"><{$count.success_total.money|format_money}>元</span>  
+                            今日总额：<span class="label label-info"><{$count.success_today.money|format_money}>元</span>
                         </blockquote>
     
                       <blockquote class="layui-elem-quote" style="font-size:14px;padding;8px;">
                           订单总量：<span class="label label-info"><{$count.total.count}></span> 
                          今日订单量：<span class="label label-info"><{$count.today.count}></span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                         成功订单总量：<span class="label label-info"><{$count.success_total.count}></span> 
+                         今日成功订单量：<span class="label label-info"><{$count.success_today.count}></span>
                       </blockquote>
     
     
@@ -88,44 +94,36 @@
                                 <th lay-data="{field:'pay_orderid2', width:200}">充值流水号</th>
                                 <th lay-data="{field:'pay_orderid3', width:150}">商户订单号</th>
                                 <th lay-data="{field:'pay_orderid4', width:80}">商户ID</th>
-                                <th lay-data="{field:'pay_orderid5', width:100}">号码商ID</th>
-                                <th lay-data="{field:'pay_orderid6', width:150}">手机号</th>
-                                <th lay-data="{field:'pay_orderid7', width:80,style:'color:#C00;'}">金额</th>
+                                <th lay-data="{field:'pay_orderid7', width:100,style:'color:#C00;'}">金额</th>
                                 <th lay-data="{field:'pay_orderid8', width:100}">运营商</th>
                                 <th lay-data="{field:'pay_orderid9', width:100}">支付方式</th>
                                 <th lay-data="{field:'pay_orderid10', width:180}">创建时间</th>
                                 <th lay-data="{field:'pay_orderid11', width:180}">成功时间</th>
-                                <th lay-data="{field:'pay_orderid12', width:100}">状态</th>
-                                <th lay-data="{field:'pay_orderid13', width:180}">添加时间</th>
-                                <th lay-data="{field:'pay_orderid14', width:180}">操作</th>
+                                <th lay-data="{field:'pay_orderid12', width:180}">状态</th>
+                                <th lay-data="{field:'pay_orderid14', width:250}">操作</th>
                             </tr>
                             </thead>
                             <tbody>
                             <volist name="list" id="v">
                                 <tr>
                                     <td><{$v.id}></td>
-                                    <td><{$v.order_id}></td>
+                                    <td><{$v.pay_orderid}></td>
                                     <td><{$v.trade_id}></td>
-                                    <td><{$v.pool_order_id}></td>
+                                    <td><{$v.out_trade_id}></td>
                                     <td><{$v.pay_memberid}></td>
-                                    <td><{$v.pid}></td>
-                                    <td><{$v.phone}></td>
-                                    <td><{$v.money|format_money}></td>
-                                    <td><{$sp_list[$v['sp']]}></td>
+                                    <td><{$v.pay_actualamount}></td>
+                                    <td></td>
                                     <td><{$v.pay_name}></td>
                                     <td><{$v.pay_applydate|date='Y-m-d H:i:s',###}></td>
                                     <td><{$v.pay_successdate|date='Y-m-d H:i:s',###}></td>
                                     <td>
-                                        <if condition="$v.status eq 0 ">未回调
-                                            <else /> 回调成功
-                                            </if>
+                                        <if condition="$v.pay_status eq 0 ">未支付
+                                            <elseif condition="$v.pay_status eq 1"/>已支付，未返回
+                                            <else />已支付，已返回
+                                        </if>
                                     </td>
-                                    <td><{$v.time|date='Y-m-d H:i:s',###}></td>
                                     <td>
-                                        
-                                        <a onclick="reNotice('<{$v[id]}>')" class="layui-btn layui-btn-danger layui-btn-mini">补发通知</a>
-                                        <!-- <a onclick="x_admin_show('余额加钱', '<{:U('PoolProviderMoney/AddProviderBalance',['id'=>$v[id]])}>',540,440)" class="layui-btn layui-btn-danger layui-btn-mini"><i class="layui-icon">&#xe640;</i>补单</a> -->
-                                        <a href="<{:U('PoolProviderOrder/info',['id'=>$v[id]])}>" class="layui-btn layui-btn-mini layui-btn-success">订单详情</a>
+                                        <a href="<{:U('Order/info',['id'=>$v[id]])}>" class="layui-btn layui-btn-mini layui-btn-success">订单详情</a>
                                     </td>
                                 </tr>
                             </volist>
@@ -148,19 +146,6 @@
         x_admin_show(title,url,w,h);
     }
 
-    function reNotice(id) {
-        layer.confirm('确认要补发通知吗？',function(index){
-            $.ajax({
-                url:"<{:U('Pay/Order/poolbufa')}>",
-                type:'get',
-                data:'id='+id,
-                success:function(res){
-                    layer.msg('补发申请已发出，请稍候刷新查看结果!',{icon:1,time:1000});
-                }
-            });
-        });
-    }
-
 
     layui.use(['laydate', 'laypage', 'layer', 'table', 'form'], function() {
         var laydate = layui.laydate //日期
@@ -176,7 +161,6 @@
             , range: '|'
         });
     });
-
 </script>
 </body>
 </html>
