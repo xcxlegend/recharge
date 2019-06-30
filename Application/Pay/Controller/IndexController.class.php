@@ -16,6 +16,7 @@ class IndexController extends OrderController
 
     protected $member;
     protected $product;
+    protected $channel;
     protected static $RPC_PHONE_URL;
 
     const RPC_ORDER_API = "/v1/order/pay";
@@ -36,13 +37,18 @@ class IndexController extends OrderController
         list($msec, $sec) = explode(' ', microtime());
         $pay_orderid = 'MP' . date('YmdHis',$sec) . intval($msec * 1000);
 
-        $poolLib = new PoolDevLib();
+//        $poolLib = new PoolDevLib();
 
-        $phoneRecharger = 'PhoneRechargeDev';
+//        $phoneRecharger = 'PhoneRechargeDev';
 
-        $notify_url = $this->_site . 'Pay_Notify_Index_Method_' . $phoneRecharger;
+        if (!$this->checkChannel()) {
+            return;
+        }
+        $notify_url = $this->_site . 'Pay_Notify_Index_Method_' . $this->channel['code'];
+
+        $manager = new ChannelManagerLib( $this->channel );
         try{
-            $c_order = ChannelManagerLib::order( $phoneRecharger,  I('request.'), $notify_url,  $poolLib);
+            $c_order = $manager->order( I('request.'), $notify_url);
 
             if ($c_order instanceof ChannelOrder) {
 
@@ -80,7 +86,8 @@ class IndexController extends OrderController
             throw new Exception("支付Lib返回信息错误");
         } catch(Exception $e){
             Log::write($e->getMessage());
-            $poolLib->reset();
+            $manager->reset();
+//            $c_order->reset();
             $this->result_error($e->getMessage());
 //            $this->result_error('订单生成失败');
             return;
@@ -341,6 +348,24 @@ class IndexController extends OrderController
         return $data['data'];
     }
 
+    protected function checkChannel() {
+        $cid  = M('ProductUser')->where(
+            [
+                'userid' => $this->member['id'],
+                'pid' => $this->product['id']
+            ]
+        )->find();
+        if (!$cid) {
+            $this->result_error("商户未设置支付渠道", true);
+            return false;
+        }
+        $this->channel = M('Channel')->find($cid);
+        if (!$this->channel) {
+            $this->result_error("商户未设置支付渠道", true);
+            return false;
+        }
+        return true;
+    }
 
 
 

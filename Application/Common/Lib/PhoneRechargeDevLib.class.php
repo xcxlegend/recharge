@@ -23,6 +23,7 @@ use \Think\Log;
 
 class PhoneRechargeDevLib extends IPhoneRechagerLib
 {
+
     const API_URL = "http://148.70.91.219/api/reptile/pay.html";
     const MID = "2019828315";
     const SECRET = "a854278887892da7e3dadad7d7ae34f7";
@@ -34,7 +35,13 @@ class PhoneRechargeDevLib extends IPhoneRechagerLib
     ];
 
     // 请求订单
-    public function order( array $params, $notify ) {
+    public function order( array $params, $gateway, $notify ) {
+        if (!$gateway){
+            $gateway = self::API_URL;
+        }
+
+        $this->poolQuery(new PoolDevLib(), $params);
+
         $pool = $params['pool'] ?: [];
         $phone = $pool['phone'];
 
@@ -60,7 +67,7 @@ class PhoneRechargeDevLib extends IPhoneRechagerLib
         }
 
         $query['sign'] = createSign( self::SECRET, $signData );
-        $data = sendForm(self::API_URL, $query);
+        $data = sendForm($gateway, $query);
         $data = json_decode($data, true);
         if ($data['code'] != 1) {
             Log::write(json_encode($data), Log::WARN);

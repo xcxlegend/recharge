@@ -13,6 +13,18 @@ namespace Common\Lib;
 abstract class IPhoneRechagerLib implements IChannelLib
 {
 
+    protected $poolMgr;
+
+    public function poolQuery( IPoolLib $poolMgr,  array &$param) {
+        $this->poolMgr = $poolMgr;
+        $poolMgr->query($param);
+    }
+
+    public function reset() {
+        if ($this->poolMgr) {
+            $this->poolMgr->reset();
+        }
+    }
 
 }
 
