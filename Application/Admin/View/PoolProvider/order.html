@@ -8,38 +8,35 @@
 
             <div class="ibox-content">
                     <form class="layui-form" action="" method="get" autocomplete="off">
-                        <input type="hidden" name="m" value="<{$model}>">
-                        <input type="hidden" name="c" value="Order">
-                        <input type="hidden" name="a" value="index" id="action">
+
                         <input type="hidden" name="p" value="1">
                         <div class="layui-form-item">
                         <div class="layui-inline">
                             <div class="layui-input-inline">
-                              <input type="text" name="payorderid" autocomplete="off" placeholder="请输入平台订单号"
-                                     class="layui-input" value="<{$payOrderid}>">
+                            <input type="text" name="order_id" autocomplete="off" placeholder="请输入平台订单号"
+                                    class="layui-input" value="<{$param.order_id}>">
                             </div>
-              
+            
                             <div class="layui-input-inline">
-                              <input type="text" name="orderid" autocomplete="off" placeholder="充值流水号"
-                                     class="layui-input" value="<{$orderid}>">
+                            <input type="text" name="trade_id" autocomplete="off" placeholder="充值流水号"
+                                    class="layui-input" value="<{$param.trade_id}>">
                             </div>
                             <div class="layui-input-inline">
-                                <input type="text" name="orderid" autocomplete="off" placeholder="手机号"
-                                       class="layui-input" value="<{$orderid}>">
-                              </div>
-              
+                                <input type="text" name="phone" autocomplete="off" placeholder="手机号"
+                                        class="layui-input" value="<{$param.phone}>">
+                            </div>
+            
                             <div class="layui-input-inline" style="width:300px">
-                              <input type="text" class="layui-input" name="createtime" id="createtime"
-                                     placeholder="创建起始时间" value="<{$createtime}>">
+                            <input type="text" class="layui-input" name="create_time" id="create_time"
+                                    placeholder="创建起始时间" value="<{$param.create_time}>">
                             </div>
+
                             <div class="layui-input-inline">
-                              <select name="status">
+                            <select name="status">
                                 <option value="">全部状态</option>
-                                <option <if condition="$status neq '' && $status eq 0">selected</if> value="0">未处理</option>
-                                <option <if condition="$status eq 1">selected</if> value="1">成功，未返回</option>
-                                <option <if condition="$status eq 2">selected</if> value="2">成功，已返回</option>
-                                <option <if condition="$status eq '1or2'">selected</if> value="1or2">成功，已/未返回</option>
-                              </select>
+                                <option <if condition="$param['status'] neq '' && $status eq 0">selected</if> value="0">未回调</option>
+                                <option <if condition="$param['status'] eq 1">selected</if> value="1">回调完成</option>
+                            </select>
                             </div>
                           
               
@@ -48,29 +45,26 @@
                                         class="glyphicon glyphicon-search"></span> 搜索
                                 </button>
                                 <a href="javascript:;" id="export" class="layui-btn layui-btn-danger"><span class="glyphicon glyphicon-export"></span> 导出</a>
-                                <eq name="isrootadmin"  value="true">
-                                <a href="javascript:;" id="delorder" onclick="chooseOrder_del()" class="layui-btn layui-btn-danger"><span class="glyphicon glyphicon-trash"></span> 选择删除无效订单</a>
-                                </eq>
                             </div>
                         </div>
                         </div>
                       </form>
            
                       <blockquote class="layui-elem-quote" style="font-size:14px;padding;8px;">
-                            交易总额：<span class="label label-info"><{$stat.todaysum}>元</span>  
-                            上月总额：<span class="label label-info"><{$stat.platform}>元</span>
-                           上周总额：<span class="label label-info"><{$stat.agentIncome}>元</span>
-                           今日总额：<span class="label label-info"><{$stat.agentIncome}>元</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            交易总额：<span class="label label-info"><{$count.total.money|format_money}>元</span>  
+                            上月总额：<span class="label label-info"><{$count.month.money|format_money}>元</span>
+                           上周总额：<span class="label label-info"><{$count.week.money|format_money}>元</span>
+                           今日总额：<span class="label label-info"><{$count.today.money|format_money}>元</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
     
-                           成功交易总额：<span class="label label-info"><{$stat.monthsum}>元</span>  
-                            今日总额：<span class="label label-info"><{$stat.monthPlatform}>元</span>
+                           成功交易总额：<span class="label label-info"><{$count.success_total.money|format_money}>元</span>  
+                            今日总额：<span class="label label-info"><{$count.success_today.money|format_money}>元</span>
                         </blockquote>
     
                       <blockquote class="layui-elem-quote" style="font-size:14px;padding;8px;">
-                          订单总量：<span class="label label-info"><{$stamount}>元</span> 
-                         今日订单量：<span class="label label-info"><{$strate}>元</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                         成功订单总量：<span class="label label-info"><{$stamount}>元</span> 
-                         今日成功订单量：<span class="label label-info"><{$strate}>元</span>
+                          订单总量：<span class="label label-info"><{$count.total.count}></span> 
+                         今日订单量：<span class="label label-info"><{$count.today.count}></span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                         成功订单总量：<span class="label label-info"><{$count.success_total.count}></span> 
+                         今日成功订单量：<span class="label label-info"><{$count.success_today.count}></span>
                       </blockquote>
     
     
@@ -78,6 +72,7 @@
                         <table class="layui-table" lay-data="{width:'100%'}">
                             <thead>
                             <tr>
+                                
                                 <th lay-data="{field:'pay_orderid', width:60}">#</th>
                                 <th lay-data="{field:'pay_orderid1', width:150}">平台订单号</th>
                                 <th lay-data="{field:'pay_orderid2', width:200}">充值流水号</th>
@@ -95,27 +90,19 @@
                             <volist name="list" id="v">
                                 <tr>
                                     <td><{$v.id}></td>
-                                    <td><{$v.name}></td>
-                                    <td><{$v.contact}></td>
-                                    <td><{$v.contact_tel}></td>
-                                    <td><{$v.appkey}></td>
+                                    <td><{$v.order_id}></td>
+                                    <td><{$v.trade_id}></td>
+                                    <td><{$v.pool_order_id}></td>
+                                    <td><{$v.phone}></td>
                                     <td><{$v.money}></td>
-                                    <td>联通</td>
-                                    <td>微信支付</td>
-                                    <td><{$v.create_time|date='Y-m-d H:i:s',###}></td>
-                                    <td><{$v.create_time|date='Y-m-d H:i:s',###}></td>
+                                    <td><{$sp_list[$v['sp']]}></td>
+                                    <td><{$v.pay_name}></td>
+                                    <td><{$v.pay_applydate|date='Y-m-d H:i:s',###}></td>
+                                    <td><{$v.pay_successdate|date='Y-m-d H:i:s',###}></td>
                                     <td>
-                                        <if condition="$v.status eq 0 ">未认证
-                                                <elseif condition="$v.status eq 1"/>正常
-                                            <else /> 已关闭
+                                        <if condition="$v.status eq 0 ">未回调
+                                            <else /> 回调成功
                                             </if>
-                                    </td>
-                                    <td><{$v.create_time|date='Y-m-d H:i:s',###}></td>
-                                    <td>
-                                        
-                                        <a onclick="reset('<{$v[id]}>')" class="layui-btn layui-btn-danger layui-btn-mini"><i class="layui-icon">&#xe640;</i>补发通知</a>
-                                        <a onclick="x_admin_show('余额加钱', '<{:U('PoolProviderMoney/AddProviderBalance',['id'=>$v[id]])}>',540,440)" class="layui-btn layui-btn-danger layui-btn-mini"><i class="layui-icon">&#xe640;</i>补单</a>
-                                        <a onclick="info('订单详情','<{:U('PoolProviderOrder/info',['id'=>$v[id]])}>',400,540)" class="layui-btn layui-btn-mini layui-btn-success">订单详情</a>
                                     </td>
                                 </tr>
                             </volist>
