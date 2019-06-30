@@ -1,6 +1,10 @@
 <?php
 namespace Pay\Controller;
-
+use Common\Lib\ChannelOrder;
+use Think\Exception;
+use \Think\Log;
+use Common\Lib\ChannelManagerLib;
+use Common\Lib\PoolDevLib;
 
 /**
  * Class IndexController
@@ -23,12 +27,73 @@ class IndexController extends OrderController
     }
 
 
+    public function index() {
+
+        if (!$this->check()) {
+            return;
+        }
+
+        list($msec, $sec) = explode(' ', microtime());
+        $pay_orderid = 'MP' . date('YmdHis',$sec) . intval($msec * 1000);
+
+        $poolLib = new PoolDevLib();
+
+        $phoneRecharger = 'PhoneRechargeDev';
+
+        $notify_url = $this->_site . 'Pay_Notify_Index_Method_' . $phoneRecharger;
+        try{
+            $c_order = ChannelManagerLib::order( $phoneRecharger,  I('request.'), $notify_url,  $poolLib);
+
+            if ($c_order instanceof ChannelOrder) {
+
+                $order = [
+                    'pay_memberid' => $this->member['id'],
+                    'pay_orderid' => $pay_orderid,
+                    'pay_amount' => round($this->request['pay_amount'] / 100, 2),
+                    'pay_applydate' => time(),
+                    'pay_code' => $this->request['pay_bankcode'],
+                    'pay_notifyurl' => $this->request['pay_notifyurl'],
+                    'pay_callbackurl' => $this->request['pay_returnurl'] ?: '',
+                    'pay_status' => 0,
+                    'out_trade_id' => $this->request['pay_orderid'],
+                    'memberid' => $c_order->poolPid,
+                    'attach' => $this->request['pay_attach'],
+                    'pay_productname' => $this->request['pay_productname'],
+                    'pay_url' => $c_order->wapUrl ?: $c_order->qrUrl ?: '',
+                    'pool_phone_id' => $c_order->poolId,
+                    'trade_id' => $c_order->transID,
+                ];
+
+                if (!$this->orderadd($order)) {
+                    throw new Exception("订单保存失败");
+                }
+
+                $resp = [
+                    'orderId' => $pay_orderid,
+                    'orderNo' => $this->request['pay_orderid'],
+                    'url'     => $c_order->wapUrl,
+                    'qr_url'  => $c_order->qrUrl,
+                ];
+                $this->result_success($resp, "创建订单成功");
+                return true;
+            }
+            throw new Exception("支付Lib返回信息错误");
+        } catch(Exception $e){
+            Log::write($e->getMessage());
+            $poolLib->reset();
+            $this->result_error($e->getMessage());
+//            $this->result_error('订单生成失败');
+            return;
+        }
+    }
+
+
     /**
      * 充值接口
      * 1. 调用接口获取充值的手机和金额
      * 2. 返回接口对外
      */
-    public function index() {
+    public function index2() {
         /**
         pay_memberid
 
@@ -131,8 +196,6 @@ class IndexController extends OrderController
             'pool_phone_id' => $poolOrder['pool_id'],
             'trade_id' => $poolOrder['order']['no'],
         ];
-
-        ;
 
 //        $orderModel = M('Order');
 //        $r = $orderModel->add($order);

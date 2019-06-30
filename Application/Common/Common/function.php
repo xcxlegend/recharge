@@ -1392,6 +1392,12 @@ function createSign($Md5key, $params){
     return $sign;
 }
 
+function createUUID( $prefix = "" ) {
+    list($msec, $sec) = explode(' ', microtime());
+    return $prefix . date('YmdHis',$sec) . intval($msec * 1000);
+}
+
+
 
 
 

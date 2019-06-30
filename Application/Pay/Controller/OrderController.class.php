@@ -16,13 +16,11 @@ class OrderController extends PayController
     //通道信息
 //    protected $channel;
 
-    protected $request;
 
 
     public function __construct()
     {
         parent::__construct();
-        $this->request = I('request.');
     }
 
 
@@ -396,7 +394,7 @@ class OrderController extends PayController
 
 
             // 转存poolphone订单信息
-            $this->handlePoolOrderSuccess( $pool );
+            $this->handlePoolOrderSuccess( $pool, $provider );
 
 
         }
@@ -407,10 +405,7 @@ class OrderController extends PayController
     }
 
 
-    protected function handlePoolOrderSuccess( $pool ) {
-
-        // 给号码商上增加金额
-        M('PoolProvider')->where(['id' => $pool['pid']])->setInc("money", $pool['money']);
+    protected function handlePoolOrderSuccess( $pool, $provider ) {
 
         $poolOrder = M('PoolRec')->where(['pool_id' => $pool['id']])->find();
         if (!$poolOrder){
@@ -446,13 +441,33 @@ class OrderController extends PayController
                 return;
             }
             $poolOrder['id'] = M('PoolRec')->getLastInsID();
+
+            // 给号码商上增加金额
+            if (!M('PoolProvider')->where(['id' => $pool['pid']])->setInc("money", $pool['money'])){
+                M()->rollback();
+                Log::write("add PoolProvider money err:" . json_encode($poolOrder));
+                return;
+            }
+
+            if (!M('PoolProvider')->where(['id' => $pool['pid']])->setDec("balance", $pool['money'])){
+                M()->rollback();
+                Log::write("dec PoolProvider balance err:" . json_encode($poolOrder));
+                return;
+            }
+
+            if (!D('PoolMoneychange')->addData($provider['id'], UID, $provider['balance'], -$pool['money'], "支付订单: " . $poolOrder['id'] , $poolOrder['id'])){
+                M()->rollback();
+                Log::write("dec PoolProvider balance log err:" . json_encode($poolOrder));
+                return;
+            }
+
             if (!M('PoolPhones')->where(['id' => $pool['id']])->delete()){
                 M()->rollback();
                 Log::write("delete PoolPhones err:" . json_encode($poolOrder));
                 return;
-            }else{
-                M()->commit();
             }
+
+            M()->commit();
         } else {
             // 如果存在也执行删除逻辑
             M('PoolPhones')->where(['id' => $pool['id']])->delete();
@@ -805,7 +820,6 @@ class OrderController extends PayController
 
     public function bufa()
     {
-
         header('Content-type:text/html;charset=utf-8');
         $TransID    = I("get.TransID");
         $PayName    = I("get.tongdao");
@@ -817,8 +831,23 @@ class OrderController extends PayController
         } else {
             echo "补发失败";
         }
-
     }
+
+    public function poolbufa() {
+        header('Content-type:text/html;charset=utf-8');
+        $id    = I("get.id");
+        $pool          = M("PoolRec")->find($id);
+        if (!$pool) {
+            exit('补发失败');
+        }
+        if ($pool['status'] == 0) {
+            echo ("订单号：" . $pool['order_id']  . "已补发服务器点对点通知，请稍后刷新查看结果！<a href='javascript:window.close();'>关闭</a>");
+            $this->sendPoolNotify($pool);
+        } else {
+            echo "补发失败";
+        }
+    }
+
 
     /**
      * 扫码订单状态检查

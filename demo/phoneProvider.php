@@ -3,9 +3,13 @@ error_reporting(E_ALL & ~E_NOTICE);
     $action = $_GET['action'];
     if($action == 'debug'){
         $data = $_POST;
-        $data['appkey'] = '40950f2b84a9b976';
+        $url = $data['url'];
+        $key = $data['key'];
+        unset($data['url']);
+        unset($data['key']);
+//        $data['appkey'] = '40950f2b84a9b976';
         $data['out_trade_id'] = time();
-        $data['notify_url'] = $_SERVER['HTTP_HOST']. '?action=notify';
+        $data['notify_url'] = 'http://' . $_SERVER['HTTP_HOST']. '/demo/notify';
 
 
         $phoneInfo =  file_get_contents('https://cx.shouji.360.cn/phonearea.php?number='.$data['phone']);
@@ -19,8 +23,9 @@ error_reporting(E_ALL & ~E_NOTICE);
             $data['channel'] = '3';
         }
 
-        array_multisort($data);
-        $data['key'] = '40950f2b84a9b976';
+        var_dump($data);
+        ksort($data);
+        $data['key'] = $key;
 
         $signUrl = '';
         foreach($data as $key => $value){
@@ -28,7 +33,7 @@ error_reporting(E_ALL & ~E_NOTICE);
         }
 
         $data['sign'] = md5(trim($signUrl,'&'));
-        $result = http($data['url'],$data);
+        $result = http($url,$data);
         echo $result;
 
     }
@@ -81,7 +86,7 @@ error_reporting(E_ALL & ~E_NOTICE);
 <form method="post" action="?action=debug" autocomplete="off">
 <div class="form-group">
     <label for="exampleInputPassword1">接口地址</label>
-    <input type="input" class="form-control" name="url">
+    <input type="input" class="form-control" name="url" value="http://47.244.237.40/Pay_Pool">
   </div>
   <div class="form-group">
     <label for="exampleInputPassword1">手机号（数字）</label>
@@ -89,7 +94,15 @@ error_reporting(E_ALL & ~E_NOTICE);
   </div>
   <div class="form-group">
     <label for="exampleInputPassword1">金额（分）</label>
-    <input type="number" class="form-control" name="money">
+    <input type="number" class="form-control" name="money" value="1000">
+  </div>
+    <div class="form-group">
+    <label for="exampleInputPassword1">appkey</label>
+    <input type="input" class="form-control" name="appkey">
+  </div>
+    <div class="form-group">
+    <label for="exampleInputPassword1">appsecret</label>
+    <input type="input" class="form-control" name="key">
   </div>
   
   <button type="submit" class="btn btn-primary ">发起调试</button>

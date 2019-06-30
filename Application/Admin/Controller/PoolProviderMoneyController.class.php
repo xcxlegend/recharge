@@ -41,6 +41,11 @@ class PoolProviderMoneyController extends BaseController
             return;
         }
 
+        if (!$post['remark']) {
+            $this->ajaxReturn(['status' => 0, 'msg' => '需要填写原因']);
+            return;
+        }
+
         $model = M('PoolProvider');
         M()->startTrans();
         $provider = $model->lock(true)->find($id);
@@ -70,12 +75,15 @@ class PoolProviderMoneyController extends BaseController
             "gmoney" => $provider['balance'] + $balance,
             "datetime" => $this->timestamp,
             "recid" => 0,
-            "lx" => 0,
+//            "lx" => 0,
             "orderid" => "",
             "contentstr" => "后台增加金额"
         ];
 
-        if (!M('PoolMoneychange')->add($data)){
+
+        if (!D('PoolMoneychange')->addData($id, UID, $provider['balance'], $balance, $post['remark'])){
+
+//            if (!M('PoolMoneychange')->add($data)){
             echo M('PoolMoneychange')->getError();
             var_dump(M('PoolMoneychange'));
             M()->rollback();

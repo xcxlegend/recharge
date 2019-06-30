@@ -10,6 +10,13 @@
                     <input type="hidden" name="id" value="<{$id}>">
                 </div>
             </div>
+
+            <div class="layui-form-item">
+                <label class="layui-form-label">原因：</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="remark" lay-verify="required" placeholder="请输入原因" autocomplete="off"  id="remark" class="layui-input">
+                </div>
+            </div>
             <div class="layui-form-item">
                 <div class="layui-input-block">
                     <button class="layui-btn" lay-submit lay-filter="info">立即提交</button>
