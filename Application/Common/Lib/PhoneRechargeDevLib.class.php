@@ -64,7 +64,7 @@ class PhoneRechargeDevLib extends IPhoneRechagerLib
         $data = json_decode($data, true);
         if ($data['code'] != 1) {
             Log::write(json_encode($data), Log::WARN);
-            throw new PhoneRechargeDevException( '[RECHARGER] ' . $data['msg']);
+            throw new Exception( '[RECHARGER] ' . $data['msg']);
             return false;
         }
 
