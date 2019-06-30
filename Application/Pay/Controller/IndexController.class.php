@@ -39,12 +39,12 @@ class IndexController extends OrderController
 
 //        $poolLib = new PoolDevLib();
 
-        $phoneRecharger = 'PhoneRechargeDev';
+//        $phoneRecharger = 'PhoneRechargeDev';
 
-        $notify_url = $this->_site . 'Pay_Notify_Index_Method_' . $phoneRecharger;
         if (!$this->checkChannel()) {
             return;
         }
+        $notify_url = $this->_site . 'Pay_Notify_Index_Method_' . $this->channel['code'];
 
         $manager = new ChannelManagerLib( $this->channel );
         try{
