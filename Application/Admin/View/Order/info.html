@@ -1,0 +1,39 @@
+<include file="Public/header"/>
+
+        <h1>商户信息</h1>
+        <table class="layui-table">
+            <tr><td width="30%">商户ID：</td><td><{$info.pay_memberid}></td></tr>
+            <tr><td>商户名：</td><td><{$info.username}></td></tr>
+        </table>
+
+        <h1>订单详情</h1>
+        <table class="layui-table">
+            <tr><td width="30%">平台订单号：</td><td><strong class="text-success"><{$info.pay_orderid}></strong></td></tr>
+            <tr><td>商户订单号：</td><td><strong class="text-success"><{$info.out_trade_id}></strong></td></tr>
+            <tr><td>流水单号：</td><td><strong class="text-success"><{$info.trade_id}></strong></td></tr>
+            <tr><td>手机号：</td><td><{$info.phone}> （<{$sp_list[$info['sp']]}>）</td></tr>
+            <tr><td>交易通道：</td><td><{$info.pay_name}></td></tr>
+            <tr><td>金额：</td><td><{$info.pay_amount}></td></tr>
+
+            <tr><td>订单金额：</td><td><strong class="text-danger"><{$info.pay_amount}></strong></td></tr>
+            <tr><td>实际金额：</td><td><strong class="text-success"><{$info.pay_actualamount}></strong></td></tr>
+            <tr><td>费率：</td><td><strong class=""><{$info.pay_poundage}></strong></td></tr>
+            <tr><td>手续费：</td><td><strong class=""></strong></td></tr>
+            <tr><td>付款IP：</td><td><strong class=""><{$info.ip}></strong></td></tr>
+
+            <tr><td>提交时间：</td><td><strong class="text-warning"><{$info[pay_applydate]|date='Y-m-d H:i:s',###}></strong></td></tr>
+            <tr><td>成功时间：</td><td><strong class="text-danger"><{$info[pay_successdate]|date='Y-m-d H:i:s', ###}></strong></td></tr>
+            <tr><td>订单状态：</td><td><switch name="info[pay_status]">
+                    <case value="0"><strong class="text-danger">未处理</strong></case>
+                    <case value="1"><strong class="text-warning">已成功，未返回</strong></case>
+                    <case value="2"><strong class="text-success">已成功，已返回</strong></case>
+                  </switch></td></tr>
+          <tr><td>回调地址：</td><td><a href="<{$info.pay_notifyurl}>" target="_blank">点击查看</a></td></tr>
+
+          
+        </table>
+       
+<include file="Public/footer"/>
+
+</body>
+</html>

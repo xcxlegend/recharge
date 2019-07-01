@@ -7,7 +7,7 @@
             </div>
 
             <div class="ibox-content">
-                    <form class="layui-form" action="" method="get" autocomplete="off">
+                    <form class="layui-form" action="" method="get" autocomplete="off" id="sform">
 
                         <input type="hidden" name="p" value="1">
                         <div class="layui-form-item">
@@ -41,10 +41,11 @@
                           
               
                             <div class="layui-input-inline">
-                                <button type="submit" class="layui-btn"><span
+                                <button onclick="$('#export').val(0);$('#sform').submit();" class="layui-btn"><span
                                         class="glyphicon glyphicon-search"></span> 搜索
                                 </button>
-                                <a href="javascript:;" id="export" class="layui-btn layui-btn-danger"><span class="glyphicon glyphicon-export"></span> 导出</a>
+                                <input type="hidden" id="export" name="export" value="0">
+                                <a onclick="$('#export').val(1);$('#sform').submit();"  class="layui-btn layui-btn-danger"><span class="glyphicon glyphicon-export"></span> 导出</a>
                             </div>
                         </div>
                         </div>
@@ -55,16 +56,11 @@
                             上月总额：<span class="label label-info"><{$count.month.money|format_money}>元</span>
                            上周总额：<span class="label label-info"><{$count.week.money|format_money}>元</span>
                            今日总额：<span class="label label-info"><{$count.today.money|format_money}>元</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-    
-                           成功交易总额：<span class="label label-info"><{$count.success_total.money|format_money}>元</span>  
-                            今日总额：<span class="label label-info"><{$count.success_today.money|format_money}>元</span>
                         </blockquote>
     
                       <blockquote class="layui-elem-quote" style="font-size:14px;padding;8px;">
                           订单总量：<span class="label label-info"><{$count.total.count}></span> 
                          今日订单量：<span class="label label-info"><{$count.today.count}></span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                         成功订单总量：<span class="label label-info"><{$count.success_total.count}></span> 
-                         今日成功订单量：<span class="label label-info"><{$count.success_today.count}></span>
                       </blockquote>
     
     
@@ -141,11 +137,6 @@
         });
     });
 
-
-    $('#export').on('click',function(){
-        window.location.href
-            ="<{:U('Admin/User/exportuser',array('username'=>$_GET[username],'parentid'=>$_GET[parentid],'status'=>$_GET[status],'authorized'=>$_GET[authorized],'groupid'=>$_GET[groupid],'regdatetime'=>$_GET[regdatetime],'isagent'=>0))}>";
-    });
 </script>
 </body>
 </html>
