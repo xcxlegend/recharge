@@ -46,6 +46,7 @@
                         <th>联系电话</th>
                     <if condition="$param.status gt 0 ">
                         <th>appkey</th>
+                        <th>appsecret</th>
                         <th>总收入</th>
                         <th>余额</th>
                     </if>
@@ -63,6 +64,7 @@
                             <td><{$v.contact_tel}></td>
                         <if condition="$param.status gt 0 ">
                             <td><{$v.appkey}></td>
+                            <td><{$v.appsecret}></td>
                             <td><{$v.money}></td>
                             <td><{$v.balance}></td>
                         </if>

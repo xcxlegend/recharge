@@ -98,6 +98,10 @@ class IndexController extends BaseController
             $stat[$k] = $v+0;
            $stat[$k] = number_format($stat[$k],2,'.','');
         }
+
+        $stat['doing'] = M('PoolPhones')->where(['lock'=>1])->count();
+        $stat['waiting'] = M('PoolPhones')->where(['lock'=>0])->count();
+
         $this->assign('stat', $stat);
         $this->assign('ddata', $ddata);
         $this->assign('wdata', $wdata[0]);
