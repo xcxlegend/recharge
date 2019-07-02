@@ -29,12 +29,17 @@ class BaseController extends Controller{
     public function __construct()
     {
         parent::__construct();
+
+
         // 获取当前用户ID
         if(defined('UID')) return ;
         define("UID",is_login());
         if( !UID ){// 还没登录 跳转到登录页面
             $this->redirect('Login/index');
         }
+        //日志记录
+        D('AdminLog')->addLog();
+
         // 是否是超级管理员
         define('IS_ROOT',   is_rootAdministrator());
         if(!IS_ROOT && C('ADMIN_ALLOW_IP')){
@@ -69,6 +74,9 @@ class BaseController extends Controller{
                 $this->error('您的账号在别处登录，如非本人操作，请立即修改登录密码！','/' . C("LOGINNAME"));
             }
         }
+
+        
+
         //权限检查
         $name = CONTROLLER_NAME . '/' . ACTION_NAME;
         if(CONTROLLER_NAME != 'Login' && !IS_ROOT&&$name!="System/editPassword" && $name!="Auth/google"){
