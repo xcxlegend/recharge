@@ -39,9 +39,6 @@ class OrderController extends BaseController
         if(!empty($param['trade_id'])){
             $where['trade_id'] = $param['trade_id'];
         }
-        if(!empty($param['phone'])){
-            $where['phone'] = $param['phone'];
-        }
         if(!empty($param['create_time'])){
             $where['pay_applydate'] = $param['pay_applydate'];
             list($stime, $etime)  = explode('|', $param['create_time']);
@@ -56,6 +53,9 @@ class OrderController extends BaseController
         if(is_numeric($param['pay_status'])){
             $where['pay_status'] = $param['status'];
         }
+
+
+        $paylist = array_column(M('product')->field('code,name')->select(),NULL,'code');
 
         
 
@@ -82,14 +82,13 @@ class OrderController extends BaseController
                     'out_trade_id'    => $item['out_trade_id'],
                     'pay_memberid'    => $item['pay_memberid'],
                     'pay_actualamount'      => $item['pay_actualamount'],
-                    'sp'      => '',
-                    'pay_name'      => $item['pay_bankname'],
+                    'pay_name'      => $paylist[$item['pay_code']]['name'],
                     'pay_applydate'      =>date('Y-m-d H:i:s',$item['pay_applydate']),
                     'pay_successdate'      => date('Y-m-d H:i:s',$item['pay_successdate']),
                     'status'  => $status,
                 );
             }
-            $title = array('平台订单号', '充值流水号', '商户订单号','商户ID', '金额', '运营商', '支付方式', '创建时间', '成功时间', '状态');
+            $title = array('平台订单号', '充值流水号', '商户订单号','商户ID', '金额', '支付方式', '创建时间', '成功时间', '状态');
             exportexcel($list, $title);
             exit;
             
@@ -113,16 +112,21 @@ class OrderController extends BaseController
         $money['total']['count'] = M('Order')->count();
 
         //上月
-        $monthWhere['month'] = date('m',strtotime('last month'));
+        $smonth = date('Y-m-01 00:00:00',strtotime('-1 month'));
+        $emonth = date("Y-m-d 23:59:59", strtotime(-date('d').'day'));
+        $monthWhere['pay_applydate'] = ['between', [strtotime($smonth), strtotime($emonth)]];
         $money['month'] = M('Order')->field('sum(`money`) as money')->where($monthWhere)->find();
 
         //上周
         $sWeek =  date("Y-m-d H:i:s",mktime(0, 0 , 0,date("m"),date("d")-date("w")+1-7,date("Y")));
         $eweek =  date("Y-m-d H:i:s",mktime(23,59,59,date("m"),date("d")-date("w")+7-7,date("Y")));
-        $weekWhere['time'] = ['between', [strtotime($sWeek), strtotime($eweek)]];
+        $weekWhere['pay_applydate'] = ['between', [strtotime($sWeek), strtotime($eweek)]];
         $money['week'] = M('Order')->field('sum(`money`) money')->where($weekWhere)->find();
+
         //今日
-        $todayWhere['day'] = date("d");
+        $stoday = date('Y-m-d 00:00:00');
+        $etoday = date("Y-m-d 23:59:59");
+        $todayWhere['pay_applydate'] = ['between', [strtotime($stoday), strtotime($etoday)]];
         $money['today'] = M('Order')->field('sum(`money`) as money')->where($todayWhere)->find();
         //今日订单量
         $money['today']['count'] = M('Order')->where($todayWhere)->count();
@@ -141,6 +145,7 @@ class OrderController extends BaseController
 
         
 
+        $this->assign('paylist', $paylist);
         $this->assign('param', $param);
         $this->assign('count', $money);
         $this->assign('sp_list', $sp_list);
@@ -153,7 +158,8 @@ class OrderController extends BaseController
     public function info()
     {
         $id = I("get.id");
-        $info = M('Order')->where(['id'=>$id])->find();
+        $join = 'LEFT JOIN pay_product b ON a.pay_code=b.code LEFT JOIN pay_member c ON a.pay_memberid=c.id';
+        $info = M('Order')->alias('a')->join($join)->field('a.*,b.name as pay_name,c.username')->where(['a.id'=>$id])->find();
         $this->assign('info', $info);
         $this->display();
     }
