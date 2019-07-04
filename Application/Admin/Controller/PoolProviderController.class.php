@@ -129,7 +129,7 @@ class PoolProviderController extends BaseController
         $data["update_time"]=time();
         $data["id"]=$id;
 
-        $status = D('PoolProvider')->save($data);
+        $status = D('Common/PoolProvider')->save($data);
         $this->ajaxReturn(['status'=>$status]);
          
      }
@@ -146,7 +146,7 @@ class PoolProviderController extends BaseController
                 $this->ajaxReturn(['status'=>0,'msg'=>'请输入名称!']);
             }
             $data["update_time"]=time();
-            $status = D('PoolProvider')->save($data);
+            $status = D('Common/PoolProvider')->save($data);
             $this->ajaxReturn(['status'=>$status]);
 
         }else{

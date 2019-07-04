@@ -33,7 +33,7 @@ class ChannelManagerLib
     }
 
     // 处理获取上游订单
-    public function order( $params, $notify_url/*, IPoolLib $pool = null*/ ) {
+    public function order( $params, $notify_url, $pay_orderid/*, IPoolLib $pool = null*/ ) {
 
 
         $method = $this->channel['code'];
@@ -53,7 +53,7 @@ class ChannelManagerLib
 //                }
 //            }
 
-            $order = $this->IPhoneRechagerImpl->order( $params, $gateway, $notify_url );
+            $order = $this->IPhoneRechagerImpl->order( $params, $gateway, $notify_url, $pay_orderid );
             if ( ! ( $order && $order instanceof ChannelOrder ) ) {
                 throw new Exception("渠道接口返回数据错误");
             }

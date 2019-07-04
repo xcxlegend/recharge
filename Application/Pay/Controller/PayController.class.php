@@ -7,6 +7,7 @@
  */
 
 namespace Pay\Controller;
+use Common\Model\RedisCacheModel;
 
 
 class PayController
@@ -15,12 +16,14 @@ class PayController
     protected $_site;
     protected $timestamp;
     protected $request;
+    protected $cache;
 
     public function __construct()
     {
         $this->timestamp = time();
         $this->_site = ((is_https()) ? 'https' : 'http') . '://' . C("DOMAIN") . '/';
         $this->request = I('request.');
+        $this->cache = RedisCacheModel::instance();
     }
 
     protected function result( $data ) {

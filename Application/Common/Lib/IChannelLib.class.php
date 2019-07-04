@@ -35,7 +35,7 @@ class ChannelOrder {
 interface IChannelLib
 {
     // 请求订单
-    public function order( array $params, $gateway, $notify ) ;
+    public function order( array $params, $gateway, $notify, $pay_orderid ) ;
     // 查询订单
     public function query( $pay_orderid );
     // 回调验证并且返回transID

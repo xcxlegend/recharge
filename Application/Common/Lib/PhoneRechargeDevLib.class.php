@@ -35,7 +35,7 @@ class PhoneRechargeDevLib extends IPhoneRechagerLib
     ];
 
     // 请求订单
-    public function order( array $params, $gateway, $notify ) {
+    public function order( array $params, $gateway, $notify, $pay_orderid ) {
         if (!$gateway){
             $gateway = self::API_URL;
         }
@@ -47,7 +47,7 @@ class PhoneRechargeDevLib extends IPhoneRechagerLib
 
         $query = [
             "merchant_no"       => self::MID,
-            "merchant_order_no" => $params['pay_orderid'],
+            "merchant_order_no" => $pay_orderid,
             "start_time"        => date('YmdHis'),
             "mobile"            => $phone,
             "amount"            => round($params['pay_amount'] / 100, 2),

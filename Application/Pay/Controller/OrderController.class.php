@@ -29,7 +29,7 @@ class OrderController extends PayController
      * @param $parameter
      * @return array
      */
-    public function orderadd( $order )
+    public function orderadd( $order, $product, $channel )
     {
 
         $userid = $order['pay_memberid'];
@@ -47,7 +47,12 @@ class OrderController extends PayController
 //            return;
 //        }
 
-        $product = M('Product')->where(['code' => $order['pay_code']])->find();
+        if (!$product) {
+//            $product = $this->cache->getOrSet("Product:pay_code:" . $order['pay_code'], function () use (&$order) {
+//                M('Product')->where(['code' => $order['pay_code']])->find();
+//            });
+            $product = D('Common/Product')->getByCode($order['pay_code']);
+        }
         if (!$product) {
             $this->result_error("支付方式错误");
             return;
@@ -69,9 +74,16 @@ class OrderController extends PayController
             ->where(["userid" =>  $userid, "payapiid" => $product['id']])
             ->find();
         //银行通道费率
-        $syschannel = M('Channel')
-            ->where(['code' => 'Pool'])
-            ->find();
+        if (!$channel) {
+            $channel_id = $order['channel_id'];
+           /* $channel = $this->cache->getOrSet("Channel:id:". $channel_id, function () use ($channel_id) {
+                return M('Channel')->find($channel_id);
+            }, true);*/
+           $channel = D('Common/Channel')->getById( $channel_id );
+        }
+        $syschannel = $channel;//M('Channel')
+//            ->where(['code' => 'Pool'])
+//            ->find();
 
         //---------------------------子账号风控start------------------------------------
 //        $channel_account_list        = M('channel_account')->where(['channel_id' => $syschannel['id'], 'status' => '1'])->select();
@@ -166,7 +178,7 @@ class OrderController extends PayController
 
         $order['pay_poundage']        = $pay_sxfamount; // 手续费
         $order['pay_actualamount']    = $pay_shijiamount; // 到账金额
-        $order['pay_tongdao']         = $syschannel['code'];
+//        $order['pay_tongdao']         = $syschannel['code'];
         $order['pay_zh_tongdao']      = $syschannel['title'];
         $order['pay_tjurl']           = $_SERVER['HTTP_REFERER'];
         $order['cost']                = $cost;
@@ -206,8 +218,8 @@ class OrderController extends PayController
         //********************************************订单支付成功上游回调处理********************************************//
         if ($order_info["pay_status"] == 0) {
 
-            $product = M('Product')->where(['code' => $order_info['pay_code']])->find();
-
+//            $product = M('Product')->where(['code' => $order_info['pay_code']])->find();
+            $product = D('Common/Product')->getByCode( $order_info['pay_code'] );
             //开启事物
             M()->startTrans();
             //查询用户信息
@@ -218,7 +230,7 @@ class OrderController extends PayController
                 return false;
             }
 
-            $provider = M('PoolProvider')->where(['id' => $pool['pid']])->find();
+            $provider = D('Common/PoolProvider')->getById( $pool['pid'] ); // M('PoolProvider')->where(['id' => $pool['pid']])->find();
             if (!$provider){
                 log::write("pool provider not exist:" . json_encode($pool));
                 $this->result_error("no pool provider", $this->request);
@@ -352,16 +364,16 @@ class OrderController extends PayController
             //-----------------------------------------修改用户数据 商户余额、冻结余额end-----------------------------------
 
             //-----------------------------------------修改通道风控支付数据start----------------------------------------------
-            $m_Channel     = M('Channel');
-            $channel_where = ['id' => $order_info['channel_id']];
-            $channel_info  = $m_Channel->where($channel_where)->find();
+//            $m_Channel     = M('Channel');
+//            $channel_where = ['id' => $order_info['channel_id']];
+//            $channel_info  = D('Common/Channel')->getById( $order_info['channel_id'] );//   $m_Channel->where($channel_where)->find();
             //判断当天交易金额并修改支付状态
-            $this->saveOfflineStatus(
+           /* $this->saveOfflineStatus(
                 $m_Channel,
                 $order_info['channel_id'],
                 $order_info['pay_amount'],
                 $channel_info
-            );
+            );*/
 
             //-----------------------------------------修改通道风控支付数据end------------------------------------------------
 

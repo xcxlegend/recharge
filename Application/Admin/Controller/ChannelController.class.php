@@ -70,10 +70,10 @@ class ChannelController extends BaseController
 
             if ($id) {
                 //更新
-                $res = M('Channel')->where(array('id' => $id))->save($_request);
+                $res = D('Common/Channel')->where(array('id' => $id))->save($_request);
             } else {
                 //添加
-                $res = M('Channel')->add($_request);
+                $res = D('Common/Channel')->add($_request);
             }
             $this->ajaxReturn(['status' => $res]);
         }
@@ -228,9 +228,9 @@ class ChannelController extends BaseController
             $rows['weight'] = trim($weightStr, '|');
             //保存
             if ($id) {
-                $res = M('Product')->where(['id' => $id])->save($rows);
+                $res = D('Common/Product')->where(['id' => $id])->save($rows);
             } else {
-                $res = M('Product')->add($rows);
+                $res = D('Common/Product')->add($rows);
             }
             $this->ajaxReturn(['status' => $res]);
         }

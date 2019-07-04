@@ -636,6 +636,31 @@ function sendForm($url,$data,$referer){
     return $data;
 }
 
+function sendJson( $url, $data, $referer ) {
+    $headers['Content-Type'] = "application/json; charset=utf-8";
+    $headerArr = array();
+    foreach( $headers as $n => $v ) {
+        $headerArr[] = $n .':' . $v;
+    }
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+    curl_setopt($ch, CURLOPT_POST, 1);
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+    curl_setopt($ch, CURLOPT_HTTPHEADER, $headerArr);
+    if ($referer) {
+        curl_setopt($ch, CURLOPT_REFERER, "http://" . $referer . "/");
+    }
+
+    $data = curl_exec($ch);
+    curl_close($ch);
+    return $data;
+}
+
+
 /**
  * 写日志，方便测试（看网站需求，也可以改成把记录存入数据库）
  * 注意：服务器需要开通fopen配置

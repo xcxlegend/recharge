@@ -1497,7 +1497,7 @@ class UserController extends BaseController
                 $u['activatedatetime'] = date("Y-m-d H:i:s");
                 $u['agent_cate']       = $u['groupid'];
                 // 创建用户
-                $res = M('Member')->add($u);
+                $res = M('Common/Member')->add($u);
                 // 发邮件通知用户密码
                 sendPasswordEmail($u['username'], $u['email'], $u['origin_password'], $siteconfig);
             }
@@ -1636,8 +1636,8 @@ class UserController extends BaseController
                     $data_update[] = ['userid' => $userid, 'pid' => $key, 'status' => $status, 'polling' => $item['polling'], 'channel' => $item['channel'], 'weight' => trim($weightStr, '|')];
                 }
             }
-            M('Product_user')->addAll($data_insert, [], true);
-            M('Product_user')->addAll($data_update, [], true);
+            D('Common/ProductUser')->addAll($data_insert, [], true);
+            D('Common/ProductUser')->addAll($data_update, [], true);
             $this->ajaxReturn(['status' => 1]);
         }
     }
@@ -1801,7 +1801,7 @@ class UserController extends BaseController
 
     public function saveAddDomain()
     {
-        $Member = M('Member');
+        $Member = D('Common/Member');
         if (IS_POST) {
             $domain = I('post.domain', 'trim');
             $id     = I('post.id', '');

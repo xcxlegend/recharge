@@ -5,6 +5,7 @@ use Think\Exception;
 use \Think\Log;
 use Common\Lib\ChannelManagerLib;
 use Common\Lib\PoolDevLib;
+use Common\Model\RedisCacheModel;
 
 /**
  * Class IndexController
@@ -45,10 +46,9 @@ class IndexController extends OrderController
             return;
         }
         $notify_url = $this->_site . 'Pay_Notify_Index_Method_' . $this->channel['code'];
-
         $manager = new ChannelManagerLib( $this->channel );
         try{
-            $c_order = $manager->order( I('request.'), $notify_url);
+            $c_order = $manager->order( I('request.'), $notify_url, $pay_orderid);
 
             if ($c_order instanceof ChannelOrder) {
 
@@ -67,10 +67,11 @@ class IndexController extends OrderController
                     'pay_productname' => $this->request['pay_productname'],
                     'pay_url' => $c_order->wapUrl ?: $c_order->qrUrl ?: '',
                     'pool_phone_id' => $c_order->poolId,
+                    'channel_id' => $this->channel['id'],
                     'trade_id' => $c_order->transID,
                 ];
 
-                if (!$this->orderadd($order)) {
+                if (!$this->orderadd($order, $this->product, $this->channel)) {
                     throw new Exception("订单保存失败");
                 }
 
@@ -201,6 +202,7 @@ class IndexController extends OrderController
             'pay_productname' => $this->request['pay_productname'],
             'pay_url' => $poolOrder['order']['wap_url'] ?: $poolOrder['order']['code_url'] ?: '',
             'pool_phone_id' => $poolOrder['pool_id'],
+            'channel_id' => $this->channel['id'],
             'trade_id' => $poolOrder['order']['no'],
         ];
 
@@ -249,7 +251,15 @@ class IndexController extends OrderController
 
         $userid = intval($request["pay_memberid"] - 10000); // 商户ID
 
-        $member = M('Member')->where(['id' => $userid])->find();
+//        $cache = RedisCacheModel::instance();
+
+//        $member = $this->cache->getOrSet("member:".$userid, function () use ($userid){
+//            return M('Member')->where(['id' => $userid])->find();
+//        }, true);
+
+        $member = D('Common/Member')->getById($userid);
+
+//        $member = M('Member')->where(['id' => $userid])->find();
         if (!$member) {
             $this->result_error('商户不存在');
             return;
@@ -257,8 +267,11 @@ class IndexController extends OrderController
 
         $this->member = $member;
 
+//        $this->product = $this->cache->getOrSet("product:".$request['pay_bankcode'], function () use (&$request) {
+//            return M('Product')->where(['code' => $request['pay_bankcode']])->find();
+//        }, true);
+        $this->product = D('Common/Product')->getByCode($request['pay_bankcode']);
 
-        $this->product = M('Product')->where(['code' => $request['pay_bankcode']])->find();
         if (!$this->product) {
             $this->result_error('支付方式错误');
             return;
@@ -296,21 +309,23 @@ class IndexController extends OrderController
 
     public function judgeRepeatOrder()
     {
-        $is_repeat_order = M('Websiteconfig')->getField('is_repeat_order');
+        // 默认不允许
+        $is_repeat_order = false;// M('Websiteconfig')->getField('is_repeat_order');
         if (!$is_repeat_order) {
             //不允许同一个用户提交重复订单
-            $orders = M('Order')->where(['out_trade_id' => $this->request['pay_orderid']])->select();
-            $count = 0;
-
-            foreach ($orders as $key => $order) {
-                if ($order['pay_memberid'] == $this->member['id']) {
-                    $count++;
-                }
-            }
-
-            if($count){
-                return false;
-            }
+//            $orders = M('Order')->where(['out_trade_id' => $this->request['pay_orderid']])->select();
+//            $count = 0;
+//
+//            foreach ($orders as $key => $order) {
+//                if ($order['pay_memberid'] == $this->member['id']) {
+//                    $count++;
+//                }
+//            }
+//
+//            if($count){
+//                return false;
+//            }
+            return !$this->cache->Client()->sIsMember("orders:member_pay_orderid:" . $this->member['id'], $this->request['pay_orderid']);
         }
         return true;
     }
@@ -349,17 +364,26 @@ class IndexController extends OrderController
     }
 
     protected function checkChannel() {
-        $cid  = M('ProductUser')->where(
+       /* $ProductUser  = $this->cache->getOrSet( "ProductUser:". $this->product['id'] . ':'. $this->member['id'], function () {
+            return M('ProductUser')->where(
             [
                 'userid' => $this->member['id'],
                 'pid' => $this->product['id']
-            ]
-        )->find();
-        if (!$cid) {
+            ])->find();
+        }, true);*/
+        $ProductUser = D('Common/ProductUser')->getByMix( $this->product['id'], $this->member['id'] );
+        if (!$ProductUser) {
             $this->result_error("商户未设置支付渠道", true);
             return false;
         }
-        $this->channel = M('Channel')->find($cid);
+        $channel_id =  $ProductUser['channel'];
+        /*$this->channel = $this->cache->getOrSet("Channel:id:". $channel_id, function () use ($channel_id) {
+            return M('Channel')->find($channel_id);
+        }, true);*/
+
+        $this->channel = D('Common/Channel')->getById( $channel_id );
+
+
         if (!$this->channel) {
             $this->result_error("商户未设置支付渠道", true);
             return false;
