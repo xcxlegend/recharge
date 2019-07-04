@@ -12,27 +12,24 @@
                 </div>
             </div>
             <div class="ibox-content">
-                    <form class="layui-form" action="" method="get" autocomplete="off">
+                    <form class="layui-form" action="" method="get" autocomplete="off" id="sform">
                             <input type="hidden" name="m" value="<{$model}>">
                             <input type="hidden" name="c" value="User">
                             <input type="hidden" name="a" value="index">
                             <input type="hidden" name="p" value="1">
                             <div class="layui-form-item">
-                                <div class="layui-inline">
+        
                                     <div class="layui-input-inline">
                                         <input type="text" name="k" autocomplete="off" placeholder="名称/联系人/电话" class="layui-input" value="<{$param['k']}>">
                                     </div>
-                                </div>
-
     
-                                <div class="layui-inline">
-                                    <button type="submit" class="layui-btn"><span
+                                <div class="layui-input-inline">
+                                    <button onclick="$('#export').val(0);$('#sform').submit();" class="layui-btn"><span
                                             class="glyphicon glyphicon-search"></span> 搜索
                                     </button>
-                                    <a href="<{:U('PoolProvider/export',['id'=>$v[id]])}>" target="_blank"
-                                       class="layui-btn layui-btn-danger"><span
-                                            class="glyphicon glyphicon-export"></span> 导出</a>
-
+                                    <input type="hidden" id="export" name="export" value="0">
+                                    <a onclick="$('#export').val(1);$('#sform').submit();"  class="layui-btn layui-btn-danger"><span class="glyphicon glyphicon-export"></span> 导出</a>
+                                </div>
                             </div>
                         </form>
                 <!--号码商列表-->
@@ -46,6 +43,7 @@
                         <th>联系电话</th>
                     <if condition="$param.status gt 0 ">
                         <th>appkey</th>
+                        <th>appsecret</th>
                         <th>总收入</th>
                         <th>余额</th>
                     </if>
@@ -63,6 +61,7 @@
                             <td><{$v.contact_tel}></td>
                         <if condition="$param.status gt 0 ">
                             <td><{$v.appkey}></td>
+                            <td><{$v.appsecret}></td>
                             <td><{$v.money}></td>
                             <td><{$v.balance}></td>
                         </if>
@@ -145,10 +144,6 @@
         x_admin_show(title,url,w,h);
     }
 
-    $('#export').on('click',function(){
-        window.location.href
-            ="<{:U('Admin/User/exportuser',array('username'=>$_GET[username],'parentid'=>$_GET[parentid],'status'=>$_GET[status],'authorized'=>$_GET[authorized],'groupid'=>$_GET[groupid],'regdatetime'=>$_GET[regdatetime],'isagent'=>0))}>";
-    });
 </script>
 </body>
 </html>

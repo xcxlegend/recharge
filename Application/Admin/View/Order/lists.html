@@ -7,7 +7,7 @@
             </div>
 
             <div class="ibox-content">
-                    <form class="layui-form" action="" method="get" autocomplete="off">
+                    <form class="layui-form" action="" method="get" autocomplete="off" id="sform">
                         <input type="hidden" name="p" value="1">
                         <div class="layui-form-item">
                         <div class="layui-inline">
@@ -24,10 +24,6 @@
                               <input type="text" name="trade_id" autocomplete="off" placeholder="充值流水号"
                                      class="layui-input" value="<{$param.trade_id}>">
                             </div>
-                            <div class="layui-input-inline">
-                                <input type="text" name="phone" autocomplete="off" placeholder="手机号"
-                                       class="layui-input" value="<{$param.phone}>">
-                              </div>
               
                             <div class="layui-input-inline" style="width:300px">
                               <input type="text" class="layui-input" name="create_time" id="create_time"
@@ -36,15 +32,6 @@
        
                             <div class="layui-input-inline" style="width:80px;">
                             <input type="text" name="money"  placeholder="金额" class="layui-input" value="<{$param.money}>">
-                            </div>
-                            <div class="layui-input-inline">
-                              <select name="sp">
-                                <option value="">运营商</option>
-                                <volist name="sp_list" id="vo" key="k">
-                                  <option <if condition="$param['sp'] eq $k">selected</if>
-                                  value="<{$k}>"><{$vo}></option>
-                                </volist>
-                              </select>
                             </div>
                             <div class="layui-input-inline">
                               <select name="status">
@@ -95,7 +82,6 @@
                                 <th lay-data="{field:'pay_orderid3', width:150}">商户订单号</th>
                                 <th lay-data="{field:'pay_orderid4', width:80}">商户ID</th>
                                 <th lay-data="{field:'pay_orderid7', width:100,style:'color:#C00;'}">金额</th>
-                                <th lay-data="{field:'pay_orderid8', width:100}">运营商</th>
                                 <th lay-data="{field:'pay_orderid9', width:100}">支付方式</th>
                                 <th lay-data="{field:'pay_orderid10', width:180}">创建时间</th>
                                 <th lay-data="{field:'pay_orderid11', width:180}">成功时间</th>
@@ -112,8 +98,7 @@
                                     <td><{$v.out_trade_id}></td>
                                     <td><{$v.pay_memberid}></td>
                                     <td><{$v.pay_actualamount}></td>
-                                    <td></td>
-                                    <td><{$v.pay_name}></td>
+                                    <td><{$paylist[$v['pay_code']]['name']}></td>
                                     <td><{$v.pay_applydate|date='Y-m-d H:i:s',###}></td>
                                     <td><{$v.pay_successdate|date='Y-m-d H:i:s',###}></td>
                                     <td>

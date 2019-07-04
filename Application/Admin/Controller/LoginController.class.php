@@ -43,6 +43,7 @@ class LoginController extends Controller
             $admin = M("admin");
             $info  = $admin->where(array("username" => $username, "password" => md5($loginpassword . C('DATA_AUTH_KEY'))))->find();
             
+
             if ($info) {
                 // 登录记录
                 $rows['userid']        = $info['id'];
@@ -55,7 +56,8 @@ class LoginController extends Controller
                 if (trim($loginIp)) {
                     $ipItem = explode("\r\n", $loginIp);
                     if (!in_array($location['ip'], $ipItem)) {
-                         $this->ajaxReturn(['errorno' => 1, 'msg' => '登录ip错误', 'url' => '']);
+                        D('AdminLog')->addLog('登录失败-错误的IP');
+                        $this->ajaxReturn(['errorno' => 1, 'msg' => '登录ip错误', 'url' => '']);
                     }
 
                 }
@@ -116,8 +118,11 @@ class LoginController extends Controller
 					$this->ajaxReturn(['errorno' => 0, 'msg' => '登录成功，进行二次身份验证', 'url' => U('Auth/google')]);
 				} else {
 					$this->ajaxReturn(['errorno' => 0, 'msg' => '登录成功!', 'url' => U('Index/index')]);
-				}
+                }
+                D('AdminLog')->addLog('登录成功');
+
             } else {
+                D('AdminLog')->addLog('登录失败-账号或密码不正确');
                 $this->ajaxReturn(['errorno' => 1, 'msg' => '你的帐号或密码不正确！', 'url' => '']);
             }
 
