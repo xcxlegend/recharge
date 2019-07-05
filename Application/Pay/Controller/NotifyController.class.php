@@ -39,9 +39,8 @@ class NotifyController extends OrderController
         // 1. 回调参数/签名判定
 
         Log::write("notify request:" . http_build_query($this->request));
-
         try {
-            $pay_orderid = ChannelManagerLib::notify($this->request['method'], $this->request);
+            $pay_orderid = ChannelManagerLib::notify($this->request['Method'], $this->request);
             if (!$pay_orderid) {
                exit('err');
             }
