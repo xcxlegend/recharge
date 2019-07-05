@@ -36,7 +36,7 @@ class IndexController extends OrderController
         }
 
         list($msec, $sec) = explode(' ', microtime());
-        $pay_orderid = 'MP' . date('YmdHis',$sec) . intval($msec * 1000);
+        $pay_orderid = 'MP' . date('YmdHis',$sec) . intval($msec * 10000);
 
 //        $poolLib = new PoolDevLib();
 

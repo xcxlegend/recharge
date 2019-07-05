@@ -54,7 +54,7 @@ class ShenRobotRechargeLib extends IPhoneRechagerLib
             "pay_orderid"          => $pay_orderid,
             "pay_applydate"        => date('Y-m-d H:i:s'),
             "pay_mobile"           => $phone,
-            "pay_amount"           => round($params['pay_amount'] / 100, 2),
+            "pay_amount"           => strval(number_format($params['pay_amount'] / 100, 2)),
             "pay_type"             => $this->getChannel($params['pool']['channel']),
             "pay_code"             => $params['pay_bankcode'],
             "pay_notifyurl"        => $notify ?: '',
@@ -83,7 +83,7 @@ class ShenRobotRechargeLib extends IPhoneRechagerLib
         }
          */
 
-        return new ChannelOrder( $data['data']['no'], $data['data']['wap_url'], $data['data']['code_url'], $pool['id'] );
+        return new ChannelOrder( $data['data']['orderNo'], $data['data']['url'], $data['data']['url'], $pool['id'] );
 
     }
 
@@ -94,7 +94,11 @@ class ShenRobotRechargeLib extends IPhoneRechagerLib
 
     public function notify(array $request)
     {
-        // TODO: Implement notify() method.
+        if ($request['status'] != 1) {
+            return false;
+        }
+
+        return $request['orderid'];
     }
 
     protected function getChannel( $channel ) {
