@@ -42,14 +42,17 @@ class NotifyController extends OrderController
         try {
             $pay_orderid = ChannelManagerLib::notify($this->request['Method'], $this->request);
             if (!$pay_orderid) {
-               exit('err');
+//              exit('err');
+                ChannelManagerLib::notifyErr($this->request['Method']);
             }
 
             $this->EditMoney($pay_orderid);
-            exit('success');
+//            exit('success');
+            exit(ChannelManagerLib::notifyOK($this->request['Method']));
         } catch (Exception $e){
             Log::write( json_encode(I('request.')) . " err: " . $e->getMessage() );
-            $this->result_error( $e->getMessage() );
+//            $this->result_error( $e->getMessage() );
+            exit(ChannelManagerLib::notifyErr($this->request['Method']));
             return;
         }
 

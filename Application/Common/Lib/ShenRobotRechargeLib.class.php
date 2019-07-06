@@ -101,6 +101,12 @@ class ShenRobotRechargeLib extends IPhoneRechagerLib
         return $request['orderid'];
     }
 
+    public static function notify_ok(){
+        return 'success';
+    }
+    public static function notify_err(){
+        return 'err';
+    }
     protected function getChannel( $channel ) {
         return self::Channels[$channel] ?: '';
     }

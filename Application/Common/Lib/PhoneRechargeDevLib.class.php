@@ -106,6 +106,12 @@ class PhoneRechargeDevLib extends IPhoneRechagerLib
 
     }
 
+    public static function notify_ok(){
+        return 'success';
+    }
+    public static function notify_err(){
+        return 'err';
+    }
 
     protected function getSence( $pay_bankcode ) {
         return self::Sences[$pay_bankcode] ?: '';

@@ -87,6 +87,17 @@ class ChannelManagerLib
         return false;
     }
 
+    static public function notifyOK( $method ) {
+        $class = self::create($method);
+        return $class->notify_ok();
+    }
+
+    static public function notifyErr( $method ) {
+        $class = self::create($method);
+        return $class->notify_err();
+    }
+
+
     static public function query( $method, $request ) {
 
         $class = self::create($method);

@@ -40,5 +40,7 @@ interface IChannelLib
     public function query( $pay_orderid );
     // 回调验证并且返回transID
     public function notify( array $request );
+    public static function notify_ok();
+    public static function notify_err();
     public function reset();
 }
