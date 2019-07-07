@@ -565,7 +565,7 @@ class OrderController extends PayController
             "memberid" => $order["pay_memberid"], // 商户ID
             "orderid" => $order['out_trade_id'], // 订单号
             'transaction_id' => $order["pay_orderid"], //支付流水号
-            "amount" => $order["pay_amount"], // 交易金额
+            "amount" => intval($order["pay_amount"] * 100), // 交易金额
             "datetime" => date("YmdHis", $order['pay_successdate']), // 交易时间
             "status" => 1, // 交易状态
         ];

@@ -392,6 +392,39 @@ class IndexController extends OrderController
     }
 
 
+    public function Query(){
 
+        $params = [
+            'out_trade_id' => $this->request['out_trade_id'],
+            'pay_memberid' => $this->request['pay_memberid']
+        ];
+
+        $member = D('Common/Member')->getById( $this->request['pay_memberid'] - 10000 );
+
+        if (!$member) {
+            $this->result_error("商户不存在");
+            return;
+        }
+
+        if (createSign($member['apikey'], $params) !==  $this->request['sign'] ) {
+            $this->result_error("签名错误");
+            return;
+        }
+
+        $params['pay_memberid'] = $member['id'];
+
+        $order = D('Order')->where($params)->find();
+        if (!$order || $order['pay_status'] == "0") {
+            $this->result_error("订单不存在或未支付");
+            return;
+        }
+        
+        $this->result_success([
+            "time"          => date('Y-m-d H:i:s', $order['pay_successdate']),
+            "amount"        => intval($order['pay_amount'] * 100),
+            "out_trade_id"  => $order['out_trade_id'],
+            "order_id"      => $order['pay_orderid']
+        ]);
+    }
 
 }
