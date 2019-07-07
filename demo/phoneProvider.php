@@ -33,6 +33,7 @@ error_reporting(E_ALL & ~E_NOTICE);
         }
 
         $data['sign'] = md5(trim($signUrl,'&'));
+        var_dump($data);
         $result = http($url,$data);
         echo $result;
 

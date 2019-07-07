@@ -65,6 +65,8 @@ $native["pay_md5sign"] = $sign;
 $native['pay_attach'] = "1234|456";
 $native['pay_productname'] ='测试商品';
 
+var_dump($native);
+
 $res = sendForm($tjurl, $native);
 //print_r($native);
 echo $res;exit;
