@@ -28,7 +28,7 @@ class TestRechargeLib extends IPhoneRechagerLib
 
     public function notify(array $request)
     {
-        return '';
+        return $request['orderid'];
     }
 
     public static function notify_ok(){

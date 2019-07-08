@@ -1,5 +1,6 @@
 <?php
 namespace Admin\Controller;
+use Think\Exception;
 
 class PoolProviderOrderController extends BaseController
 {
@@ -125,6 +126,24 @@ class PoolProviderOrderController extends BaseController
         $this->assign('sp_list', $sp_list);
         $this->assign('info', $info);
         $this->display();
+    }
+
+    public function drawback()
+    {
+        $id = I("get.id");
+        if (!$id) {
+            $this->ajaxReturn(['info'=>'参数错误', 'status'=>false]);
+            return;
+        }
+
+        try {
+            D('Common/PoolRec')->drawback( UID, $id, '退单');
+        } catch (Exception $e) {
+            $this->ajaxReturn(['info'=>$e->getMessage(), 'status' => false]);
+            return;
+        }
+
+        $this->ajaxReturn(['info'=>'退单成功', 'status' => true]);
     }
 
     
