@@ -438,14 +438,14 @@ class OrderController extends PayController
              */
             $rate = 0;
             if ($config['rate'] && $config['rate'][$pool['channel']]) {
-                $rate = intval($config['rate'][$pool['channel']]);
+                $rate = floatval($config['rate'][$pool['channel']]);
             }
 
-            if ($rate > 100) {
+            if ($rate > 1) {
                 $rate = 0;
             }
 
-            $pound = intval($pool['money'] * $rate / 100);
+            $pound = intval($pool['money'] * $rate );
             $actmoney = $pool['money'] - $pound;
 
             $poolOrder = [
