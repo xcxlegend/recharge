@@ -1497,7 +1497,7 @@ class UserController extends BaseController
                 $u['activatedatetime'] = date("Y-m-d H:i:s");
                 $u['agent_cate']       = $u['groupid'];
                 // 创建用户
-                $res = M('Common/Member')->add($u);
+                $res = D('Common/Member')->add($u);
                 // 发邮件通知用户密码
                 sendPasswordEmail($u['username'], $u['email'], $u['origin_password'], $siteconfig);
             }
