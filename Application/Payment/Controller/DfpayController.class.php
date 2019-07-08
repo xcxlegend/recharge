@@ -147,22 +147,22 @@ class DfpayController extends Controller
         //$notifyurl = I("request.notifyurl", '');
         $extends = I("request.extends", '');
         //当前可用提现渠道
-        $channel_ids = M('pay_for_another')->where(['status' => 1])->getField('id', true);
-        if($channel_ids) {
-            //获取渠道扩展字段
-            $fields = M('pay_channel_extend_fields')->where(['channel_id'=>['in',$channel_ids]])->select();
-            if(!empty($fields)) {
-                if(!$extends) {
-                    $this->showmessage('扩展字段不能为空！');
-                }
-                $extend_fields_array = json_decode(base64_decode($extends), true);
-                foreach($fields as $k => $v) {
-                    if(!isset($extend_fields_array[$v['name']]) || $extend_fields_array[$v['name']]=='') {
-                        $this->showmessage('扩展字段【'.$v['alias'].'】不能为空！');
-                    }
-                }
-            }
-        }
+        // $channel_ids = M('pay_for_another')->where(['status' => 1])->getField('id', true);
+        // if($channel_ids) {
+        //     //获取渠道扩展字段
+        //     $fields = M('pay_channel_extend_fields')->where(['channel_id'=>['in',$channel_ids]])->select();
+        //     if(!empty($fields)) {
+        //         if(!$extends) {
+        //             $this->showmessage('扩展字段不能为空！');
+        //         }
+        //         $extend_fields_array = json_decode(base64_decode($extends), true);
+        //         foreach($fields as $k => $v) {
+        //             if(!isset($extend_fields_array[$v['name']]) || $extend_fields_array[$v['name']]=='') {
+        //                 $this->showmessage('扩展字段【'.$v['alias'].'】不能为空！');
+        //             }
+        //         }
+        //     }
+        // }
         //验签
         if ($this->verify($_REQUEST)) {
             M()->startTrans();
@@ -178,7 +178,7 @@ class DfpayController extends Controller
             $data['city']          = $city;
             $data['ip']            = get_client_ip();
             $data['check_status']  = 0;
-            $data['extends']       = base64_decode($extends);
+            // $data['extends']       = base64_decode($extends);
             //$data['notifyurl']     = $notifyurl;
             $data['create_time'] = time();
             //添加订单
