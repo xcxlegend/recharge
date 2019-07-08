@@ -16,13 +16,11 @@ class OrderController extends PayController
     //通道信息
 //    protected $channel;
 
-    protected $request;
 
 
     public function __construct()
     {
         parent::__construct();
-        $this->request = I('request.');
     }
 
 
@@ -31,7 +29,7 @@ class OrderController extends PayController
      * @param $parameter
      * @return array
      */
-    public function orderadd( $order )
+    public function orderadd( $order, $product, $channel )
     {
 
         $userid = $order['pay_memberid'];
@@ -49,7 +47,12 @@ class OrderController extends PayController
 //            return;
 //        }
 
-        $product = M('Product')->where(['code' => $order['pay_code']])->find();
+        if (!$product) {
+//            $product = $this->cache->getOrSet("Product:pay_code:" . $order['pay_code'], function () use (&$order) {
+//                M('Product')->where(['code' => $order['pay_code']])->find();
+//            });
+            $product = D('Common/Product')->getByCode($order['pay_code']);
+        }
         if (!$product) {
             $this->result_error("支付方式错误");
             return;
@@ -71,9 +74,16 @@ class OrderController extends PayController
             ->where(["userid" =>  $userid, "payapiid" => $product['id']])
             ->find();
         //银行通道费率
-        $syschannel = M('Channel')
-            ->where(['code' => 'Pool'])
-            ->find();
+        if (!$channel) {
+            $channel_id = $order['channel_id'];
+           /* $channel = $this->cache->getOrSet("Channel:id:". $channel_id, function () use ($channel_id) {
+                return M('Channel')->find($channel_id);
+            }, true);*/
+           $channel = D('Common/Channel')->getById( $channel_id );
+        }
+        $syschannel = $channel;//M('Channel')
+//            ->where(['code' => 'Pool'])
+//            ->find();
 
         //---------------------------子账号风控start------------------------------------
 //        $channel_account_list        = M('channel_account')->where(['channel_id' => $syschannel['id'], 'status' => '1'])->select();
@@ -168,7 +178,7 @@ class OrderController extends PayController
 
         $order['pay_poundage']        = $pay_sxfamount; // 手续费
         $order['pay_actualamount']    = $pay_shijiamount; // 到账金额
-        $order['pay_tongdao']         = $syschannel['code'];
+//        $order['pay_tongdao']         = $syschannel['code'];
         $order['pay_zh_tongdao']      = $syschannel['title'];
         $order['pay_tjurl']           = $_SERVER['HTTP_REFERER'];
         $order['cost']                = $cost;
@@ -208,8 +218,8 @@ class OrderController extends PayController
         //********************************************订单支付成功上游回调处理********************************************//
         if ($order_info["pay_status"] == 0) {
 
-            $product = M('Product')->where(['code' => $order_info['pay_code']])->find();
-
+//            $product = M('Product')->where(['code' => $order_info['pay_code']])->find();
+            $product = D('Common/Product')->getByCode( $order_info['pay_code'] );
             //开启事物
             M()->startTrans();
             //查询用户信息
@@ -220,7 +230,7 @@ class OrderController extends PayController
                 return false;
             }
 
-            $provider = M('PoolProvider')->where(['id' => $pool['pid']])->find();
+            $provider = D('Common/PoolProvider')->getById( $pool['pid'] ); // M('PoolProvider')->where(['id' => $pool['pid']])->find();
             if (!$provider){
                 log::write("pool provider not exist:" . json_encode($pool));
                 $this->result_error("no pool provider", $this->request);
@@ -354,16 +364,16 @@ class OrderController extends PayController
             //-----------------------------------------修改用户数据 商户余额、冻结余额end-----------------------------------
 
             //-----------------------------------------修改通道风控支付数据start----------------------------------------------
-            $m_Channel     = M('Channel');
-            $channel_where = ['id' => $order_info['channel_id']];
-            $channel_info  = $m_Channel->where($channel_where)->find();
+//            $m_Channel     = M('Channel');
+//            $channel_where = ['id' => $order_info['channel_id']];
+//            $channel_info  = D('Common/Channel')->getById( $order_info['channel_id'] );//   $m_Channel->where($channel_where)->find();
             //判断当天交易金额并修改支付状态
-            $this->saveOfflineStatus(
+           /* $this->saveOfflineStatus(
                 $m_Channel,
                 $order_info['channel_id'],
                 $order_info['pay_amount'],
                 $channel_info
-            );
+            );*/
 
             //-----------------------------------------修改通道风控支付数据end------------------------------------------------
 
@@ -396,7 +406,7 @@ class OrderController extends PayController
 
 
             // 转存poolphone订单信息
-            $this->handlePoolOrderSuccess( $pool );
+            $this->handlePoolOrderSuccess( $pool, $provider );
 
 
         }
@@ -407,10 +417,7 @@ class OrderController extends PayController
     }
 
 
-    protected function handlePoolOrderSuccess( $pool ) {
-
-        // 给号码商上增加金额
-        M('PoolProvider')->where(['id' => $pool['pid']])->setInc("money", $pool['money']);
+    protected function handlePoolOrderSuccess( $pool, $provider ) {
 
         $poolOrder = M('PoolRec')->where(['pool_id' => $pool['id']])->find();
         if (!$poolOrder){
@@ -446,13 +453,33 @@ class OrderController extends PayController
                 return;
             }
             $poolOrder['id'] = M('PoolRec')->getLastInsID();
+
+            // 给号码商上增加金额
+            if (!M('PoolProvider')->where(['id' => $pool['pid']])->setInc("money", $pool['money'])){
+                M()->rollback();
+                Log::write("add PoolProvider money err:" . json_encode($poolOrder));
+                return;
+            }
+
+            if (!M('PoolProvider')->where(['id' => $pool['pid']])->setDec("balance", $pool['money'])){
+                M()->rollback();
+                Log::write("dec PoolProvider balance err:" . json_encode($poolOrder));
+                return;
+            }
+
+            if (!D('PoolMoneychange')->addData($provider['id'], UID, $provider['balance'], -$pool['money'], "支付订单: " . $poolOrder['id'] , $poolOrder['id'])){
+                M()->rollback();
+                Log::write("dec PoolProvider balance log err:" . json_encode($poolOrder));
+                return;
+            }
+
             if (!M('PoolPhones')->where(['id' => $pool['id']])->delete()){
                 M()->rollback();
                 Log::write("delete PoolPhones err:" . json_encode($poolOrder));
                 return;
-            }else{
-                M()->commit();
             }
+
+            M()->commit();
         } else {
             // 如果存在也执行删除逻辑
             M('PoolPhones')->where(['id' => $pool['id']])->delete();
@@ -538,7 +565,7 @@ class OrderController extends PayController
             "memberid" => $order["pay_memberid"], // 商户ID
             "orderid" => $order['out_trade_id'], // 订单号
             'transaction_id' => $order["pay_orderid"], //支付流水号
-            "amount" => $order["pay_amount"], // 交易金额
+            "amount" => intval($order["pay_amount"] * 100), // 交易金额
             "datetime" => date("YmdHis", $order['pay_successdate']), // 交易时间
             "status" => 1, // 交易状态
         ];
@@ -805,7 +832,6 @@ class OrderController extends PayController
 
     public function bufa()
     {
-
         header('Content-type:text/html;charset=utf-8');
         $TransID    = I("get.TransID");
         $PayName    = I("get.tongdao");
@@ -817,8 +843,23 @@ class OrderController extends PayController
         } else {
             echo "补发失败";
         }
-
     }
+
+    public function poolbufa() {
+        header('Content-type:text/html;charset=utf-8');
+        $id    = I("get.id");
+        $pool          = M("PoolRec")->find($id);
+        if (!$pool) {
+            exit('补发失败');
+        }
+        if ($pool['status'] == 0) {
+            echo ("订单号：" . $pool['order_id']  . "已补发服务器点对点通知，请稍后刷新查看结果！<a href='javascript:window.close();'>关闭</a>");
+            $this->sendPoolNotify($pool);
+        } else {
+            echo "补发失败";
+        }
+    }
+
 
     /**
      * 扫码订单状态检查

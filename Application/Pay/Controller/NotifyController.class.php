@@ -7,12 +7,13 @@
  */
 
 namespace Pay\Controller;
+use Common\Lib\ChannelManagerLib;
+use Think\Exception;
 use \Think\Log;
 
 
 class NotifyController extends OrderController
 {
-    protected $request;
 
     public function __construct()
     {
@@ -38,15 +39,32 @@ class NotifyController extends OrderController
         // 1. 回调参数/签名判定
 
         Log::write("notify request:" . http_build_query($this->request));
-        if ($this->request['status'] != "Success") {
-            $this->result_error( "status" );
+        try {
+            $pay_orderid = ChannelManagerLib::notify($this->request['Method'], $this->request);
+            if (!$pay_orderid) {
+//              exit('err');
+                ChannelManagerLib::notifyErr($this->request['Method']);
+            }
+
+            $this->EditMoney($pay_orderid);
+//            exit('success');
+            exit(ChannelManagerLib::notifyOK($this->request['Method']));
+        } catch (Exception $e){
+            Log::write( json_encode(I('request.')) . " err: " . $e->getMessage() );
+//            $this->result_error( $e->getMessage() );
+            exit(ChannelManagerLib::notifyErr($this->request['Method']));
             return;
         }
 
-        if ( !$this->check() ){
-            $this->result_error("sign", $this->request);
-            return;
-        }
+//        if ($this->request['status'] != "Success") {
+//            $this->result_error( "status" );
+//            return;
+//        }
+//
+//        if ( !$this->check() ){
+//            $this->result_error("sign", $this->request);
+//            return;
+//        }
 
 //        $order = M('Order')->where(['pay_orderid' => $this->request['merchant_order_no']])->find();
 //        if (!$order) {
@@ -65,9 +83,9 @@ class NotifyController extends OrderController
 //            return;
 //        }
 
-        Log::write(" Pay_Notify notify: " . http_build_query($this->request));
-        $this->EditMoney($this->request['merchant_order_no']);
-        exit('success');
+//        Log::write(" Pay_Notify notify: " . http_build_query($this->request));
+//        $this->EditMoney($this->request['merchant_order_no']);
+//        exit('success');
 //        M()->startTrans();
 //        M('Order')->where(['id' => $order['id']])->save([
 //            'pay_status' => 1,

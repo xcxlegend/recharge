@@ -40,7 +40,7 @@ $http_type = ((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') || (isset(
 $pay_notifyurl = $http_type . $_SERVER['HTTP_HOST'] . "/demo/server.php";   //服务端返回地址
 $pay_callbackurl = $http_type. $_SERVER['HTTP_HOST'] . "/demo/page.php";  //页面跳转返回地址
 $Md5key = "lvjip0x4sqeni4h69pzbpgorp3u2ea3w";   //密钥
-$tjurl = $http_type . $_SERVER['HTTP_HOST'] . "/Pay_Index.html";   //提交地址
+$tjurl = $http_type . $_SERVER['HTTP_HOST'] . "/Pay_Index_index.html";   //提交地址
 
 
 //扫码
@@ -64,6 +64,8 @@ $sign = md5($md5str);
 $native["pay_md5sign"] = $sign;
 $native['pay_attach'] = "1234|456";
 $native['pay_productname'] ='测试商品';
+
+var_dump($native);
 
 $res = sendForm($tjurl, $native);
 //print_r($native);

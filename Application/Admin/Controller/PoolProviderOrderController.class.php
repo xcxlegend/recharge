@@ -1,0 +1,133 @@
+<?php
+namespace Admin\Controller;
+
+class PoolProviderOrderController extends BaseController
+{
+    public function __construct()
+    {
+        parent::__construct();
+
+    }
+
+    //列表
+    public function index()
+    {
+        $param = I("get.");
+        if(!empty($param['pay_memberid'])){
+            $where['b.pay_memberid'] = $param['pay_memberid'];
+        }
+        if(!empty($param['order_id'])){
+            $where['a.order_id'] = $param['order_id'];
+        }
+        if(!empty($param['trade_id'])){
+            $where['b.trade_id'] = $param['trade_id'];
+        }
+        if(!empty($param['phone'])){
+            $where['a.phone'] = $param['phone'];
+        }
+        if(!empty($param['create_time'])){
+            $where['b.pay_applydate'] = $param['pay_applydate'];
+            list($stime, $etime)  = explode('|', $param['create_time']);
+            $where['b.pay_applydate'] = ['between', [strtotime($stime), strtotime($etime) ? strtotime($etime) : time()]];
+        }
+        if(!empty($param['money'])){
+            $where['a.money'] = $param['money']*100;//分
+        }
+        if(!empty($param['sp'])){
+            $where['a.sp'] = $param['sp'];
+        }
+        if(is_numeric($param['status'])){
+            $where['a.status'] = $param['status'];
+        }
+
+        $sp_list = array('1'=>'移动','2'=>'电信','3'=>'联通');
+
+        if(!empty($param['export'])){
+            
+            $data = D('PoolProviderSuccess')->getAllList($where);
+            $list = array();
+            foreach ($data as $item) {
+                switch ($item['status']) {
+                    case 0:
+                        $status = '未回调';
+                        break;
+                    case 1:
+                        $status = '回调成功';
+                        break;
+                }
+
+                $list[] = array(
+                    'order_id'    => $item['order_id'],
+                    'trade_id'      => $item['trade_id'],
+                    'pool_order_id'     => $item['pool_order_id'],
+                    'pay_memberid'    => $item['pay_memberid'],
+                    'pid'    => $item['pid'],
+                    'phone'    => $item['phone'],
+                    'money'      => $item['money'],
+                    'sp'      => $sp_list[$item['sp']],
+                    'pay_name'      => $item['pay_name'],
+                    'pay_applydate'      =>date('Y-m-d H:i:s',$item['pay_applydate']),
+                    'pay_successdate'      => date('Y-m-d H:i:s',$item['pay_successdate']),
+                    'status'  => $status,
+                    'time'      => date('Y-m-d H:i:s',$item['time']),
+                );
+            }
+            $title = array('平台订单号', '充值流水号', '商户订单号','商户ID', '号码商ID', '手机号', '金额', '运营商', '支付方式', '创建时间', '成功时间', '状态', '添加时间');
+            exportexcel($list, $title);
+            exit;
+            
+        }
+
+        $data = D('PoolProviderSuccess')->getList($where);
+        
+
+        //交易总额
+        $money['total'] = D('PoolProviderSuccess')->field('sum(`money`) as money')->find();
+
+        //上月
+        $monthWhere['month'] = date('m',strtotime('last month'));
+        $money['month'] = D('PoolProviderSuccess')->field('sum(`money`) as money')->where($monthWhere)->find();
+
+        //上周
+        $sWeek =  date("Y-m-d H:i:s",mktime(0, 0 , 0,date("m"),date("d")-date("w")+1-7,date("Y")));
+        $eweek =  date("Y-m-d H:i:s",mktime(23,59,59,date("m"),date("d")-date("w")+7-7,date("Y")));
+        $weekWhere['time'] = ['between', [strtotime($sWeek), strtotime($eweek)]];
+        $money['week'] = D('PoolProviderSuccess')->field('sum(`money`) money')->where($weekWhere)->find();
+        //今日
+        $todayWhere['day'] = date("d");
+        $money['today'] = D('PoolProviderSuccess')->field('sum(`money`) as money')->where($todayWhere)->find();
+
+
+        //订单总量
+        $money['total']['count'] = D('PoolProviderSuccess')->count();
+
+        //今日订单量
+        $money['today']['count'] = D('PoolProviderSuccess')->where($todayWhere)->count();
+
+
+        
+
+        $this->assign('param', $param);
+        $this->assign('count', $money);
+        $this->assign('sp_list', $sp_list);
+        $this->assign('list', $data['list']);
+        $this->assign('page', $data['page']);
+        $this->display();
+    }
+
+
+    public function info()
+    {
+        $id = I("get.id");
+        $info = D('PoolProviderSuccess')->getInfo($id);
+        $sp_list = array('1'=>'移动','2'=>'联通','3'=>'电信');
+        
+        $this->assign('sp_list', $sp_list);
+        $this->assign('info', $info);
+        $this->display();
+    }
+
+    
+
+}
+?>

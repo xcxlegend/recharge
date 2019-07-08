@@ -8,7 +8,7 @@ return array(
      'LOG_RECORD'            =>  false,  // 进行日志记录
     'LOG_EXCEPTION_RECORD'  =>  false,    // 是否记录异常信息日志
     'LOG_LEVEL'             =>  '',  // 允许记录的日志级别
-    'LOAD_EXT_CONFIG' => 'website,db,tags,route,disable,version,paytype,merchants,planning,additional,deploy',
+    'LOAD_EXT_CONFIG' => 'website,db,tags,route,disable,version,paytype,merchants,planning,additional,deploy,redis',
     'DEFAULT_MODULE' => 'Home',
     /* 全局过滤配置 */
     'DEFAULT_FILTER' =>  'strip_tags,htmlspecialchars',

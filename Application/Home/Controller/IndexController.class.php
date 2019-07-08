@@ -25,6 +25,7 @@ class IndexController extends BaseController
 
     public function index()
     {
+        redirect('Home_Index_userLogin');
         exit();
         $this->display();
     }
