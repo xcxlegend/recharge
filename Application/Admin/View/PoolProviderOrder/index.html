@@ -51,6 +51,7 @@
                                 <option value="">全部状态</option>
                                 <option <if condition="$param['status'] neq '' && $status eq 0">selected</if> value="0">未回调</option>
                                 <option <if condition="$param['status'] eq 1">selected</if> value="1">回调完成</option>
+                                 <option <if condition="$param['status'] eq 2">selected</if> value="2">退单</option>
                               </select>
                             </div>
                           
@@ -97,7 +98,7 @@
                                 <th lay-data="{field:'pay_orderid11', width:180}">成功时间</th>
                                 <th lay-data="{field:'pay_orderid12', width:100}">状态</th>
                                 <th lay-data="{field:'pay_orderid13', width:180}">添加时间</th>
-                                <th lay-data="{field:'pay_orderid14', width:180}">操作</th>
+                                <th lay-data="{field:'pay_orderid14', width:240}">操作</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -116,9 +117,9 @@
                                     <td><{$v.pay_applydate|date='Y-m-d H:i:s',###}></td>
                                     <td><{$v.pay_successdate|date='Y-m-d H:i:s',###}></td>
                                     <td>
-                                        <if condition="$v.status eq 0 ">未回调
-                                            <else /> 回调成功
-                                            </if>
+                                        <if condition="$v.status eq 0 ">未回调</if>
+                                        <if condition="$v.status eq 1 ">回调成功</if>
+                                        <if condition="$v.status eq 2 ">退单</if>
                                     </td>
                                     <td><{$v.time|date='Y-m-d H:i:s',###}></td>
                                     <td>
@@ -126,6 +127,7 @@
                                         <a onclick="reNotice('<{$v[id]}>')" class="layui-btn layui-btn-danger layui-btn-mini">补发通知</a>
                                         <!-- <a onclick="x_admin_show('余额加钱', '<{:U('PoolProviderMoney/AddProviderBalance',['id'=>$v[id]])}>',540,440)" class="layui-btn layui-btn-danger layui-btn-mini"><i class="layui-icon">&#xe640;</i>补单</a> -->
                                         <a href="<{:U('PoolProviderOrder/info',['id'=>$v[id]])}>" class="layui-btn layui-btn-mini layui-btn-success">订单详情</a>
+                                        <a onclick="drawback('<{$v[id]}>')" class="layui-btn layui-btn-mini layui-btn-danger">退单</a>
                                     </td>
                                 </tr>
                             </volist>
@@ -156,6 +158,24 @@
                 data:'id='+id,
                 success:function(res){
                     layer.msg('补发申请已发出，请稍候刷新查看结果!',{icon:1,time:1000});
+                }
+            });
+        });
+    }
+
+    function drawback(id) {
+        layer.confirm('确定要退单吗？',function(index){
+            $.ajax({
+                url:"<{:U('PoolProviderOrder/drawback')}>",
+                type:'get',
+                data:'id='+id,
+                success:function(res){
+                    if (res.status) {
+                        layer.msg(res.info,{icon:1,time:1000});
+                        window.location.reload();
+                    } else {
+                        layer.msg(res.info,{icon:2,time:1500});
+                    }
                 }
             });
         });

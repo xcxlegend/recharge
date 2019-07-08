@@ -420,6 +420,7 @@ class OrderController extends PayController
     protected function handlePoolOrderSuccess( $pool, $provider ) {
 
         $poolOrder = M('PoolRec')->where(['pool_id' => $pool['id']])->find();
+        $config = json_decode($provider['config'], true);
         if (!$poolOrder){
             M()->startTrans();
             /*
@@ -435,6 +436,18 @@ class OrderController extends PayController
   `day` int(2) NOT NULL DEFAULT '0' COMMENT '日',
 
              */
+            $rate = 0;
+            if ($config['rate'] && $config['rate'][$pool['channel']]) {
+                $rate = floatval($config['rate'][$pool['channel']]);
+            }
+
+            if ($rate > 1) {
+                $rate = 0;
+            }
+
+            $pound = intval($pool['money'] * $rate );
+            $actmoney = $pool['money'] - $pound;
+
             $poolOrder = [
                 'pool_id'           => $pool['id'],
                 'pid'               => $pool['pid'],
@@ -446,7 +459,12 @@ class OrderController extends PayController
                 'year'              => date('Y', $this->timestamp),
                 'month'             => date('m', $this->timestamp),
                 'day'               => date('d', $this->timestamp),
+                'money'             => $pool['money'],
+                'channel'           => $pool['channel'],
+                'actmoney'          => $actmoney,
+                'pound'             => $pound
             ];
+            // $poolOrder['actmoney']
             if (!M('PoolRec')->add($poolOrder)){
                 M()->rollback();
                 Log::write("add poolOrder err:" . json_encode($poolOrder));
@@ -454,8 +472,8 @@ class OrderController extends PayController
             }
             $poolOrder['id'] = M('PoolRec')->getLastInsID();
 
-            // 给号码商上增加金额
-            if (!M('PoolProvider')->where(['id' => $pool['pid']])->setInc("money", $pool['money'])){
+            // 给号码商上增加金额和余额进去
+           /* if (!M('PoolProvider')->where(['id' => $pool['pid']])->setInc("money", $pool['money'])){
                 M()->rollback();
                 Log::write("add PoolProvider money err:" . json_encode($poolOrder));
                 return;
@@ -465,9 +483,20 @@ class OrderController extends PayController
                 M()->rollback();
                 Log::write("dec PoolProvider balance err:" . json_encode($poolOrder));
                 return;
+            }*/
+
+            if (!M('PoolProvider')->where(['id' => $pool['pid']])->save(
+                [
+                    'money' => [ 'exp', ' money + ' . $actmoney ],
+                    'balance' => [ 'exp', ' balance - ' . $actmoney ]
+                ]
+            )){
+                M()->rollback();
+                Log::write("dec PoolProvider balance err:" . json_encode($poolOrder));
+                return;
             }
 
-            if (!D('PoolMoneychange')->addData($provider['id'], UID, $provider['balance'], -$pool['money'], "支付订单: " . $poolOrder['id'] , $poolOrder['id'])){
+            if (!D('PoolMoneychange')->addData($provider['id'], UID, $provider['balance'], -$actmoney, "支付订单: " . $poolOrder['id'] , $poolOrder['id'])){
                 M()->rollback();
                 Log::write("dec PoolProvider balance log err:" . json_encode($poolOrder));
                 return;
