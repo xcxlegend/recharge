@@ -462,7 +462,8 @@ class OrderController extends PayController
                 'money'             => $pool['money'],
                 'channel'           => $pool['channel'],
                 'actmoney'          => $actmoney,
-                'pound'             => $pound
+                'pound'             => $pound,
+                'phone'             => $pool['phone']
             ];
             // $poolOrder['actmoney']
             if (!M('PoolRec')->add($poolOrder)){
