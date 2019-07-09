@@ -5,8 +5,8 @@ header("Content-type: text/html; charset=utf-8");
 //const HOST = "http://118.31.46.85";
 
 
-$mchid = "10062";
-$Md5key = "lvjip0x4sqeni4h69pzbpgorp3u2ea3w";
+$mchid = $_POST['mchid'];
+$Md5key = $_POST['md5key'];// "lvjip0x4sqeni4h69pzbpgorp3u2ea3w";
 $out_trade_no = date("YmdHis",time());    //订单号
 $_POST['out_trade_no'] = $out_trade_no;
 $money =  $_POST["money"];    //交易金额
@@ -23,6 +23,8 @@ if(!empty($_POST['extends'])) {
 ksort($_POST);
 //var_dump($_POST);die;
 $md5str = "";
+$params = $_POST;
+unset($_POST['md5key']);
 foreach ($_POST as $key => $val) {
     $md5str = $md5str . $key . "=" . $val . "&";
 }

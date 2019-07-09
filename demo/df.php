@@ -21,6 +21,14 @@
 			<ul>
 
 				<li>
+					<label>mchid</label>
+					<input type="text" name="mchid" value="10062" />
+				</li>
+				<li>
+					<label>md5key</label>
+					<input type="text" name="md5key" value="lvjip0x4sqeni4h69pzbpgorp3u2ea3w" />
+				</li>
+				<li>
 					<label>金额</label>
 					<input type="text" name="money" value="15" />
 				</li>
