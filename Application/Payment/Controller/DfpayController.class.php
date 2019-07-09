@@ -320,7 +320,7 @@ class DfpayController extends Controller
      */
     private function dfPass($data, $df_api_id) {
         M()->startTrans();
-        $Member = M('Member');
+        $Member = D('Common/Member');
         $info   = $Member->where(['id' => $data['userid']])->lock(true)->find();
 
         //判断是否设置了节假日不能提现

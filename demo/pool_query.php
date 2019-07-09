@@ -28,7 +28,7 @@ function sendForm($url,$data,$referer){
     return $data;
 }
 $Md5key = "lvjip0x4sqeni4h69pzbpgorp3u2ea3w";   //密钥
-const MD5KEY = '9f9quocsb5ake9i7f0i02kosyegzjt1t';
+const MD5KEY = '3d9ffdc0512f223db2b17b036b72406f';
 function sign( $query ){
     ksort($query);
     $md5str = "";
@@ -39,20 +39,29 @@ function sign( $query ){
     return $sign;
 }
 
+$query = [
+    'appkey'  => '62fa7a1588478a5d',
+    'out_trade_id' => '1562686685'
+];
+$query['sign'] = sign($query);
+
+$data = sendForm('http://47.244.237.40/Pay_Pool_Query', $query);
+var_dump($data);exit;
+
 $http_type = ((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') || (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https')) ? 'https://' : 'http://';
 
 if ($_GET['act'] == 'tx') {
     /**
-     * mchid	商户编号	是	是	平台分配商户号
-    out_trade_no	商户订单号	是	是	保证唯一值
-    money	订单金额	是	是	单位：元
-    bankname	开户行名称	是	是
-    subbranch	支行名称	是	是
-    accountname	开户名	是	是
-    cardnumber	银行卡号	是	是
-    province	省份	是	是
-    city	城市	是	是
-    extends	附加字段	否	是
+     * mchid    商户编号    是   是   平台分配商户号
+    out_trade_no    商户订单号   是   是   保证唯一值
+    money   订单金额    是   是   单位：元
+    bankname    开户行名称   是   是
+    subbranch   支行名称    是   是
+    accountname 开户名 是   是
+    cardnumber  银行卡号    是   是
+    province    省份  是   是
+    city    城市  是   是
+    extends 附加字段    否   是
     sign
      */
     $query = [
@@ -74,15 +83,14 @@ if ($_GET['act'] == 'tx') {
 }
 
 $query = [
-    'pay_memberid' => 10065,
-    'out_trade_id'  => 'E2019071000110973510',
+    'pay_memberid' => 10062,
+    'pay_orderid'  => 'E20190515102245600761',
 ];
 
-$query["sign"] = sign($query);
+$query["pay_md5sign"] = sign($query);
 
 $tjurl = $http_type . $_SERVER['HTTP_HOST'] . "/Pay_Trade_Query.html";   //提交地址
 $refer = $http_type . $_SERVER['HTTP_HOST'] . '/demo';
 
-$tjurl = 'http://47.244.237.40/Pay_Index_Query';
 $res = sendForm($tjurl, $query, $refer);
 echo $res;
