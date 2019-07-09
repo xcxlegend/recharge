@@ -1,0 +1,92 @@
+<include file="Public/header"/>
+<div class="row">
+    <div class="col-md-12">
+        <div class="ibox float-e-margins">
+            <div class="ibox-title">
+                <h5>账号资料</h5>
+            </div>
+            <div class="ibox-content">
+                <!--用户信息-->
+                <form class="layui-form" action="" autocomplete="off" id="profile">
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">编号：</label>
+                        <div class="layui-input-block">
+                            <{$item.id}>  
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">用户名：</label>
+                        <div class="layui-input-block"><{$item.name}>  
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">appkey：</label>
+                        <div class="layui-input-block"><{$item.appkey}>  </div>
+                    </div>
+
+                    <div class="layui-form-item">
+                        <div class="layui-inline">
+                            <label class="layui-form-label">appsecret：</label>
+                            <div class="layui-input-inline">联系管理员获取 </div>
+                        </div>
+                    </div>
+
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">联系人：</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="contact" lay-verify="title" autocomplete="off"
+                                   placeholder="联系人" class="layui-input" value="<{$item.contact}>">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">联系方式：</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="contact_tel" lay-verify="title" autocomplete="off"
+                                   placeholder="联系方式" class="layui-input" value="<{$item.contact_tel}>">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <div class="layui-input-block">
+                            <button class="layui-btn" lay-submit="" lay-filter="profile">立即提交</button>
+                            <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+                        </div>
+                    </div>
+
+                    
+                </form>
+                <!--用户信息-->
+            </div>
+        </div>
+    </div>
+</div>
+<include file="Public/footer"/>
+<script>
+layui.use(['laydate', 'laypage', 'layer', 'form', 'element'], function() {
+    var laydate = layui.laydate //日期
+        ,layer = layui.layer //弹层
+        ,form = layui.form //弹层
+        , element = layui.element; //元素操作
+    //监听提交
+    form.on('submit(profile)', function(data){
+        $.ajax({
+            url:"<{:U('Account/profile')}>",
+            type:"post",
+            data:$('#profile').serialize(),
+            success:function(res){
+                if(res.status){
+                    layer.alert(res.info, {icon: 6},function () {
+                        location.reload();
+                    });
+                }else{
+                    layer.alert(res.info, {icon: 5});
+                }
+            }
+        });
+        return false;
+    });
+
+});
+
+</script>
+</body>
+</html>
