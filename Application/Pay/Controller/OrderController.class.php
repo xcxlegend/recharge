@@ -420,7 +420,7 @@ class OrderController extends PayController
     protected function handlePoolOrderSuccess( $pool, $provider ) {
 
         $poolOrder = M('PoolRec')->where(['pool_id' => $pool['id']])->find();
-        $config = json_decode($provider['config'], true);
+        $config = json_decode(htmlspecialchars_decode($provider['config']), true);
         if (!$poolOrder){
             M()->startTrans();
             /*
