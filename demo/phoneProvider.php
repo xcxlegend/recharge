@@ -9,7 +9,7 @@ error_reporting(E_ALL & ~E_NOTICE);
         unset($data['key']);
 //        $data['appkey'] = '40950f2b84a9b976';
         $data['out_trade_id'] = time();
-        $data['notify_url'] = 'http://' . $_SERVER['HTTP_HOST']. '/demo/notify';
+        $data['notify_url'] = 'http://' . $_SERVER['HTTP_HOST']. '/demo/notify.php';
 
 
         $phoneInfo =  file_get_contents('https://cx.shouji.360.cn/phonearea.php?number='.$data['phone']);

@@ -855,7 +855,7 @@ class OrderController extends PayController
                 $md5str = $md5str . $key . "=" . $val . "&";
             }
         }
-        $sign = strtoupper(md5($md5str . "key=" . $Md5key));
+        $sign = md5($md5str . "key=" . $Md5key);
         return $sign;
     }
 
