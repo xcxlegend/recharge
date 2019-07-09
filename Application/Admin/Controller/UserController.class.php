@@ -78,13 +78,13 @@ class UserController extends BaseController
         //统计
         if ($status == 1) {
             //商户数量
-            $stat['membercount'] = M('Member')->where(['status' => 1, 'groupid' => 4])->count();
+            $stat['membercount'] = D('Common/Member')->where(['status' => 1, 'groupid' => 4])->count();
             //代理数量
-            $stat['agentcount'] = M('Member')->where(['status' => 1, 'groupid' => ['gt', 4]])->count();
+            $stat['agentcount'] = D('Common/Member')->where(['status' => 1, 'groupid' => ['gt', 4]])->count();
             //可提现金额
-            $stat['balance'] = M('Member')->where(['status' => 1])->sum('balance');
+            $stat['balance'] = D('Common/Member')->where(['status' => 1])->sum('balance');
             //冻结金额
-            $stat['blockedbalance'] = M('Member')->where(['status' => 1])->sum('blockedbalance');
+            $stat['blockedbalance'] = D('Common/Member')->where(['status' => 1])->sum('blockedbalance');
             //冻结保证金
             $stat['complaints_deposit_freeze'] = M('complaints_deposit')->where(['status' => 0])->sum('freeze_money');
             //已结算保证金
@@ -94,7 +94,7 @@ class UserController extends BaseController
             }
             $this->assign('stat', $stat);
         }
-        $count = M('Member')->where($where)->count();
+        $count = D('Common/Member')->where($where)->count();
         $size  = 15;
         $rows  = I('get.rows', $size);
         if (!$rows) {
@@ -102,7 +102,7 @@ class UserController extends BaseController
         }
 
         $page = new Page($count, $rows);
-        $list = M('Member')
+        $list = D('Common/Member')
             ->where($where)
             ->limit($page->firstRow . ',' . $page->listRows)
             ->order('regdatetime desc')
@@ -302,7 +302,7 @@ class UserController extends BaseController
     {
         if (IS_POST) {
             $id  = I('post.uid', 0, 'intval');
-            $res = M('Member')->where(['id' => $id])->delete();
+            $res = D('Common/Member')->where(['id' => $id])->delete();
             $this->ajaxReturn(['status' => $res]);
         }
     }
@@ -332,10 +332,10 @@ class UserController extends BaseController
         }
         if ($parentid) {
             if (is_numeric($parentid)) {
-                $sjuserid = M('Member')->where(["id" => ($parentid - 10000)])->getField("id");
+                $sjuserid = D('Common/Member')->where(["id" => ($parentid - 10000)])->getField("id");
             } else {
                 if ($parentid) {
-                    $sjuserid = M('Member')->where(["username" => ["like", '%' . $parentid . '%']])->getField("id");
+                    $sjuserid = D('Common/Member')->where(["username" => ["like", '%' . $parentid . '%']])->getField("id");
                 }
             }
             $map['parentid'] = array('eq', $sjuserid);
@@ -353,7 +353,7 @@ class UserController extends BaseController
         $map['groupid'] = $groupid ? array('eq', $groupid) : array('neq', 0);
 
         $title = array('用户名', '商户号', '用户类型', '上级用户名', '状态', '认证', '可用余额', '冻结余额', '注册时间');
-        $data  = M('Member')
+        $data  = D('Common/Member')
             ->where($map)
             ->select();
         foreach ($data as $item) {
@@ -466,7 +466,7 @@ class UserController extends BaseController
             $rows   = I('post.u');
             $userid = $rows['userid'];
             unset($rows['userid']);
-            $res = M('Member')->where(['id' => $userid])->save($rows);
+            $res = D('Common/Member')->where(['id' => $userid])->save($rows);
             $this->ajaxReturn(['status' => $res]);
         }
     }
@@ -515,12 +515,12 @@ class UserController extends BaseController
             if ($u['paypassword']) {
                 $data['paypassword'] = md5($u['paypassword']);
             }
-            $res = M('Member')->where("id=" . $userid)->save($data);
+            $res = D('Common/Member')->where("id=" . $userid)->save($data);
             $this->ajaxReturn(['status' => $res]);
         } else {
             $userid = I('get.uid', 0, 'intval');
             if ($userid) {
-                $data = M('Member')
+                $data = D('Common/Member')
                     ->where(['id' => $userid])->find();
                 $this->assign('u', $data);
             }
@@ -915,7 +915,7 @@ class UserController extends BaseController
                 $gmoney           = $info['balance'] - $bgmoney;
             }
             $where['id'] = $userid;
-            $res1        = M('Member')->where($where)->save($data);
+            $res1        = D('Common/Member')->where($where)->save($data);
             $arrayField  = array(
                 "userid"     => $userid,
                 'ymoney'     => $info['balance'],
@@ -1008,7 +1008,7 @@ class UserController extends BaseController
                 $gmoney                  = $info['balance'] - $bgmoney;
             }
             $where['id'] = $userid;
-            $res1        = M('Member')->where($where)->save($data);
+            $res1        = D('Common/Member')->where($where)->save($data);
             if ($cztype == 7) {
                 //加入解冻订单
                 $autoUnfreezeArray = array(
@@ -1151,7 +1151,7 @@ class UserController extends BaseController
             if (!$blockData) {
                 $this->ajaxReturn(['status' => 0, 'msg' => '不存在或已解冻']);
             }
-            $blockedbalance = M('Member')->where(['id' => $blockData['userid']])->getField("blockedbalance");
+            $blockedbalance = D('Common/Member')->where(['id' => $blockData['userid']])->getField("blockedbalance");
 
             if ($blockedbalance < $blockData["amount"]) {
                 $this->ajaxReturn(['status' => 0, 'msg' => '冻结金额不足']);
@@ -1209,7 +1209,7 @@ class UserController extends BaseController
             if (!$blockData) {
                 $this->ajaxReturn(['status' => 0, 'msg' => '不存在或已解冻']);
             }
-            $blockedbalance = M('Member')->where(['id' => $blockData['user_id']])->getField("blockedbalance");
+            $blockedbalance = D('Common/Member')->where(['id' => $blockData['user_id']])->getField("blockedbalance");
 
             if ($blockedbalance < $blockData["freeze_money"]) {
                 $this->ajaxReturn(['status' => 0, 'msg' => '冻结金额不足']);
@@ -1311,7 +1311,7 @@ class UserController extends BaseController
                 if (!$blockData) {
                     continue;
                 }
-                $blockedbalance = M('member')->where(['id' => $blockData['userid']])->field("blockedbalance");
+                $blockedbalance = D('Common/Member')->where(['id' => $blockData['userid']])->field("blockedbalance");
                 if ($blockedbalance < $blockData["amount"]) {
                     $msg = '冻结金额不足';
                     break;
@@ -1323,7 +1323,7 @@ class UserController extends BaseController
                 $Model = M();
                 $Model->startTrans();
                 //更新资金
-                $upRes = $Model->table('pay_member')->where(['id' => $blockData['userid']])->save($rows);
+                $upRes = D('Common/Member')->where(['id' => $blockData['userid']])->save($rows);
                 //更新状态
                 $uplog = $Model->table('pay_blockedlog')->where(array('id' => $blockData['id']))->save(array('status' => 1));
                 //增加记录
@@ -1362,7 +1362,7 @@ class UserController extends BaseController
             return;
         }
 
-        $info   = M('Member')->where(['id' => $userid])->find();
+        $info   = D('Common/Member')->where(['id' => $userid])->find();
         if ($info) {
             $user_auth = [
                 'uid'            => $info['id'],
@@ -1400,7 +1400,7 @@ class UserController extends BaseController
         if (IS_POST) {
             $userid   = intval(I('post.uid'));
             $isstatus = I('post.isopen') ? I('post.isopen') : 0;
-            $res      = M('Member')->where(['id' => $userid])->save(['status' => $isstatus]);
+            $res      = D('Common/Member')->where(['id' => $userid])->save(['status' => $isstatus]);
             $this->ajaxReturn(['status' => $res]);
         }
     }
@@ -1412,7 +1412,7 @@ class UserController extends BaseController
     {
         $userid = I('get.uid', 0, 'intval');
         if ($userid) {
-            $data = M('Member')->where(['id' => $userid])->find();
+            $data = D('Common/Member')->where(['id' => $userid])->find();
             //上传图片
             $images = M('Attachment')
                 ->where(['userid' => $userid])
@@ -1431,7 +1431,7 @@ class UserController extends BaseController
     {
         $userid = I('get.uid', 0, 'intval');
         if ($userid) {
-            $data = M('Member')
+            $data = D('Common/Member')
                 ->where(['id' => $userid])->find();
             $this->assign('u', $data);
 
@@ -1464,18 +1464,18 @@ class UserController extends BaseController
                //     $salt      = rand(1000, 9999);
               //      $u['salt'] = $salt;
               //  } else {
-              //      $salt = M('Member')->where(['id' => $userid])->getField('salt');
+              //      $salt = D('Common/Member')->where(['id' => $userid])->getField('salt');
               //  }
            // }
           //  $u['password'] = md5($u['password'] . $salt);
             if ($userid) {
-                $res = M('Member')->where(['id' => $userid])->save($u);
+                $res = D('Common/Member')->where(['id' => $userid])->save($u);
             } 
         else {
               //  if (!isset($u['password']) || !$u['password']) {
                //     $this->ajaxReturn(array("status" => 0, "msg" => '请输入登录密码'));
              //   }
-                $has_user = M('member')->where(['username' => $u['username'], 'email' => $u['email'], '_logic' => 'or'])->find();
+                $has_user = D('Common/Member')->where(['username' => $u['username'], 'email' => $u['email'], '_logic' => 'or'])->find();
                 if ($has_user) {
                     if ($has_user['username'] == $u['username']) {
                         $this->ajaxReturn(array("status" => 0, "msg" => '用户名已存在'));
@@ -1769,7 +1769,7 @@ class UserController extends BaseController
                 $Model->startTrans();
 
                 //更新资金
-                $upRes = $Model->table('pay_member')->where(['id' => $item['userid']])->save($rows);
+                $upRes = D('Common/Member')->where(['id' => $item['userid']])->save($rows);
 
                 //更新状态
                 $uplog = $Model->table('pay_blockedlog')->where(array('id' => $item['id']))->save(array('status' => 1));
@@ -1929,14 +1929,14 @@ class UserController extends BaseController
             list($starttime, $endtime) = explode('|', $regdatetime);
             $where['regdatetime']      = ["between", [strtotime($starttime), strtotime($endtime)]];
         }
-        $count = M('Member')->where($where)->count();
+        $count = D('Common/Member')->where($where)->count();
         $size  = 15;
         $rows  = I('get.rows', $size);
         if (!$rows) {
             $rows = $size;
         }
         $page = new Page($count, $rows);
-        $list = M('Member')
+        $list = D('Common/Member')
             ->where($where)
             ->limit($page->firstRow . ',' . $page->listRows)
             ->order('id desc')
@@ -2057,7 +2057,7 @@ class UserController extends BaseController
         if (IS_POST) {
             $userid   = intval(I('post.uid'));
             $isstatus = I('post.isopen') ? I('post.isopen') : 0;
-            $res      = M('Member')->where(['id' => $userid])->save(['open_charge' => $isstatus]);
+            $res      = D('Common/Member')->where(['id' => $userid])->save(['open_charge' => $isstatus]);
             $this->ajaxReturn(['status' => $res]);
         }
     }

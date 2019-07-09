@@ -265,6 +265,11 @@ class IndexController extends OrderController
             return;
         }
 
+        if (!$member['status'] || !$member['open_charge']) {
+            $this->result_error("商户状态不可充值");
+            return;
+        }
+
         $this->member = $member;
 
 //        $this->product = $this->cache->getOrSet("product:".$request['pay_bankcode'], function () use (&$request) {

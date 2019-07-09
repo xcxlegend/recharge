@@ -51,7 +51,7 @@ class ChannelController extends UserController
             $this->error('您没有权限访问该页面!');
         }
         $sms_is_open = smsStatus();//短信开启状态
-        $info = M('Member')->where(['id'=>$this->fans['uid']])->find();
+        $info = D('Common/Member')->where(['id'=>$this->fans['uid']])->find();
         $this->assign('sms_is_open',$sms_is_open);
         $this->assign('mobile', $this->fans['mobile']);
         $this->assign('info',$info);
@@ -65,14 +65,14 @@ class ChannelController extends UserController
         if(!$res['status']) {
             $this->ajaxReturn(['status' => 0, 'msg' => $res['msg']]);
         }
-        $data = M('Member')->field('paypassword')->where(['id'=>$this->fans['uid']])->find();
+        $data = D('Common/Member')->field('paypassword')->where(['id'=>$this->fans['uid']])->find();
         if(md5($code) != $data['paypassword']){
             log_auth_error($this->fans['uid'],6);
             $this->ajaxReturn(['status'=>0,'msg'=>'支付密码错误']);
         } else {
             clear_auth_error($this->fans['uid'],6);
         }
-        $apikey = M('Member')->where(['id'=>$this->fans['uid']])->getField('apikey');
+        $apikey = D('Common/Member')->where(['id'=>$this->fans['uid']])->getField('apikey');
         $this->ajaxReturn(['status' => 1, 'apikey' => $apikey]);
     }
 

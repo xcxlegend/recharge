@@ -715,7 +715,7 @@ class WithdrawalController extends BaseController
                     $map['status'] = 0;
                     //驳回操作
                     //1,将金额返回给商户
-                    $Member     = M('Member');
+                    $Member     = D('Common/Member');
                     $memberInfo = $Member->where(['id' => $userid])->lock(true)->find();
                     $res        = $Member->where(['id' => $userid])->save(['balance' => array('exp', "balance+{$tkmoney}")]);
                     if (!$res) {
@@ -836,7 +836,7 @@ class WithdrawalController extends BaseController
                     $map['_string'] = 'status=0 OR status=1 OR status=4';
                     //驳回操作
                     //1,将金额返回给商户
-                    $Member     = M('Member');
+                    $Member     = D('Common/Member');
                     $memberInfo = $Member->where(['id' => $userid])->lock(true)->find();
                     $res        = $Member->where(['id' => $userid])->save(['balance' => array('exp', "balance+{$tkmoney}")]);
 
@@ -956,7 +956,7 @@ class WithdrawalController extends BaseController
                         $map['status'] = 0;
                         //驳回操作
                         //1,将金额返回给商户
-                        $Member     = M('Member');
+                        $Member     = D('Common/Member');
                         $memberInfo = $Member->where(['id' => $withdraw['userid']])->lock(true)->find();
                         $res        = $Member->where(['id' => $withdraw['userid']])->save(['balance' => array('exp', "balance+{$withdraw['tkmoney']}")]);
                         if (!$res) {
@@ -1245,7 +1245,7 @@ class WithdrawalController extends BaseController
                     $map['_string'] = 'status=0 OR status=4';
                     //驳回操作
                     //1,将金额返回给商户
-                    $Member     = M('Member');
+                    $Member     = D('Common/Member');
                     $memberInfo = $Member->where(['id' => $withdraw['userid']])->lock(true)->find();
                     $res        = $Member->where(['id' => $withdraw['userid']])->save(['balance' => array('exp', "balance+{$withdraw['tkmoney']}")]);
 

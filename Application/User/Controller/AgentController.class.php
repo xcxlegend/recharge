@@ -177,9 +177,9 @@ class AgentController extends UserController
             $where['regdatetime']      = ["between", [strtotime($starttime), strtotime($endtime)]];
         }
         $where['parentid'] = $this->fans['uid'];
-        $count             = M('Member')->where($where)->count();
+        $count             = D('Common/Member')->where($where)->count();
         $page              = new Page($count, 15);
-        $list              = M('Member')
+        $list              = D('Common/Member')
             ->where($where)
             ->limit($page->firstRow . ',' . $page->listRows)
             ->order('id desc')
@@ -220,7 +220,7 @@ class AgentController extends UserController
         $map['groupid'] = $groupid ? array('eq', $groupid) : array('neq', 0);
 
         $title = array('用户名', '商户号', '用户类型', '上级用户名', '状态', '认证', '可用余额', '冻结余额', '注册时间');
-        $data  = M('Member')
+        $data  = D('Common/Member')
             ->where($map)
             ->select();
         foreach ($data as $item) {
@@ -276,7 +276,7 @@ class AgentController extends UserController
     {
         if (IS_POST) {
             $userid   = intval(I('post.uid'));
-            $member = M('Member')->where(['id'=>$userid])->find();
+            $member = D('Common/Member')->where(['id'=>$userid])->find();
             if(empty($member)) {
                 $this->error('用户不存在！');
             }
@@ -285,7 +285,7 @@ class AgentController extends UserController
             }
 
             $isstatus = I('post.isopen') ? I('post.isopen') : 0;
-            $res      = M('Member')->where(['id' => $userid])->save(['status' => $isstatus]);
+            $res      = D('Common/Member')->where(['id' => $userid])->save(['status' => $isstatus]);
             $this->ajaxReturn(['status' => $res]);
         }
     }
@@ -298,7 +298,7 @@ class AgentController extends UserController
         //需要加载代理所有开放
         //$this->fans['uid'];
         $userid = I('get.uid', 0, 'intval');
-        $member = M('Member')->where(['id'=>$userid])->find();
+        $member = D('Common/Member')->where(['id'=>$userid])->find();
         if(empty($member)) {
             $this->error('用户不存在！');
         }
@@ -338,7 +338,7 @@ class AgentController extends UserController
     {
         if (IS_POST) {
             $userid = intval(I('post.userid'));
-            $member = M('Member')->where(['id'=>$userid])->find();
+            $member = D('Common/Member')->where(['id'=>$userid])->find();
             if(empty($member)) {
                 $this->error('用户不存在！');
             }
@@ -389,7 +389,7 @@ class AgentController extends UserController
         if(!$userid) {
             $this->error('缺少参数！');
         }
-        $member = M('Member')->where(['id'=>$userid])->find();
+        $member = D('Common/Member')->where(['id'=>$userid])->find();
         if(empty($member)) {
             $this->error('用户不存在！');
         }
@@ -454,7 +454,7 @@ class AgentController extends UserController
         $u['email'] = trim($u['email']);
         $u['birthday'] = strtotime($u['birthday']);
 
-        $has_user = M('member')->where(['username' => $u['username'], 'email' => $u['email'], '_logic' => 'or'])->find();
+        $has_user = D('Common/Member')->where(['username' => $u['username'], 'email' => $u['email'], '_logic' => 'or'])->find();
         if ($has_user) {
             if ($has_user['username'] == $u['username']) {
                 $this->ajaxReturn(array("status" => 0, "msg" => '用户名已存在'));
@@ -472,7 +472,7 @@ class AgentController extends UserController
         //$u['groupid'] = $current_user['groupid'];
 
         // 创建用户
-        $res = M('Member')->add($u);
+        $res = D('Common/Member')->add($u);
 
         // 发邮件通知用户密码
         sendPasswordEmail($u['username'], $u['email'], $u['origin_password'], $siteconfig);
@@ -521,7 +521,7 @@ class AgentController extends UserController
         */
         $where['pay_status'] = array('in','0,1,2');
         $pay_memberid = [];
-        $user_id = M('Member')->where(['parentid'=>$this->fans['uid']])->getField('id', true);
+        $user_id = D('Common/Member')->where(['parentid'=>$this->fans['uid']])->getField('id', true);
         $size = 15;
         $rows = I('get.rows', $size, 'intval');
         if (!$rows) {
@@ -622,7 +622,7 @@ class AgentController extends UserController
         }
         $where['pay_status'] = array('in','1,2');
         $pay_memberid = [];
-        $user_id = M('Member')->where(['parentid'=>$this->fans['uid']])->getField('id', true);
+        $user_id = D('Common/Member')->where(['parentid'=>$this->fans['uid']])->getField('id', true);
         if($user_id) {
             foreach($user_id as $k => $v) {
                 array_push($pay_memberid, $v+10000);

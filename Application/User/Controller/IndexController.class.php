@@ -142,7 +142,7 @@ FROM pay_order WHERE pay_successdate >= UNIX_TIMESTAMP(  '".$firstday."' ) AND p
     public function google()
     {
         if(IS_POST) {
-            $google_secret_key = M('Member')->where(array('id'=> $this->fans['uid']))->getField('google_secret_key');
+            $google_secret_key = D('Common/Member')->where(array('id'=> $this->fans['uid']))->getField('google_secret_key');
             if($google_secret_key == '') {
                 $this->error("您未绑定谷歌身份验证器");
             }

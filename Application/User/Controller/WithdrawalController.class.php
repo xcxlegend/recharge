@@ -226,7 +226,7 @@ class WithdrawalController extends UserController
         }
 
         //可用余额
-        $info = M('Member')->where(['id' => $this->fans['uid']])->find();
+        $info = D('Common/Member')->where(['id' => $this->fans['uid']])->find();
 
         //银行卡
         $bankcards = M('Bankcard')->where(['userid' => $this->fans['uid']])->select();
@@ -368,7 +368,7 @@ class WithdrawalController extends UserController
             //开启事物
             M()->startTrans();
             //个人信息
-            $Member = M('Member');
+            $Member = D('Common/Member');
             $info   = $Member->where(['id' => $userid])->lock(true)->find();
 
             //结算方式：
@@ -795,7 +795,7 @@ class WithdrawalController extends UserController
             $tkconfig = M('Tikuanconfig')->where(['issystem' => 1])->find();
         }
         //可用余额
-        $info = M('Member')->where(['id' => $this->fans['uid']])->find();
+        $info = D('Common/Member')->where(['id' => $this->fans['uid']])->find();
 
         $this->assign('tkconfig', $tkconfig);
         $this->assign('info', $info);
@@ -911,7 +911,7 @@ class WithdrawalController extends UserController
             }
             M()->startTrans();
             //查询用户数据
-            $Member = M('Member');
+            $Member = D('Common/Member');
             $info   = $Member->where(['id' => $userid])->lock(true)->find();
             //支付密码
             $res = check_auth_error($userid, 6);
@@ -1724,7 +1724,7 @@ class WithdrawalController extends UserController
             $tkconfig = M('Tikuanconfig')->where(['issystem' => 1])->find();
         }
         //可用余额
-        $info = M('Member')->where(['id' => $this->fans['uid']])->find();
+        $info = D('Common/Member')->where(['id' => $this->fans['uid']])->find();
         //银行卡
         $bankcards = M('Bankcard')->where(['userid' => $this->fans['uid']])->select();
         //当前可用代付渠道
@@ -1822,7 +1822,7 @@ class WithdrawalController extends UserController
             }
             M()->startTrans();
             //查询用户数据
-            $Member = M('Member');
+            $Member = D('Common/Member');
             $info   = $Member->where(['id' => $userid])->lock(true)->find();
             //支付密码
             $res = check_auth_error($userid, 6);
@@ -2082,7 +2082,7 @@ class WithdrawalController extends UserController
         if (!$df_api) {
             $this->ajaxReturn(['status' => 0, 'msg' => '该功能尚未开启']);
         }
-        $Member = M('Member');
+        $Member = D('Common/Member');
         $info   = $Member->where(['id' => $this->fans['uid']])->find();
         if (!$info['df_api']) {
             $this->ajaxReturn(['status' => 0, 'msg' => '商户未开启此功能!']);
@@ -2218,7 +2218,7 @@ class WithdrawalController extends UserController
         if (!$df_api) {
             $this->ajaxReturn(['status' => 0, 'msg' => '该功能尚未开启']);
         }
-        $Member = M('Member');
+        $Member = D('Common/Member');
         $info   = $Member->where(['id' => $this->fans['uid']])->find();
         if (!$info['df_api']) {
             $this->ajaxReturn(['status' => 0, 'msg' => '商户未开启此功能!']);
@@ -2243,7 +2243,7 @@ class WithdrawalController extends UserController
         if (!$df_api) {
             $this->ajaxReturn(['status' => 0, 'msg' => '该功能尚未开启']);
         }
-        $Member = M('Member');
+        $Member = D('Common/Member');
         $info   = $Member->where(['id' => $this->fans['uid']])->find();
         if (!$info['df_api']) {
             $this->ajaxReturn(['status' => 0, 'msg' => '商户未开启此功能!']);
@@ -2258,7 +2258,7 @@ class WithdrawalController extends UserController
             //开启事务
             M()->startTrans();
             //查询用户数据
-            $Member = M('Member');
+            $Member = D('Common/Member');
             $info   = $Member->where(['id' => $userid])->lock(true)->find();
             if (!$password) {
                 $this->ajaxReturn(['status' => 0, 'msg' => '请输入支付密码!']);
@@ -2490,7 +2490,7 @@ class WithdrawalController extends UserController
             if (!$id) {
                 $this->ajaxReturn(['status' => 0, 'msg' => '操作失败']);
             }
-            $Member = M('Member');
+            $Member = D('Common/Member');
             $info   = $Member->where(['id' => $this->fans['uid']])->find();
             if (!$info['df_api']) {
                 $this->ajaxReturn(['status' => 0, 'msg' => '商户未开启此功能!']);
@@ -2514,7 +2514,7 @@ class WithdrawalController extends UserController
                         $this->ajaxReturn(['status' => 0, 'msg' => '后台已处理代付，不能驳回']);
                     } else {
                         //将金额返回给商户
-                        $Member     = M('Member');
+                        $Member     = D('Common/Member');
                         $memberInfo = $Member->where(['id' => $this->fans['uid']])->lock(true)->find();
                         $res        = $Member->where(['id' => $this->fans['uid']])->save(['balance' => array('exp', "balance+{$df_order['tkmoney']}")]);
                         if (!$res) {
@@ -2588,7 +2588,7 @@ class WithdrawalController extends UserController
             }
             M()->startTrans();
             $userid = $this->fans['uid'];
-            $Member = M('Member');
+            $Member = D('Common/Member');
             $info   = $Member->where(['id' => $userid])->lock(true)->find();
             if (!$info['df_api']) {
                 $this->ajaxReturn(['status' => 0, 'msg' => '商户未开启此功能!']);
@@ -2845,7 +2845,7 @@ class WithdrawalController extends UserController
                 $this->ajaxReturn(['status' => 0, 'msg' => '该功能尚未开启']);
             }
             $userid = $this->fans['uid'];
-            $Member = M('Member');
+            $Member = D('Common/Member');
             $info   = $Member->where(['id' => $userid])->find();
             if (!$info['df_api']) {
                 $this->ajaxReturn(['status' => 0, 'msg' => '商户未开启此功能!']);
@@ -2899,7 +2899,7 @@ class WithdrawalController extends UserController
                                 continue;
                             } else {
                                 //将金额返回给商户
-                                $Member     = M('Member');
+                                $Member     = D('Common/Member');
                                 $memberInfo = $Member->where(['id' => $this->fans['uid']])->lock(true)->find();
                                 $res        = $Member->where(['id' => $this->fans['uid']])->save(['balance' => array('exp', "balance+{$df_order['tkmoney']}")]);
                                 if (!$res) {

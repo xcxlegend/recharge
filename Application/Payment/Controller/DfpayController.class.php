@@ -49,6 +49,11 @@ class DfpayController extends Controller
         if(empty($this->merchants)) {
             $this->showmessage('商户不存在！');
         }
+
+        if(!$this->merchants['status']) {
+            $this->showmessage('商户被禁用！');
+        }
+
         if(!$this->merchants['df_api']) {
             $this->showmessage('商户未开启此功能！');
         }

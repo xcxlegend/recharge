@@ -18,7 +18,7 @@ class UserController extends BaseController
             header("Location: ".U($module.'/Login/index'));
         }
         //用户信息
-        $this->fans = M('Member')->where(['id'=>$user_auth['uid']])->field('`id` as uid, `username`, `password`, `groupid`, `parentid`,`salt`,`balance`, `blockedbalance`, `email`, `realname`, `authorized`, `apidomain`, `apikey`, `status`, `mobile`, `receiver`, `agent_cate`,`df_api`,`login_ip`,`open_charge`,`google_secret_key`,`session_random`,`regdatetime`')->find();
+        $this->fans = D('Common/Member')->where(['id'=>$user_auth['uid']])->field('`id` as uid, `username`, `password`, `groupid`, `parentid`,`salt`,`balance`, `blockedbalance`, `email`, `realname`, `authorized`, `apidomain`, `apikey`, `status`, `mobile`, `receiver`, `agent_cate`,`df_api`,`login_ip`,`open_charge`,`google_secret_key`,`session_random`,`regdatetime`')->find();
 		$this->fans['memberid'] = $user_auth['uid']+10000;
         if(session('user_auth') && $this->fans['google_secret_key'] &&  !session('user_google_auth')) {
             if(!(CONTROLLER_NAME == 'Account' && ACTION_NAME == 'unbindGoogle')

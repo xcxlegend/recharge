@@ -231,7 +231,7 @@ class StatisticsController extends BaseController
         if (!$rows) {
             $rows = $size;
         }
-        $Member     = M('Member');
+        $Member     = D('Common/Member');
         $count      = $Member->where($where)->count();
         $Page       = new Page($count, $rows);
         $show       = $Page->show();
@@ -339,7 +339,7 @@ class StatisticsController extends BaseController
         if (!$rows) {
             $rows = $size;
         }
-        $Member     = M('Member');
+        $Member     = D('Common/Member');
         $memberList = $Member
             ->field(['id', 'username','balance', 'blockedbalance'])
             ->where($where)
@@ -801,7 +801,7 @@ class StatisticsController extends BaseController
     //         $where['id'] = $memberid - 10000;
     //     }
     //     $where['authorized'] = '1';
-    //     $Member              = M('Member');
+    //     $Member              = D('Common/Member');
     //     $count               = $Member->where($where)->count();
     //     $Page                = new Page($count, 15);
     //     $memberLists         = $Member->field(['id', 'username', 'groupid', 'balance', 'blockedbalance'])->where($where)->limit($Page->firstRow . ',' . $Page->listRows)->select();
@@ -839,7 +839,7 @@ class StatisticsController extends BaseController
     //         $orderCost    = 0; //订单成本
     //         $wlCost       = 0; //代付成本
 
-    //         $memberList               = M('Member')->where(['id' => $id])->find();
+    //         $memberList               = D('Common/Member')->where(['id' => $id])->find();
     //         $memberList['allbalance'] = bcadd($memberList['blockedbalance'], $memberList['balance'], 2);
     //         $memberList['groupid']    = $this->groupId[$memberList['groupid']];
 
@@ -955,7 +955,7 @@ class StatisticsController extends BaseController
     //     }
 
     //     $where['authorized']        = 1;
-    //     $memberLists                = M('Member')->where($where)->select();
+    //     $memberLists                = D('Common/Member')->where($where)->select();
     //     list($memberLists, $allSum) = $this->countData($memberLists);
     //     $title                      = ['商户号', '总资金', '订单总额', '订单入金总额', '提现总额', '实际提现总额', '代付总额', '实际代付总额', '代付+提现总额', '代付+提现实际总额', '平台总收益'];
     //     $lists                      = [];
@@ -1042,7 +1042,7 @@ class StatisticsController extends BaseController
         if (!$rows) {
             $rows = $size;
         }
-        $Member     = M('Member');
+        $Member     = D('Common/Member');
         $count      = $Member->where($where)->count();
         $Page       = new Page($count, $rows);
         $show       = $Page->show();
@@ -1087,7 +1087,7 @@ class StatisticsController extends BaseController
             list($cstime, $cetime)  = explode('|', $createtime);
             $map['create_at'] = ['between', [strtotime($cstime), strtotime($cetime) ? strtotime($cetime) : time()]];
         }
-        $Member     = M('Member');
+        $Member     = D('Common/Member');
         $memberList = $Member
             ->field(['id,username'])
             ->where($where)
@@ -1145,7 +1145,7 @@ class StatisticsController extends BaseController
         $end = mktime(0, 0, 0, date('m',$timestamp), date('d',$timestamp) + 1, date('Y',$timestamp)) - 1;
         $beginDate = date('Y-m-d H:i:s', $begin);
         $endDate = date('Y-m-d H:i:s', $end);
-        $Member     = M('Member');
+        $Member     = D('Common/Member');
         $count      = $Member->where($where)->count();
         $size = 15;
         $rows = I('get.rows', $size, 'intval');
@@ -1257,7 +1257,7 @@ class StatisticsController extends BaseController
         $end = mktime(0, 0, 0, date('m',$timestamp), date('d',$timestamp) + 1, date('Y',$timestamp)) - 1;
         $beginDate = date('Y-m-d H:i:s', $begin);
         $endDate = date('Y-m-d H:i:s', $end);
-        $Member     = M('Member');
+        $Member     = D('Common/Member');
         $count      = $Member->where($where)->count();
         $size = 15;
         $rows = I('get.rows', $size, 'intval');
@@ -1337,7 +1337,7 @@ class StatisticsController extends BaseController
                     }
                 }
                 if($v['parentid'] > 0) {
-                    $data[$k]['parent'] = M('Member')->where(['id'=>$v['parentid']])->getField('username');
+                    $data[$k]['parent'] = D('Common/Member')->where(['id'=>$v['parentid']])->getField('username');
                 } else {
                     $data[$k]['parent'] = '';
                 }
@@ -1370,7 +1370,7 @@ class StatisticsController extends BaseController
         $end = mktime(0, 0, 0, date('m',$timestamp), date('d',$timestamp) + 1, date('Y',$timestamp)) - 1;
         $beginDate = date('Y-m-d H:i:s', $begin);
         $endDate = date('Y-m-d H:i:s', $end);
-        $Member     = M('Member');
+        $Member     = D('Common/Member');
         $count      = $Member->where($where)->count();
         $size = 15;
         $rows = I('get.rows', $size, 'intval');
@@ -1447,7 +1447,7 @@ class StatisticsController extends BaseController
                     }
                 }
                 if($v['parentid'] > 0) {
-                    $data[$k]['parent'] = M('Member')->where(['id'=>$v['parentid']])->getField('username');
+                    $data[$k]['parent'] = D('Common/Member')->where(['id'=>$v['parentid']])->getField('username');
                 } else {
                     $data[$k]['parent'] = '';
                 }
@@ -1465,7 +1465,7 @@ class StatisticsController extends BaseController
     private function getAllMoney($date) {
 
         $money = 0;
-        $lists = M('Member')->field('id')->select();
+        $lists = D('Common/Member')->field('id')->select();
         foreach($lists as $v) {
             $money += $this->getUserBalance($v['id'], $date) ;
         }
@@ -1525,7 +1525,7 @@ class StatisticsController extends BaseController
         if (!$rows) {
             $rows = $size;
         }
-        $Member     = M('Member');
+        $Member     = D('Common/Member');
         $count      = $Member->where($where)->count();
         $Page       = new Page($count, $rows);
         $show       = $Page->show();
@@ -1589,7 +1589,7 @@ class StatisticsController extends BaseController
         $end = mktime(0, 0, 0, date('m',$timestamp), date('d',$timestamp) + 1, date('Y',$timestamp)) - 1;
         $beginDate = date('Y-m-d H:i:s', $begin);
         $endDate = date('Y-m-d H:i:s', $end);
-        $Member     = M('Member');
+        $Member     = D('Common/Member');
         $data = $Member
             ->field(['id,username,balance'])
             ->where($where)
@@ -1720,7 +1720,7 @@ class StatisticsController extends BaseController
         $end = mktime(0, 0, 0, date('m',$timestamp), date('d',$timestamp) + 1, date('Y',$timestamp)) - 1;
         $beginDate = date('Y-m-d H:i:s', $begin);
         $endDate = date('Y-m-d H:i:s', $end);
-        $Member     = M('Member');
+        $Member     = D('Common/Member');
         $where['groupid'] = 4;
         $data = $Member
             ->field(['id,username,balance'])
@@ -1791,7 +1791,7 @@ class StatisticsController extends BaseController
                     }
                 }
                 if($v['parentid'] > 0) {
-                    $data[$k]['parent'] = M('Member')->where(['id'=>$v['parentid']])->getField('username');
+                    $data[$k]['parent'] = D('Common/Member')->where(['id'=>$v['parentid']])->getField('username');
                 } else {
                     $data[$k]['parent'] = '';
                 }
@@ -1863,7 +1863,7 @@ class StatisticsController extends BaseController
         $end = mktime(0, 0, 0, date('m',$timestamp), date('d',$timestamp) + 1, date('Y',$timestamp)) - 1;
         $beginDate = date('Y-m-d H:i:s', $begin);
         $endDate = date('Y-m-d H:i:s', $end);
-        $Member     = M('Member');
+        $Member     = D('Common/Member');
         $where['groupid'] = ['gt', 4];
         $data = $Member
             ->field(['id,username,balance'])
@@ -1931,7 +1931,7 @@ class StatisticsController extends BaseController
                     }
                 }
                 if($v['parentid'] > 0) {
-                    $data[$k]['parent'] = M('Member')->where(['id'=>$v['parentid']])->getField('username');
+                    $data[$k]['parent'] = D('Common/Member')->where(['id'=>$v['parentid']])->getField('username');
                 } else {
                     $data[$k]['parent'] = '';
                 }

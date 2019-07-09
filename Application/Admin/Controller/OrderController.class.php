@@ -12,7 +12,7 @@ use Org\Util\P361zf;
 use Org\Util\P59Pay;
 use Org\Util\PHaitong;
 use Think\Page;
-
+use Common\Model\RedisCacheModel;
 /**
  * 订单管理控制器
  * Class OrderController
@@ -846,12 +846,26 @@ class OrderController extends BaseController
         } else {
             $this->ajaxReturn(array('status' => 0, "请选择删除无效订单时间段"));
         }
-        $status = M('Order')->where($where)->delete();
+
+        $KEY = "list:del_order";
+
+        $cache = new RedisCacheModel();
+
+        if ($cache->Client()->exists($KEY)){
+            $this->ajaxReturn(array('status' => 0, "删除队列已经存在, 请等待完成"));
+            return;
+        }
+
+        $data = $where;
+        $cache->Client()->set($KEY, json_encode($data));
+        $this->ajaxReturn(array('status' => 1, "已进入删除队列, 请等待"));
+
+        /*$status = M('Order')->where($where)->delete();
         if ($status) {
             $this->ajaxReturn(array('status' => 1, "删除成功"));
         } else {
             $this->ajaxReturn(array('status' => 0, "删除失败"));
-        }
+        }*/
 
     }
 
@@ -1105,7 +1119,7 @@ class OrderController extends BaseController
             $res=M('blockedlog')->where(array('id'=>$blockedLog['id']))->save(array('status'=>1));
 
         }else{
-            $res        = M('member')->where(array('id' => $userId,'balance'=>array("EGT",$order['pay_actualamount'])))->save([
+            $res        = D('Common/Member')->where(array('id' => $userId,'balance'=>array("EGT",$order['pay_actualamount'])))->save([
                 'balance' => array('exp', "balance-".$order['pay_actualamount']),
                 'blockedbalance' => array('exp', "blockedbalance+".$order['pay_actualamount']),
             ]);
@@ -1141,7 +1155,7 @@ class OrderController extends BaseController
         M()->startTrans();
         $order=M("order")->where(array("id"=>$orderId,"pay_status"=>['in','1,2'],"lock_status"=>['eq',1]))->lock(true)->find();
         //需要检测是否已解冻，如果未解冻直接修改自动解冻状态，如果解冻，直接扣余额
-        $res        = M('member')->where(array('id' => $userId,'blockedbalance'=>array('EGT',$order['pay_actualamount'])))->save([
+        $res        = D('Common/Member')->where(array('id' => $userId,'blockedbalance'=>array('EGT',$order['pay_actualamount'])))->save([
             'balance' => array('exp', "balance+".$order['pay_actualamount']),
             'blockedbalance' => array('exp', "blockedbalance-".$order['pay_actualamount']),
         ]);

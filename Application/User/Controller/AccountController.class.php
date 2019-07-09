@@ -52,7 +52,7 @@ class AccountController extends UserController
         $this->assign('sms_is_open', $sms_is_open);
         $list['agentname'] = '';
         if($this->fans['parentid']>0) {
-            $list['agentname'] = M('Member')->where(['id' => $this->fans['parentid']])->getField('username');
+            $list['agentname'] = D('Common/Member')->where(['id' => $this->fans['parentid']])->getField('username');
         }
         $this->assign("p", $list);
         $this->display();
@@ -138,8 +138,8 @@ class AccountController extends UserController
             $p             = I('post.p');
             $p['parentid'] = $this->fans['parentid'];
             if($p['agentname'] != '') {
-                $agent_name = M('Member')->where(['id' => $this->fans['parentid']])->getField('username');
-                $new_agent_id = M('Member')->where(['username' => $p['agentname']])->getField('id');
+                $agent_name = D('Common/Member')->where(['id' => $this->fans['parentid']])->getField('username');
+                $new_agent_id = D('Common/Member')->where(['username' => $p['agentname']])->getField('id');
                 if(!$new_agent_id) {
                     $this->ajaxReturn(['status' => 0, 'msg' => '代理商不存在']);
                 }
@@ -157,7 +157,7 @@ class AccountController extends UserController
                     unset($p[$k]);
                 }
             }
-            $res           = M('Member')->where(['id' => $this->fans['uid']])->save($p);
+            $res           = D('Common/Member')->where(['id' => $this->fans['uid']])->save($p);
             if(FALSE !== $res) {
                 $this->ajaxReturn(['status' => 1, 'msg' => '编辑成功']);
             } else {
@@ -252,7 +252,7 @@ class AccountController extends UserController
             $mobile = I('request.mobile');
 
             if (session('send.bindMobile') == $code && $this->checkSessionTime('bindMobile', $code)) {
-                $res = M('Member')->where(['id' => $this->fans['uid']])->save(['mobile' => $mobile]);
+                $res = D('Common/Member')->where(['id' => $this->fans['uid']])->save(['mobile' => $mobile]);
                 $this->ajaxReturn(['status' => $res]);
             }
         } else {
@@ -284,7 +284,7 @@ class AccountController extends UserController
                 //判断是验证码新手机还是旧手机后的处理
                 if (session('editmobile') == '1') {
                     $mobile           = I('request.mobile');
-                    $return['status'] = M('Member')->where(['id' => $this->fans['uid']])->save(['mobile' => $mobile]);
+                    $return['status'] = D('Common/Member')->where(['id' => $this->fans['uid']])->save(['mobile' => $mobile]);
                     $return['data']   = 'editNewMobile';
                     session('editmobile', null);
                 } else {
@@ -403,7 +403,7 @@ class AccountController extends UserController
      */
     public function authorized()
     {
-        $authorized = M('Member')->where(['id' => $this->fans['uid']])->getField('authorized');
+        $authorized = D('Common/Member')->where(['id' => $this->fans['uid']])->getField('authorized');
         $list       = [];
         $list       = M('Attachment')->where(['userid' => $this->fans['uid']])->select();
         $this->assign('list', $list);
@@ -436,7 +436,7 @@ class AccountController extends UserController
 
     public function certification()
     {
-        M('Member')->where(['id' => $this->fans['uid']])->save(['authorized' => 2]);
+        D('Common/Member')->where(['id' => $this->fans['uid']])->save(['authorized' => 2]);
         $this->success('已申请认证，请等待审核！');
     }
 
@@ -445,7 +445,7 @@ class AccountController extends UserController
      */
     public function editPaypassword()
     {
-        $data = M('Member')->where(['id' => $this->fans['uid']])->find();
+        $data = D('Common/Member')->where(['id' => $this->fans['uid']])->find();
         $this->assign('p', $data);
         //查询是否开启短信验证
         $sms_is_open = smsStatus();
@@ -472,7 +472,7 @@ class AccountController extends UserController
                 $data['paypassword'] != md5($p['oldpwd'])) {
                 $this->ajaxReturn(['status' => 0, 'msg' => '输入错误']);
             }
-            $res = M('Member')->where(['id' => $this->fans['uid']])->save(['paypassword' => md5($p['newpwd'])]);
+            $res = D('Common/Member')->where(['id' => $this->fans['uid']])->save(['paypassword' => md5($p['newpwd'])]);
             $this->ajaxReturn(['status' => $res]);
         } else {
             if ($sms_is_open) {
@@ -488,7 +488,7 @@ class AccountController extends UserController
      */
     public function editPassword()
     {
-        $data = M('Member')->where(['id' => $this->fans['uid']])->find();
+        $data = D('Common/Member')->where(['id' => $this->fans['uid']])->find();
         $this->assign('p', $data);
         //查询是否开启短信验证
         $sms_is_open = smsStatus();
@@ -516,7 +516,7 @@ class AccountController extends UserController
                 ($p['oldpwd'] . $salt)) {
                 $this->ajaxReturn(['status' => 0, 'msg' => '输入错误']);
             }
-            $res = M('Member')->where(['id' => $this->fans['uid']])->save(['password' => md5($p['newpwd'] . $salt)]);
+            $res = D('Common/Member')->where(['id' => $this->fans['uid']])->save(['password' => md5($p['newpwd'] . $salt)]);
             if($res !== false) {
                 if(!$res) {
                     $this->ajaxReturn(['status' => 0, 'msg' => '请勿使用旧密码']);
@@ -871,7 +871,7 @@ class AccountController extends UserController
     {
         $ga = new \Org\Util\GoogleAuthenticator();
         if (!IS_POST) {
-            $google_token = M('Member')->where(['id'=>$this->fans['uid']])->getField('google_secret_key');
+            $google_token = D('Common/Member')->where(['id'=>$this->fans['uid']])->getField('google_secret_key');
             if($google_token == '') {
                 $secret = session('user_google_secret_key') ? session('user_google_secret_key') : $ga->createSecret();
                 $qrCodeUrl = $ga->getQRCodeGoogleUrl($_SERVER["REQUEST_SCHEME"].'://'.$_SERVER["HTTP_HOST"].'@'.$this->fans['username'], $secret);
@@ -920,7 +920,7 @@ class AccountController extends UserController
                 clear_auth_error($this->fans['uid'],4);
                 $this->ajaxReturn(["status"=>0, "msg"=>"谷歌安全码错误"]);
             } else {
-                $re = M('Member')->where(array('id'=>$this->fans['uid'],'google_secret_key'=>array('eq','')))->save(['google_secret_key'=>$google_secret_key]);
+                $re = D('Common/Member')->where(array('id'=>$this->fans['uid'],'google_secret_key'=>array('eq','')))->save(['google_secret_key'=>$google_secret_key]);
                 if(FALSE !== $re) {
                     session('user_google_auth', $googlecode);
                     $this->ajaxReturn(["status"=>1, "msg"=>"绑定成功"]);
@@ -955,7 +955,7 @@ class AccountController extends UserController
                     $this->ajaxReturn(['status' => 0, 'msg' => '短信验证码错误']);
                 }
             }
-            $re = M('Member')->where(array('id'=>$this->fans['uid']))->save(['google_secret_key'=>'']);
+            $re = D('Common/Member')->where(array('id'=>$this->fans['uid']))->save(['google_secret_key'=>'']);
             if(FALSE !== $re) {
                 session('user_google_auth', null);
                 $this->ajaxReturn(["status"=>1, "msg"=>"解绑成功"]);
@@ -979,7 +979,7 @@ class AccountController extends UserController
      */
     public function unbindGoogleSend()
     {
-        $user = M('Member')->where(['id'=>$this->fans['uid']])->find();
+        $user = D('Common/Member')->where(['id'=>$this->fans['uid']])->find();
         $mobile = $user['mobile'];
         if (!$mobile) {
             $this->ajaxReturn(['status' => 0, 'msg' => '您未绑定手机号码！']);
@@ -1111,7 +1111,7 @@ class AccountController extends UserController
             $this->error('日期错误');
         }
 
-        $time = M('Member')->where(['id'=>$this->fans['uid']])->getField('regdatetime');
+        $time = D('Common/Member')->where(['id'=>$this->fans['uid']])->getField('regdatetime');
         $time = strtotime(date('Y-m-d', $time));
         $timestamp = strtotime($date);
         $count      = ceil(($timestamp-$time)/86400)+1;

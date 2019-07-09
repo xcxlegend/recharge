@@ -89,7 +89,7 @@ class LoginController extends BaseController
         //if (!$verify->check($varification)) {
          //   $this->error('验证码输入有误！');
        // }
-        $fans = M('Member')->where(['username' => $username])->find();
+        $fans = D('Common/Member')->where(['username' => $username])->find();
 
         //判断是白名单登录
         $ip = get_client_ip();
@@ -118,7 +118,7 @@ class LoginController extends BaseController
         $today         = date('Ymd');
         if ($lastErrorTime > $today) {
             //如果是昨天未超过错误登录次数，重置为0
-            M('Member')->where(['id' => $fans['id']])->save(['login_error_num' => 0]);
+            D('Common/Member')->where(['id' => $fans['id']])->save(['login_error_num' => 0]);
         }
 
         //密码验证
@@ -128,7 +128,7 @@ class LoginController extends BaseController
         } else {
             clear_auth_error($fans['id'],6);
             $session_random = randpw(32);
-            M('Member')->where(['id' => $fans['id']])->save(['login_error_num' => 0, 'session_random' => $session_random, 'last_login_time' => time()]);
+            D('Common/Member')->where(['id' => $fans['id']])->save(['login_error_num' => 0, 'session_random' => $session_random, 'last_login_time' => time()]);
         }
         //用户登录
         $user_auth = [
@@ -255,7 +255,7 @@ class LoginController extends BaseController
             ];
             $userdata = generateUser($user, $this->siteconfig);
 
-            $newuid = M('Member')->add($userdata);
+            $newuid = D('Common/Member')->add($userdata);
             //添加用户组权限
             /**
              * 不需要使用用户权限

@@ -68,7 +68,7 @@ class AgentController extends BaseController
             $where['regdatetime']      = ["between", [strtotime($starttime), strtotime($endtime)]];
         }
 
-        $count = M('Member')->where($where)->count();
+        $count = D('Common/Member')->where($where)->count();
         $size  = 15;
         $rows  = I('get.rows', $size, 'intval');
         if (!$rows) {
@@ -76,7 +76,7 @@ class AgentController extends BaseController
         }
 
         $page = new Page($count, $rows);
-        $list = M('Member')
+        $list = D('Common/Member')
             ->where($where)
             ->limit($page->firstRow . ',' . $page->listRows)
             ->order('id desc')
@@ -110,7 +110,7 @@ class AgentController extends BaseController
     {
         if (IS_POST) {
             $id  = I('post.uid', 0, 'intval');
-            $res = M('Member')->where(['id' => $id])->delete();
+            $res = D('Common/Member')->where(['id' => $id])->delete();
             $this->ajaxReturn(['status' => $res]);
         }
     }
@@ -138,9 +138,9 @@ class AgentController extends BaseController
         }
         if ($parentid) {
             if (is_numeric($parentid)) {
-                $sjuserid = M('Member')->where("id = " . ($parentid - 10000))->getField("id");
+                $sjuserid = D('Common/Member')->where("id = " . ($parentid - 10000))->getField("id");
             } else {
-                $sjuserid = M('Member')->where("username like '%" . $parentid . "%'")->getField("id");
+                $sjuserid = D('Common/Member')->where("username like '%" . $parentid . "%'")->getField("id");
             }
             $map['parentid'] = array('eq', $sjuserid);
         }
@@ -157,7 +157,7 @@ class AgentController extends BaseController
         $map['groupid'] = $groupid ? array('eq', $groupid) : array('neq', 0);
 
         $title = array('用户名', '商户号', '用户类型', '上级用户名', '状态', '认证', '可用余额', '冻结余额', '注册时间');
-        $data  = M('Member')
+        $data  = D('Common/Member')
             ->where($map)
             ->select();
         foreach ($data as $item) {
@@ -276,7 +276,7 @@ class AgentController extends BaseController
             $rows   = I('post.u');
             $userid = $rows['userid'];
             unset($rows['userid']);
-            $res = M('Member')->where(['id' => $userid])->save($rows);
+            $res = D('Common/Member')->where(['id' => $userid])->save($rows);
             $this->ajaxReturn(['status' => $res]);
         }
     }
@@ -325,12 +325,12 @@ class AgentController extends BaseController
             if ($u['paypassword']) {
                 $data['paypassword'] = md5($u['paypassword']);
             }
-            $res = M('Member')->where(["id" => $userid])->save($data);
+            $res = D('Common/Member')->where(["id" => $userid])->save($data);
             $this->ajaxReturn(['status' => $res]);
         } else {
             $userid = I('get.uid', 0, 'intval');
             if ($userid) {
-                $data = M('Member')
+                $data = D('Common/Member')
                     ->where(['id' => $userid])->find();
                 $this->assign('u', $data);
             }
@@ -658,7 +658,7 @@ class AgentController extends BaseController
                 $gmoney = $info['balance'] - $bgmoney;
             }
             $where['id'] = $userid;
-            $res1 = M('Member')->where($where)->save($data);
+            $res1 = D('Common/Member')->where($where)->save($data);
             $arrayField = array(
                     "userid"     => $userid,
                     'ymoney'     => $info['balance'],
@@ -725,7 +725,7 @@ class AgentController extends BaseController
                 $gmoney = $info['balance'] - $bgmoney;
             }
             $where['id'] = $userid;
-            $res1 = M('Member')->where($where)->save($data);
+            $res1 = D('Common/Member')->where($where)->save($data);
             $arrayField = array(
                 "userid"     => $userid,
                 "ymoney"     => $info['balance'],
@@ -814,7 +814,7 @@ class AgentController extends BaseController
             if (!$blockData) {
                 $this->ajaxReturn(['status' => 0, 'msg' => '不存在或已解冻']);
             }
-            $blockedbalance = M('Member')->where(['id' => $blockData['userid']])->getField("blockedbalance");
+            $blockedbalance = D('Common/Member')->where(['id' => $blockData['userid']])->getField("blockedbalance");
 
             if ($blockedbalance < $blockData["amount"]) {
                 $this->ajaxReturn(['status' => 0, 'msg' => '冻结金额不足']);
@@ -875,7 +875,7 @@ class AgentController extends BaseController
                 if (!$blockData) {
                     continue;
                 }
-                $blockedbalance = M('member')->where(['id' => $blockData['userid']])->field("blockedbalance");
+                $blockedbalance = D('Common/Member')->where(['id' => $blockData['userid']])->field("blockedbalance");
                 if ($blockedbalance < $blockData["amount"]) {
                     $msg = '冻结金额不足';
                     break;
@@ -920,7 +920,7 @@ class AgentController extends BaseController
     public function changeuser()
     {
         $userid = I('get.userid', 0, 'intval');
-        $info   = M('Member')->where(['id' => $userid])->find();
+        $info   = D('Common/Member')->where(['id' => $userid])->find();
         if ($info) {
             $user_auth = [
                 'uid'      => $info['id'],
@@ -950,7 +950,7 @@ class AgentController extends BaseController
         if (IS_POST) {
             $userid   = intval(I('post.uid'));
             $isstatus = I('post.isopen') ? I('post.isopen') : 0;
-            $res      = M('Member')->where(['id' => $userid])->save(['status' => $isstatus]);
+            $res      = D('Common/Member')->where(['id' => $userid])->save(['status' => $isstatus]);
             $this->ajaxReturn(['status' => $res]);
         }
     }
@@ -962,7 +962,7 @@ class AgentController extends BaseController
     {
         $userid = I('get.uid', 0, 'intval');
         if ($userid) {
-            $data = M('Member')->where(['id' => $userid])->find();
+            $data = D('Common/Member')->where(['id' => $userid])->find();
             //上传图片
             $images = M('Attachment')
                 ->where(['userid' => $userid])
@@ -981,7 +981,7 @@ class AgentController extends BaseController
     {
         $userid = I('get.uid', 0, 'intval');
         if ($userid) {
-            $data = M('Member')
+            $data = D('Common/Member')
                 ->where(['id' => $userid])->find();
             $this->assign('u', $data);
 
@@ -1011,9 +1011,9 @@ class AgentController extends BaseController
             $u['birthday'] = strtotime($u['birthday']);
 
             if ($userid) {
-                $res = M('Member')->where(['id' => $userid])->save($u);
+                $res = D('Common/Member')->where(['id' => $userid])->save($u);
             } else {
-                $has_user = M('member')->where(['username' => $u['username'], 'email' => $u['email'], '_logic' => 'or'])->find();
+                $has_user = D('Common/Member')->where(['username' => $u['username'], 'email' => $u['email'], '_logic' => 'or'])->find();
                 if ($has_user) {
                     if ($has_user['username'] == $u['username']) {
                         $this->ajaxReturn(array("status" => 0, "msg" => '用户名已存在'));
@@ -1035,7 +1035,7 @@ class AgentController extends BaseController
                 $u['activatedatetime'] = date("Y-m-d H:i:s");
                 $u['agent_cate']       = $u['groupid'];
                 // 创建用户
-                $res = M('Member')->add($u);
+                $res = D('Common/Member')->add($u);
                 // 发邮件通知用户密码
                 sendPasswordEmail($u['username'], $u['email'], $u['origin_password'], $siteconfig);
             }
@@ -1320,14 +1320,14 @@ class AgentController extends BaseController
             list($starttime, $endtime) = explode('|', $regdatetime);
             $where['regdatetime']      = ["between", [strtotime($starttime), strtotime($endtime)]];
         }
-        $count = M('Member')->where($where)->count();
+        $count = D('Common/Member')->where($where)->count();
         $size  = 15;
         $rows  = I('get.rows', $size, 'intval');
         if (!$rows) {
             $rows = $size;
         }
         $page = new Page($count, $rows);
-        $list = M('Member')
+        $list = D('Common/Member')
             ->where($where)
             ->limit($page->firstRow . ',' . $page->listRows)
             ->order('id desc')
