@@ -10,20 +10,22 @@
                    <thead>
                    <tr>
                        <th>退款编号</th>
-                       <th>退款时间</th>
                        <th>退款订单号</th>
                        <th>订单金额</th>
                        <th>退款金额</th>
+                       <th>退款时间</th>
+                       <th>退款备注</th>
                    </tr>
                    </thead>
                    <tbody>
                    <volist name="list" id="vo">
                    <tr>
                        <td><{$vo.id}></td>
-                       <td><{$vo.return_time|date='Y-m-d H:i:s',###}></td>
                        <td><{$vo.order_id}></td>
                        <td><{$v.money|format_money}></td>
-                       <td><{$v.return_money|format_money}></td>
+                       <td><{$v.actmoney|format_money}></td>
+                       <td><{$vo.time|date='Y-m-d H:i:s',###}></td>
+                       <td><{$vo.reason}></td>
                    </tr>
                    </volist>
                    </tbody>

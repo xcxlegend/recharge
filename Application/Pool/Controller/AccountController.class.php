@@ -94,7 +94,11 @@ class AccountController extends PoolController
     {
         $maps['pid'] = $this->provider['uid'];
         $maps['status']   = 2;
-        $count          = M('PoolRec')->where($maps)->count();
+        $join = 'LEFT JOIN pay_pool_drawback b ON a.id=b.rec_id';
+        $field = 'a.*,b.time,b.reason';
+        
+
+        $count          = M('PoolRec')->join($join)->where($maps)->count();
 
         $size  = 15;
         $rows  = I('get.rows', $size, 'intval');
@@ -103,6 +107,8 @@ class AccountController extends PoolController
         }
         $page           = new Page($count, $rows);
         $list           = M('PoolRec')
+            ->join($join)
+            ->field($field)
             ->where($maps)
             ->limit($page->firstRow . ',' . $page->listRows)
             ->order('id desc')

@@ -1,0 +1,75 @@
+<include file="Public/header" />
+<div class="wrapper wrapper-content animated">
+    <div class="row">
+        <div class="col-sm-12">
+            <p class="text-danger" style="padding: 15px;">注：费率为千分位，例如：千分之三则填0.003</p>
+        <form class="layui-form" action="" id="rate" method="POST">
+            <!--产品列表-->
+            <table class="layui-table" lay-even="" lay-skin="line" id="tab">
+            <thead>
+            <tr>
+              <th>运营商</th>
+              <th>费率</th>
+
+            </tr> 
+            </thead>
+            <tbody>
+            <volist name="sp_list" id="p" key="k">
+            <tr>
+                <td><{$p}></td>
+                <td>
+                    <div class="layui-input-inline" style="width: 100px;">
+                    <input type="text" name="rate[<{$k}>]" placeholder="" autocomplete="off" class="layui-input" value="<{$info[$k]}>">
+                    </div>
+                </td>
+            </tr>
+            </volist>
+            </tbody>
+            </table>
+            <!--产品列表-->
+            <div class="layui-form-item">
+                <div class="layui-input-block">
+                        <input type="hidden" name="id" value="<{$id}>" />
+                  <button class="layui-btn" lay-submit="submit" lay-filter="info">提交保存</button>
+                </div>
+            </div>
+        </form>
+        </div>
+    </div>
+</div>
+<include file="Public/footer"/>
+<script>
+    layui.use('form', function(){
+        var form = layui.form,
+            $ = layui.jquery;
+        $("button[type=reset]").click();
+        //监听提交
+        form.on('submit(info)', function(data){
+
+            $.ajax({
+                url:"<{:U('PoolProvider/rate')}>",
+                type:"post",
+                data:$('#rate').serialize(),
+                success:function(res){
+                    if(res.status){
+                        layer.alert("操作成功", {icon: 6},function () {
+                            parent.location.reload();
+                            var index = parent.layer.getFrameIndex(window.name);
+                            parent.layer.close(index);
+                        });
+                    }else{
+
+                        layer.msg(res.msg ? res.msg : "操作失败!", {icon: 5},function () {
+                            // var index = parent.layer.getFrameIndex(window.name);
+                            // parent.layer.close(index);
+                        });
+                        return false;
+                    }
+                }
+            });
+            return false;//阻止表单跳转
+        });
+    });
+</script>
+</body>
+</html>
