@@ -1,0 +1,55 @@
+<include file="Public/header"/>
+  <div class="row">
+    <div class="col-sm-12">
+      <div class="ibox float-e-margins">
+        <div class="ibox-title">
+          <h5>退款记录</h5>
+        </div>
+        <div class="ibox-content"><br>
+               <table class="layui-table" lay-skin="line">
+                   <thead>
+                   <tr>
+                       <th>退款编号</th>
+                       <th>退款时间</th>
+                       <th>退款订单号</th>
+                       <th>订单金额</th>
+                       <th>退款金额</th>
+                   </tr>
+                   </thead>
+                   <tbody>
+                   <volist name="list" id="vo">
+                   <tr>
+                       <td><{$vo.id}></td>
+                       <td><{$vo.return_time|date='Y-m-d H:i:s',###}></td>
+                       <td><{$vo.order_id}></td>
+                       <td><{$v.money|format_money}></td>
+                       <td><{$v.return_money|format_money}></td>
+                   </tr>
+                   </volist>
+                   </tbody>
+               </table>
+            <div class="page">
+                <form class="layui-form" action="" method="get" id="pageForm"  autocomplete="off">
+                    <{$page}>
+                    <select name="rows" style="height: 32px; display: inline-block;" id="pageList" lay-ignore >
+                        <option value="">显示条数</option>
+                        <option <if condition="$_GET[rows] neq '' && $_GET[rows] eq 15">selected</if> value="15">15条</option>
+                        <option <if condition="$_GET[rows] eq 30">selected</if> value="30">30条</option>
+                        <option <if condition="$_GET[rows] eq 50">selected</if> value="50">50条</option>
+                        <option <if condition="$_GET[rows] eq 80">selected</if> value="80">80条</option>
+                        <option <if condition="$_GET[rows] eq 100">selected</if> value="100">100条</option>
+                    </select>
+                </form>
+            </div>
+      </div>
+    </div>
+  </div>
+</div>
+ <include file="Public/footer"/>
+<script>
+    $('#pageList').change(function(){
+        $('#pageForm').submit();
+    });
+</script>
+</body>
+</html>
