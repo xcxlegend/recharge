@@ -58,6 +58,11 @@ out_trade_id
             return;
         }
 
+        if (!$provider['status']) {
+            $this->result_error("通道关闭", true);
+            return;
+        }
+
         $signArray = [
             "appkey"        => $this->request['appkey'],
             "phone"         => $this->request['phone'],
