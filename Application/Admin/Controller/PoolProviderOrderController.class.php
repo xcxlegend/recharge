@@ -35,7 +35,7 @@ class PoolProviderOrderController extends BaseController
             $where['a.money'] = $param['money']*100;//分
         }
         if(!empty($param['sp'])){
-            $where['a.sp'] = $param['sp'];
+            $where['a.channel'] = $param['sp'];
         }
         if(is_numeric($param['status'])){
             $where['a.status'] = $param['status'];
@@ -65,7 +65,7 @@ class PoolProviderOrderController extends BaseController
                     'pid'    => $item['pid'],
                     'phone'    => $item['phone'],
                     'money'      => $item['money'],
-                    'sp'      => $sp_list[$item['sp']],
+                    'channel'      => $sp_list[$item['channel']],
                     'pay_name'      => $item['pay_name'],
                     'pay_applydate'      =>date('Y-m-d H:i:s',$item['pay_applydate']),
                     'pay_successdate'      => date('Y-m-d H:i:s',$item['pay_successdate']),

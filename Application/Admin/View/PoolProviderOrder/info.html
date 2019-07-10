@@ -23,9 +23,9 @@
             <tr><td>金额：</td><td><{$info.money}></td></tr>
 
             <tr><td>订单金额：</td><td><strong class="text-danger"><{$info.pay_amount}></strong></td></tr>
-            <tr><td>实际金额：</td><td><strong class="text-success"><{$info.actmoney}></strong></td></tr>
-            <tr><td>费率：</td><td><strong class=""><{$info.pound}></strong></td></tr>
-            <tr><td>手续费：</td><td><strong class=""><{$info.pay_amount - $info.actmoney}></strong></td></tr>
+            <tr><td>实际金额：</td><td><strong class="text-success"><{$info.actmoney|format_money}></strong></td></tr>
+            <tr><td>费率：</td><td><strong class=""><{$info.pound/$info.actmoney}></strong></td></tr>
+            <tr><td>手续费：</td><td><strong class=""><{$info.pound|format_money}></strong></td></tr>
             <tr><td>付款IP：</td><td><strong class=""><{$info.ip}></strong></td></tr>
 
             <tr><td>提交时间：</td><td><strong class="text-warning"><{$info[pay_applydate]|date='Y-m-d H:i:s',###}></strong></td></tr>
