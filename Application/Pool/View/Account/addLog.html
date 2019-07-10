@@ -22,9 +22,9 @@
                    <volist name="list" id="vo">
                    <tr>
                        <td><{$vo.id}></td>
-                       <td><{$vo.ymoney}></td>
-                       <td>+ <{$vo.money}></td>
-                       <td><{$vo.gmoney}></td>
+                       <td><{$vo.ymoney|format_money}></td>
+                       <td>+ <{$vo.money|format_money}></td>
+                       <td><{$vo.gmoney|format_money}></td>
                        <td><{$vo.uid}></td>
                        <td><{$vo.contentstr}></td>
                        <td><{$vo.datetime|date='Y-m-d H:i:s',###}></td>

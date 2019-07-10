@@ -87,7 +87,6 @@
                                 <th lay-data="{field:'pay_orderid6', width:150}">手机号</th>
                                 <th lay-data="{field:'pay_orderid7', width:80,style:'color:#C00;'}">金额</th>
                                 <th lay-data="{field:'pay_orderid8', width:100}">运营商</th>
-                                <th lay-data="{field:'pay_orderid9', width:100}">支付方式</th>
                                 <th lay-data="{field:'pay_orderid10', width:180}">创建时间</th>
                                 <th lay-data="{field:'pay_orderid11', width:180}">成功时间</th>
                                 <th lay-data="{field:'pay_orderid12', width:100}">状态</th>
@@ -101,8 +100,7 @@
                                     <td><{$v.trade_id}></td>
                                     <td><{$v.phone}></td>
                                     <td><{$v.money|format_money}></td>
-                                    <td><{$sp_list[$v['sp']]}></td>
-                                    <td><{$v.pay_name}></td>
+                                    <td><{$sp_list[$v['channel']]}></td>
                                     <td><{$v.pay_applydate|date='Y-m-d H:i:s',###}></td>
                                     <td><{$v.pay_successdate|date='Y-m-d H:i:s',###}></td>
                                     <td>

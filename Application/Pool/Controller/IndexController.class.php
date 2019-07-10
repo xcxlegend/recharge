@@ -42,8 +42,9 @@ class IndexController extends PoolController
         $lastlogin = M('PoolLoginrecord')->where($where)->order('id DESC')->find();
         $stat['today_count'] = M('PoolPhones')->where($where)->count();
         $stat['today_pay_success'] = M('PoolRec')->where($where)->count();
+        
         $where['lock'] = 1;
-        $stat['today_lock'] = M('PoolPhones')->where(['lock'=>1])->count();
+        $stat['today_lock'] = M('PoolPhones')->where($where)->count();
 
         
         $this->assign('lastlogin', $lastlogin);

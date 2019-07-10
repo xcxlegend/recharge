@@ -48,7 +48,7 @@ class OrderController extends PoolController
             $where['a.money'] = $param['money']*100;//分
         }
         if(!empty($param['sp'])){
-            $where['a.sp'] = $param['sp'];
+            $where['a.channel'] = $param['sp'];
         }
         if(is_numeric($param['status'])){
             $where['a.status'] = $param['status'];
@@ -76,14 +76,13 @@ class OrderController extends PoolController
                     
                     'phone'    => $item['phone'],
                     'money'      => $item['money'],
-                    'sp'      => $sp_list[$item['sp']],
-                    'pay_name'      => $item['pay_name'],
+                    'channel'      => $sp_list[$item['channel']],
                     'pay_applydate'      =>date('Y-m-d H:i:s',$item['pay_applydate']),
                     'pay_successdate'      => date('Y-m-d H:i:s',$item['pay_successdate']),
                     'status'  => $status,
                 );
             }
-            $title = array('平台订单号', '充值流水号', '手机号', '金额', '运营商', '支付方式', '创建时间', '成功时间', '状态');
+            $title = array('平台订单号', '充值流水号', '手机号', '金额', '运营商', '创建时间', '成功时间', '状态');
             exportexcel($list, $title);
             exit;
             

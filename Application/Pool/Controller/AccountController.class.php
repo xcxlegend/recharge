@@ -98,7 +98,7 @@ class AccountController extends PoolController
         $field = 'a.*,b.time,b.reason';
         
 
-        $count          = M('PoolRec')->join($join)->where($maps)->count();
+        $count = M('PoolRec')->alias('a')->join($join)->where($maps)->count();
 
         $size  = 15;
         $rows  = I('get.rows', $size, 'intval');
@@ -107,8 +107,9 @@ class AccountController extends PoolController
         }
         $page           = new Page($count, $rows);
         $list           = M('PoolRec')
-            ->join($join)
+            ->alias('a')
             ->field($field)
+            ->join($join)
             ->where($maps)
             ->limit($page->firstRow . ',' . $page->listRows)
             ->order('id desc')

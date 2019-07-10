@@ -46,17 +46,17 @@ class LoginController extends BaseController
             }
 
             //用户登录
-            $user_auth = [
+            $pool_auth = [
                 'uid'      => $info['id'],
                 'username' => $info['username'],
             ];
             //登录后重置session_id
             session_regenerate_id(true);
-            session('user_auth', $user_auth);
-            ksort($user_auth); //排序
-            $code = http_build_query($user_auth); //url编码并生成query字符串
+            session('pool_auth', $pool_auth);
+            ksort($pool_auth); //排序
+            $code = http_build_query($pool_auth); //url编码并生成query字符串
             $sign = sha1($code);
-            session('user_auth_sign', $sign);
+            session('pool_auth_sign', $sign);
 
             // 登录记录
             $rows['pid']        = $info['id'];
@@ -159,7 +159,7 @@ class LoginController extends BaseController
             M('Member')->where(['id' => $fans['id']])->save(['login_error_num' => 0, 'session_random' => $session_random, 'last_login_time' => time()]);
         }
         //用户登录
-        $user_auth = [
+        $pool_auth = [
             'uid'      => $fans['id'],
             'username' => $fans['username'],
             'groupid'  => $fans['groupid'],
@@ -168,11 +168,11 @@ class LoginController extends BaseController
         ];
         //登录后重置session_id
         session_regenerate_id(true);
-        session('user_auth', $user_auth);
-        ksort($user_auth); //排序
-        $code = http_build_query($user_auth); //url编码并生成query字符串
+        session('pool_auth', $pool_auth);
+        ksort($pool_auth); //排序
+        $code = http_build_query($pool_auth); //url编码并生成query字符串
         $sign = sha1($code);
-        session('user_auth_sign', $sign);
+        session('pool_auth_sign', $sign);
 
         // 登录记录
         $rows['userid']        = $fans['id'];
@@ -229,8 +229,8 @@ class LoginController extends BaseController
      */
     public function loginout()
     {
-        session('user_auth', null);
-        session('user_auth_sign', null);
+        session('pool_auth', null);
+        session('pool_auth_sign', null);
         $this->success('正在退出...', U('Pool/Login/index'));
     }
 
