@@ -72,9 +72,16 @@ class PoolProviderController extends BaseController
                 $this->ajaxReturn(['status'=>0,'msg'=>'请输入名称!']);
             }
 
+            $isHave = M('PoolProvider')->where(['username'=>$post['username']])->find();
+            if($isHave){
+                $this->ajaxReturn(['status'=>0,'msg'=>'登录用户名已存在']);
+            }
+
             $str = $this->randomStr();
 
             $data["name"] = $post['name'];
+            $data["username"] = $post['username'];
+            $data["password"] = md5($post['password']);
             $data["status"] = $post['status'];
             $data["contact"] = $post['contact'];
             $data["contact_tel"] = $post['contact_tel'];
@@ -137,6 +144,11 @@ class PoolProviderController extends BaseController
             if(!$data["name"]){
                 $this->ajaxReturn(['status'=>0,'msg'=>'请输入名称!']);
             }
+            if(empty($data["password"])){
+                unset($data['password']);
+            }else{
+                $data['password'] = md5($data['password']);
+            }
             $data["update_time"]=time();
             $status = D('Common/PoolProvider')->save($data);
             $this->ajaxReturn(['status'=>$status]);
@@ -156,6 +168,41 @@ class PoolProviderController extends BaseController
             $this->display();
         }
     }
+
+    public function rate(){
+        if(IS_POST){
+ 
+             $data=I("post.");
+ 
+             if(!$data['id']){
+                 $this->ajaxReturn(['status'=>0,'msg'=>'非法请求!']);
+             }
+             
+             $rate['rate'] = $data['rate'];
+             $data['config'] = json_encode($rate);
+             $status = D('Common/PoolProvider')->save($data);
+             $this->ajaxReturn(['status'=>$status]);
+ 
+         }else{
+             $id = I('id', 0, 'intval');
+             if(!$id){
+                 $this->ajaxReturn(['status'=>0,'msg'=>'非法请求!']);
+             }
+             $where = array(
+                 'id'     => $id
+             );
+ 
+             $info = D('PoolProvider')->where($where)->find();
+
+             $info = json_decode($info['config'],true);
+
+             $sp_list = array('1'=>'移动','2'=>'电信','3'=>'联通');
+             $this->assign('sp_list',$sp_list);
+             $this->assign('info',$info['rate']);
+             $this->assign('id',$id);
+             $this->display();
+         }
+     }
 
     //列表
     public function order()

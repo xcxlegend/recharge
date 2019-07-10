@@ -18,14 +18,14 @@
             <tr><td width="30%">平台订单号：</td><td><strong class="text-success"><{$info.order_id}></strong></td></tr>
             <tr><td>商户订单号：</td><td><strong class="text-success"><{$info.pool_order_id}></strong></td></tr>
             <tr><td>流水单号：</td><td><strong class="text-success"><{$info.trade_id}></strong></td></tr>
-            <tr><td>手机号：</td><td><{$info.phone}> （<{$sp_list[$info['sp']]}>）</td></tr>
+            <tr><td>手机号：</td><td><{$info.phone}> （<{$sp_list[$info['channel']]}>）</td></tr>
             <tr><td>交易通道：</td><td><{$info.pay_name}></td></tr>
             <tr><td>金额：</td><td><{$info.money}></td></tr>
 
             <tr><td>订单金额：</td><td><strong class="text-danger"><{$info.pay_amount}></strong></td></tr>
-            <tr><td>实际金额：</td><td><strong class="text-success"><{$info.pay_actualamount}></strong></td></tr>
-            <tr><td>费率：</td><td><strong class=""><{$info.pay_poundage}></strong></td></tr>
-            <tr><td>手续费：</td><td><strong class=""></strong></td></tr>
+            <tr><td>实际金额：</td><td><strong class="text-success"><{$info.actmoney}></strong></td></tr>
+            <tr><td>费率：</td><td><strong class=""><{$info.pound}></strong></td></tr>
+            <tr><td>手续费：</td><td><strong class=""><{$info.pay_amount - $info.actmoney}></strong></td></tr>
             <tr><td>付款IP：</td><td><strong class=""><{$info.ip}></strong></td></tr>
 
             <tr><td>提交时间：</td><td><strong class="text-warning"><{$info[pay_applydate]|date='Y-m-d H:i:s',###}></strong></td></tr>

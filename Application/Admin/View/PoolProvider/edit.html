@@ -4,10 +4,20 @@
     <form class="layui-form" id="editForm">
 
       <div class="layui-form-item">
-        <label class="layui-form-label">名称：</label>
+        <label class="layui-form-label">号码商名称：</label>
         <div class="layui-input-inline">
           <input type="text" name="name" value="<{$info['name']}>" lay-verify="required" placeholder="请输入用户名" autocomplete="off"  id="name" class="layui-input">
           
+        </div>
+      </div>
+      <div class="layui-form-item">
+        <label class="layui-form-label">登录用户名：</label>
+        <div class="layui-input-inline"><{$info['username']}></div>
+      </div>
+      <div class="layui-form-item">
+        <label class="layui-form-label">登录密码：</label>
+        <div class="layui-input-inline">
+          <input type="text" name="password"  placeholder="留空则不更改密码" autocomplete="off"  id="name" class="layui-input">
         </div>
       </div>
       <div class="layui-form-item">
@@ -31,12 +41,12 @@
         </div>
     </div>
      
-    <div class="layui-form-item">
+    <!-- <div class="layui-form-item">
         <label class="layui-form-label">配置: </label>
         <div class="layui-input-inline">
             <textarea type="text" name="config"  placeholder="" autocomplete="off"  id="name" class="layui-input"><{$info['config']}></textarea> 
         </div>
-    </div>
+    </div> -->
 
       <div class="layui-form-item">
         <div class="layui-input-block">
@@ -71,8 +81,8 @@
                     }else{
 
                         layer.msg(res.msg ? res.msg : "操作失败!", {icon: 5},function () {
-                            var index = parent.layer.getFrameIndex(window.name);
-                            parent.layer.close(index);
+                            // var index = parent.layer.getFrameIndex(window.name);
+                            // parent.layer.close(index);
                         });
                         return false;
                     }
