@@ -323,11 +323,11 @@
                 data:{'createtime':createtime},
                 success:function(res){
                     if(res.status){
-                        layer.alert('删除成功！',function () {
+                        layer.alert(res.info,function () {
                             location.replace(location.href);
                         });
                     }else{
-                        layer.alert('删除失败！');
+                        layer.alert(res.info);
                     }
                 }
             });

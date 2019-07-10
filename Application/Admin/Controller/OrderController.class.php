@@ -844,7 +844,7 @@ class OrderController extends BaseController
             list($cstime, $cetime)  = explode('|', $createtime);
             $where['pay_applydate'] = ['between', [strtotime($cstime), strtotime($cetime) ? strtotime($cetime) : time()]];
         } else {
-            $this->ajaxReturn(array('status' => 0, "请选择删除无效订单时间段"));
+            $this->ajaxReturn(array('status' => 0, 'info' => "请选择删除无效订单时间段"));
         }
 
         $KEY = "list:del_order";
@@ -852,13 +852,14 @@ class OrderController extends BaseController
         $cache = new RedisCacheModel();
 
         if ($cache->Client()->exists($KEY)){
-            $this->ajaxReturn(array('status' => 0, "删除队列已经存在, 请等待完成"));
+            $this->ajaxReturn(array('status' => 0, 'info' => "删除队列已经存在, 请等待完成"));
             return;
         }
 
-        $data = $where;
+        $data = $where['pay_applydate'][1];
         $cache->Client()->set($KEY, json_encode($data));
-        $this->ajaxReturn(array('status' => 1, "已进入删除队列, 请等待"));
+        $cache->Client()->publish("notify", $KEY);
+        $this->ajaxReturn(array('status' => 1, 'info' => "已进入删除队列, 请等待"));
 
         /*$status = M('Order')->where($where)->delete();
         if ($status) {
