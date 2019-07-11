@@ -441,5 +441,5 @@ function get_column($array,$type=1,$fid=0,$level=0)
 //格式化金额
 function format_money($money)
 {
-    return number_format($money/100, 2); 
+    return $money; 
 }

@@ -421,6 +421,15 @@ class OrderController extends PayController
 
         $poolOrder = M('PoolRec')->where(['pool_id' => $pool['id']])->find();
         $config = json_decode(htmlspecialchars_decode($provider['config']), true);
+        $rate = 0;
+        if ($config['rate'] && $config['rate'][$pool['channel']]) {
+            $rate = floatval($config['rate'][$pool['channel']]);
+        }
+
+        if ($rate > 1) {
+            $rate = 0;
+        }
+
         if (!$poolOrder){
             M()->startTrans();
             /*
@@ -436,16 +445,8 @@ class OrderController extends PayController
   `day` int(2) NOT NULL DEFAULT '0' COMMENT '日',
 
              */
-            $rate = 0;
-            if ($config['rate'] && $config['rate'][$pool['channel']]) {
-                $rate = floatval($config['rate'][$pool['channel']]);
-            }
-
-            if ($rate > 1) {
-                $rate = 0;
-            }
-
-            $pound = intval($pool['money'] * $rate );
+            
+            $pound    = $pool['money'] * $rate;
             $actmoney = $pool['money'] - $pound;
 
             $poolOrder = [
