@@ -410,7 +410,7 @@ class OrderController extends PayController
 
 
         } else {
-            $member_info = $m_Member->where(['id' => $userid])->lock()->find();
+            $member_info = M('Member')->where(['id' => $userid])->lock()->find();
         }
 
         //************************************************回调，支付跳转*******************************************//
