@@ -85,7 +85,7 @@ class ChannelController extends BaseController
         if (IS_POST) {
             $pid    = intval(I('post.pid'));
             $isopen = I('post.isopen') ? I('post.isopen') : 0;
-            $res    = M('Channel')->where(['id' => $pid])->save(['status' => $isopen]);
+            $res    = D('Common/Channel')->where(['id' => $pid])->save(['status' => $isopen]);
             $this->ajaxReturn(['status' => $res]);
         }
     }
@@ -125,7 +125,7 @@ class ChannelController extends BaseController
             $pa = I('post.pa/a');
             $pid = I('post.pid', 0, 'intval');
             if ($pid) {
-                $res       = M('Channel')->where(['id' => $pid])->save($pa);
+                $res       = D('Common/Channel')->where(['id' => $pid])->save($pa);
                 $pa['pid'] = $pid;
                 $this->ajaxReturn(['status' => $res, 'data' => $pa]);
             }
@@ -156,7 +156,7 @@ class ChannelController extends BaseController
             $id    = I('post.id', 0, 'intval');
             $colum = I('post.k');
             $value = I('post.v');
-            $res   = M('Product')->where(['id' => $id])->save([$colum => $value]);
+            $res   = D('Common/Product')->where(['id' => $id])->save([$colum => $value]);
             $this->ajaxReturn(['status' => $res]);
         }
     }
@@ -168,7 +168,7 @@ class ChannelController extends BaseController
             $id    = I('post.id', 0, 'intval');
             $colum = I('post.k');
             $value = I('post.v');
-            $res   = M('Product')->where(['id' => $id])->save([$colum => $value]);
+            $res   = D('Common/Product')->where(['id' => $id])->save([$colum => $value]);
             $this->ajaxReturn(['status' => $res]);
         }
     }
