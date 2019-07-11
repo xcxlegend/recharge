@@ -25,14 +25,12 @@ class PoolDevLib implements IPoolLib
 
     public function query(&$params)
     {
-        $money = $params['pay_amount'];
-
+        $money = $params['pay_amount']/100;
         $query = [
             'balance' => ['egt', $money]
         ];
 
         $ids = M('PoolProvider')->where( $query )->getField("id", true);
-
         if (!$ids) {
             throw new Exception("号码查询失败");
             return false;

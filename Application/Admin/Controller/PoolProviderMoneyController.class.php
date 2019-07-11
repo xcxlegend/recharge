@@ -34,7 +34,7 @@ class PoolProviderMoneyController extends BaseController
 
         $post = I('request.');
         $id = $post['id'];
-        $balance = intval($post['money']);
+        $balance = $post['money'] / 100;
 
         if ( $balance <= 0) {
             $this->ajaxReturn(['status' => 0, 'msg' => '增加金额数值无效']);

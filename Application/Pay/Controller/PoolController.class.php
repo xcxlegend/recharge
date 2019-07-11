@@ -90,6 +90,7 @@ out_trade_id
         $data['pid'] = $provider['id'];
         $data['order_id'] = createUUID('PL');
         $data['time'] = $this->timestamp;
+        $data['money'] = floatval($data['money']/100);
 
         if (!M('PoolPhones')->add($data)){
             $this->result_error("save db error", true);
@@ -146,6 +147,7 @@ out_trade_id
         unset($data['notify_url']);
         unset($data['lock']);
         $data['time'] = $rec['time'];
+        $data['money'] = intval( $data['money'] * 100);
         $this->result_success($data, "查询成功");
         return;
     }

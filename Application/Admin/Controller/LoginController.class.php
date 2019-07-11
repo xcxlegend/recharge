@@ -40,9 +40,9 @@ class LoginController extends Controller
             //if (!$verify->check($verification)) {
                 // $this->ajaxReturn(['errorno' => 1, 'msg' => '验证码输入错误！', 'url' => '']);
             //}
-            $admin = M("admin");
+            $admin = M("Admin");
+
             $info  = $admin->where(array("username" => $username, "password" => md5($loginpassword . C('DATA_AUTH_KEY'))))->find();
-            
 
             if ($info) {
                 // 登录记录

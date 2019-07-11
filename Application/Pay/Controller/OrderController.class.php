@@ -548,7 +548,7 @@ class OrderController extends PayController
         $params = [
             'appkey'        => $provider['appkey'],
             'phone'         => $pool['phone'],
-            'money'         => $pool['money'],
+            'money'         => intval($pool['money'] * 100),
             'out_trade_id'  => $pool['out_trade_id'],
             'status'        => 1,
         ];
