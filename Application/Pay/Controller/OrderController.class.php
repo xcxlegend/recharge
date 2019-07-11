@@ -409,6 +409,8 @@ class OrderController extends PayController
             $this->handlePoolOrderSuccess( $pool, $provider );
 
 
+        } else {
+            $member_info = $m_Member->where(['id' => $userid])->lock()->find();
         }
 
         //************************************************回调，支付跳转*******************************************//
@@ -590,7 +592,7 @@ class OrderController extends PayController
     }
 
 
-    protected function sendOrderNotify( $order, $member_info )
+    protected function sendOrderNotify( $order, &$member_info )
     {
         $params = [ // 返回字段
             "memberid" => $order["pay_memberid"], // 商户ID
