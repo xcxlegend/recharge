@@ -6,10 +6,29 @@
           <h5>加款记录</h5>
         </div>
         <div class="ibox-content"><br>
+            <form class="layui-form" action="" method="get" autocomplete="off" id="sform">
+                    <input type="hidden" name="p" value="1">
+                    <div class="layui-form-item">
+                    <div class="layui-inline">
+                        <div class="layui-input-inline">
+                          <input type="text" name="pid" autocomplete="off" placeholder="号码商ID"
+                                 class="layui-input" value="<{$param.pid}>">
+                        </div>
+                      
+          
+                        <div class="layui-input-inline">
+                            <button type="submit" class="layui-btn"><span
+                                    class="glyphicon glyphicon-search"></span> 搜索
+                            </button>
+                         </div>
+                    </div>
+                    </div>
+                  </form>
                <table class="layui-table" lay-skin="line">
                    <thead>
                    <tr>
                        <th>加款编号</th>
+                       <th>号码商ID</th>
                        <th>加款前金额</th>
                        <th>加款金额</th>
                        <th>加款后金额</th>
@@ -22,6 +41,7 @@
                    <volist name="list" id="vo">
                    <tr>
                        <td><{$vo.id}></td>
+                       <td><{$vo.pid}></td>
                        <td><{$vo.ymoney|format_money}></td>
                        <td>+ <{$vo.money|format_money}></td>
                        <td><{$vo.gmoney|format_money}></td>

@@ -1,5 +1,6 @@
 <?php
 namespace Admin\Controller;
+use Think\Page;
 
 class PoolProviderController extends BaseController
 {
@@ -173,13 +174,20 @@ class PoolProviderController extends BaseController
         if(IS_POST){
  
              $data=I("post.");
- 
              if(!$data['id']){
                  $this->ajaxReturn(['status'=>0,'msg'=>'非法请求!']);
              }
+
+            $where = array(
+                'id'     => $data['id']
+            );
+
+            $info = D('PoolProvider')->where($where)->find();
+            $config = json_decode($info['config'],true);
              
-             $rate['rate'] = $data['rate'];
-             $data['config'] = json_encode($rate);
+            $config['rate'] = $data['rate'];
+            $data['config'] = json_encode($config);
+
              $status = D('Common/PoolProvider')->save($data);
              $this->ajaxReturn(['status'=>$status]);
  
@@ -231,7 +239,7 @@ class PoolProviderController extends BaseController
             $where['a.money'] = $param['money']*100;//分
         }
         if(!empty($param['sp'])){
-            $where['a.sp'] = $param['sp'];
+            $where['a.channel'] = $param['sp'];
         }
         if(is_numeric($param['status'])){
             $where['a.status'] = $param['status'];
@@ -261,7 +269,7 @@ class PoolProviderController extends BaseController
                     'pool_order_id'     => $item['pool_order_id'],
                     'phone'    => $item['phone'],
                     'money'      => $item['money'],
-                    'sp'      => $sp_list[$item['sp']],
+                    'channel'      => $sp_list[$item['channel']],
                     'pay_name'      => $item['pay_name'],
                     'pay_applydate'      =>date('Y-m-d H:i:s',$item['pay_applydate']),
                     'pay_successdate'      => date('Y-m-d H:i:s',$item['pay_successdate']),
@@ -313,6 +321,31 @@ class PoolProviderController extends BaseController
         $this->assign('page', $data['page']);
         $this->display();
 
+    }
+
+
+    public function addMoneyLog()
+    {
+        if(!empty($param['pid'])){
+            $maps['pid'] = $param['uid'];
+        }
+        
+        $count          = M('PoolMoneychange')->where($maps)->count();
+
+        $size  = 15;
+        $rows  = I('get.rows', $size, 'intval');
+        if (!$rows) {
+            $rows = $size;
+        }
+        $page           = new Page($count, $rows);
+        $list           = M('PoolMoneychange')
+            ->where($maps)
+            ->limit($page->firstRow . ',' . $page->listRows)
+            ->order('id desc')
+            ->select();
+        $this->assign("list", $list);
+        $this->assign('page', $page->show());
+        $this->display();
     }
 
 
