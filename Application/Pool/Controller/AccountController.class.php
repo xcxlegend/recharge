@@ -92,7 +92,7 @@ class AccountController extends PoolController
 
     public function returnLog()
     {
-        $maps['pid'] = $this->provider['uid'];
+        $maps['a.pid'] = $this->provider['uid'];
         $maps['status']   = 2;
         $join = 'LEFT JOIN pay_pool_drawback b ON a.id=b.rec_id';
         $field = 'a.*,b.time,b.reason';
