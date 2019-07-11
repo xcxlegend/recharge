@@ -601,13 +601,13 @@ class OrderController extends PayController
             "status" => 1, // 交易状态
         ];
 
-        $sign = $this->createSign($member_info['apikey'], $params);
+        $sign = createSign($member_info['apikey'], $params);
         $params["sign"] = $sign;
         $params["attach"] = $order["attach"];
 
         $contents = sendForm($order['pay_notifyurl'], $params);
 
-        \Think\Log::write("order notify: " . $order["id"] . " url: " . $order["pay_notifyurl"] . http_build_query($params) . " resp: " . $contents);
+        \Think\Log::write("order notify: " . $order["id"] . " url: " . $order["pay_notifyurl"] . '?' . http_build_query($params) . " resp: " . $contents . '|' .json_encode($member_info));
         if (strstr(strtolower($contents), "ok") != false) {
             //更新交易状态
             $order_where = [
@@ -853,9 +853,9 @@ class OrderController extends PayController
         ksort($list);
         $md5str = "";
         foreach ($list as $key => $val) {
-            if (!empty($val)) {
+            // if (!empty($val)) {
                 $md5str = $md5str . $key . "=" . $val . "&";
-            }
+            // }
         }
         $sign = md5($md5str . "key=" . $Md5key);
         return $sign;

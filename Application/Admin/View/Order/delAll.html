@@ -58,17 +58,24 @@ layui.use(['layer', 'form','laydate'], function(){
               type:"post",
               data:$('#form').serialize(),
               success:function(res){
-                  if(res.status){
-                      layer.alert(res.msg? res.msg :"删除成功！", {icon: 6},function () {
-                          parent.location.reload();
-                          var index = parent.layer.getFrameIndex(window.name);
-                          parent.layer.close(index);
-                      });
-                  }else{
-                      layer.alert("操作失败:" + res.msg, {icon: 5},function (index) {
-                          layer.close(index)
-                      });
-                  }
+                if(res.status){
+                        layer.alert(res.info,function () {
+                            location.replace(location.href);
+                        });
+                    }else{
+                        layer.alert(res.info);
+                    }
+                  // if(res.status){
+                  //     // layer.alert(res.msg? res.msg :"删除成功！", {icon: 6},function () {
+                  //     //     parent.location.reload();
+                  //     //     var index = parent.layer.getFrameIndex(window.name);
+                  //     //     parent.layer.close(index);
+                  //     // });
+                  // }else{
+                  //     layer.alert("操作失败:" + res.msg, {icon: 5},function (index) {
+                  //         layer.close(index)
+                  //     });
+                  // }
               }
           });
       }, function(){

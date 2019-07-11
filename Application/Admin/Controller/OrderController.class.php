@@ -597,9 +597,6 @@ class OrderController extends BaseController
             unset($data);
         }
 
-
-
-
         /*$data = $query->select();
         foreach ($data as $item) {
 
@@ -634,13 +631,13 @@ class OrderController extends BaseController
                 'pay_status'       => $status,
             ];
         }*/
-        exportexcel($list, $title, $numberField);
+        // exportexcel($list, $title, $numberField);
         // 将已经写到csv中的数据存储变量销毁，释放内存占用
-        unset($list);
+        // unset($list);
 
         //刷新缓冲区
-        ob_flush();
-        flush();
+        // ob_flush();
+        // flush();
 
     }
 
@@ -847,6 +844,35 @@ class OrderController extends BaseController
             $this->ajaxReturn(array('status' => 0, 'info' => "请选择删除无效订单时间段"));
         }
 
+        $dates = $where['pay_applydate'][1];
+
+        $this->AsyncDelOrder($dates);
+
+        // $KEY = "list:del_order";
+
+        // $cache = new RedisCacheModel();
+
+        // if ($cache->Client()->exists($KEY)){
+        //     $this->ajaxReturn(array('status' => 0, 'info' => "删除队列已经存在, 请等待完成"));
+        //     return;
+        // }
+
+        // $data = $where['pay_applydate'][1];
+        // $cache->Client()->set($KEY, json_encode($data));
+        // $cache->Client()->publish("notify", $KEY);
+        // $this->ajaxReturn(array('status' => 1, 'info' => "已进入删除队列, 请等待"));
+
+        /*$status = M('Order')->where($where)->delete();
+        if ($status) {
+            $this->ajaxReturn(array('status' => 1, "删除成功"));
+        } else {
+            $this->ajaxReturn(array('status' => 0, "删除失败"));
+        }*/
+    }
+
+
+    protected function AsyncDelOrder($dates)
+    {
         $KEY = "list:del_order";
 
         $cache = new RedisCacheModel();
@@ -856,19 +882,13 @@ class OrderController extends BaseController
             return;
         }
 
-        $data = $where['pay_applydate'][1];
-        $cache->Client()->set($KEY, json_encode($data));
+        // $data = $where['pay_applydate'][1];
+        $cache->Client()->set($KEY, json_encode($dates));
         $cache->Client()->publish("notify", $KEY);
         $this->ajaxReturn(array('status' => 1, 'info' => "已进入删除队列, 请等待"));
-
-        /*$status = M('Order')->where($where)->delete();
-        if ($status) {
-            $this->ajaxReturn(array('status' => 1, "删除成功"));
-        } else {
-            $this->ajaxReturn(array('status' => 0, "删除失败"));
-        }*/
-
     }
+
+
 
     /**
      *   代付订单Api
@@ -951,22 +971,23 @@ class OrderController extends BaseController
                 $startTime = strtotime($cstime);
                 $endTime = strtotime($cetime);
                 if(!$startTime || !$endTime || ($startTime >= $endTime)) {
-                    $this->ajaxReturn(array('status' => 0, "时间范围错误"));
+                    $this->ajaxReturn(array('status' => 0, "info" => "时间范围错误"));
                 }
                 $where['pay_applydate'] = ['between', [$startTime, $endTime]];
             } else {
-                $this->ajaxReturn(array('status' => 0, "请选择删除订单时间段"));
+                $this->ajaxReturn(array('status' => 0, "info" => "请选择删除订单时间段"));
             }
-            if (session('send.delOrderSend') == $code && $this->checkSessionTime('delOrderSend', $code)) {
-                $status = M('Order')->where($where)->delete();
-                if ($status) {
-                    $this->ajaxReturn(array('status' => 1, "删除成功".$status.'个订单！'));
-                } else {
-                    $this->ajaxReturn(array('status' => 0, "删除失败"));
-                }
-            } else {
-                $this->ajaxReturn(['status' => 0, 'msg' => '验证码错误']);
-            }
+            $this->AsyncDelOrder($where['pay_applydate'][1]);
+            // if (session('send.delOrderSend') == $code && $this->checkSessionTime('delOrderSend', $code)) {
+            //     $status = M('Order')->where($where)->delete();
+            //     if ($status) {
+            //         $this->ajaxReturn(array('status' => 1, "删除成功".$status.'个订单！'));
+            //     } else {
+            //         $this->ajaxReturn(array('status' => 0, "删除失败"));
+            //     }
+            // } else {
+            //     $this->ajaxReturn(['status' => 0, 'msg' => '验证码错误']);
+            // }
         } else {
             $uid = session('admin_auth')['uid'];
             $mobile = M('Admin')->where(['id'=>$uid])->getField('mobile');

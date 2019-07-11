@@ -78,7 +78,9 @@ class PhoneRechargeDevLib extends IPhoneRechagerLib
         return new ChannelOrder( $data['data']['no'], $data['data']['wap_url'], $data['data']['code_url'], $pool['id'] );
     }
     // 查询订单
-    public function query( $pay_orderid ) {}
+    public function query( $pay_orderid ) {
+        
+    }
 
     // 回调验证并且返回transID
     public function notify( array $request ) {

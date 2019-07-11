@@ -19,7 +19,7 @@
           <tr><td>订单状态：</td><td><switch name="order[pay_status]">
               <case value="0"><strong class="text-danger">未处理</strong></case>
               <case value="1"><strong class="text-warning">已成功，未返回 【<if condition="$order['pay_status'] eq 1">
-                  <a href="<{:U('Pay/Pay/bufa', ['TransID'=>$order['pay_orderid'],'tongdao'=>$order['pay_ytongdao']])}>" target="_blank">补发通知</a>
+                  <a href="<{:U('Pay/Order/bufa', ['TransID'=>$order['pay_orderid'],'tongdao'=>$order['pay_ytongdao']])}>" target="_blank">补发通知</a>
                 </if>】</strong></case>
               <case value="2"><strong class="text-success">已成功，已返回</strong></case>
             </switch></td></tr>
