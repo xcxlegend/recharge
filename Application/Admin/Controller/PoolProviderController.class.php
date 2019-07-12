@@ -91,7 +91,7 @@ class PoolProviderController extends BaseController
             $data["create_time"]=time();
             $data["update_time"]=time();
 
-            $status = D('PoolProvider')->add($data);
+            $status = D('Common/PoolProvider')->add($data);
 
             $this->ajaxReturn(['status'=>$status]);
 
