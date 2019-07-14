@@ -37,7 +37,7 @@ interface IChannelLib
     // 请求订单
     public function order( array $params, $gateway, $notify, $pay_orderid ) ;
     // 查询订单
-    public function query( $pay_orderid );
+    public function query( $gateway, array &$order, &$pool );
     // 回调验证并且返回transID
     public function notify( array $request );
     public static function notify_ok();

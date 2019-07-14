@@ -98,15 +98,17 @@ class ChannelManagerLib
     }
 
 
-    static public function query( $method, $request ) {
-
+    // $request => pay_order
+    public function query( &$order, &$pool ) {
+        $method = $this->channel['code'];
+        $gateway = $this->channel['gateway'];
         $class = self::create($method);
         if  (!$class){
             return false;
         }
 
         if ($class instanceof IChannelLib) {
-            return $class->query( $request );
+            return $class->query( $gateway, $order, $pool );
         }
 
         throw new Exception("渠道方式接口错误不存在");

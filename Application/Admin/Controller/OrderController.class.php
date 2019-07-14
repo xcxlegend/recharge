@@ -13,6 +13,7 @@ use Org\Util\P59Pay;
 use Org\Util\PHaitong;
 use Think\Page;
 use Common\Model\RedisCacheModel;
+use Common\Lib\ChannelManagerLib;
 /**
  * 订单管理控制器
  * Class OrderController
@@ -414,68 +415,18 @@ class OrderController extends BaseController
         }
 
         $channel_info = M('Channel')->where(['id' => $order['channel_id']])->find();
-
-        switch ($order['pay_bankcode']){
-            // 901
-            //902
-            //903
-            //904'
-            case '901':
-            case '902':
-            case '903':
-            case '904':
-                break;
-            default:
-                $this->ajaxReturn(['status' => 0, 'msg' => '支付通道无查单功能']);
-                return;
-        }
-        $ret = false;
-        if ($order['pay_zh_tongdao']) {
-            switch ($order['pay_zh_tongdao']) {
-                case 'P59':
-                    $appkey = C('P59PAY.APPKEY');
-                    $appsecret = C('P59PAY.APPSECT');
-                    $p59Pay = new P59Pay($appkey, $appsecret, "");
-                    if ($channel_info && $channel_info['gateway']) {
-                        $p59Pay->setGateway($channel_info['gateway']);
-                    }
-                    $ret = $p59Pay->checkOrder($order["out_trade_id"]);
-                    break;
-                case 'P361zf':
-                    $appkey = C('P361ZF.APPKEY');
-                    $appsecret = C('P361ZF.APPSECT');
-                    $pay = new P361zf($appkey, $appsecret, "");
-                    if ($channel_info && $channel_info['gateway']) {
-                        $pay->setGateway($channel_info['gateway']);
-                    }
-                    $ret = $pay->checkOrder($order["out_trade_id"]);
-                    break;
-                case 'PHaitong':
-                    $appkey = C('PHaitong.APPKEY');
-                    $appsecret = C('PHaitong.APPSECT');
-                    $pay = new PHaitong($appkey, $appsecret, "");
-                    if ($channel_info && $channel_info['gateway']) {
-                        $pay->setGateway($channel_info['gateway']);
-                    }
-                    $ret = $pay->checkOrder($order["out_trade_id"]);
-                    break;
-                default:
-                    $this->ajaxReturn(['status' => 0, 'msg' => "无通道信息"]);
-            }
+        $pool = [];
+        if ($order['pool_phone_id']) {
+            $pool = M('PoolPhones')->find($order['pool_phone_id']);
         }
 
-//        $p59Pay = new P59Pay("YlLPzfT3ij", "tGnAwMqpf8ANaPryblDM", "");
-//        $result = $p59Pay->checkOrder($order["out_trade_id"]);
-//        if ($ret) {
-//            $this->ajaxReturn(['status' => 0, 'msg' => 'ok']);
-//            return;
-//        }
+        $ret = (new ChannelManagerLib($channel_info))->query( $order, $pool );
 
         if ($ret) {
             $payModel = D('Pay');
             $res = $payModel->completeOrder($order['pay_orderid'], '', 0);
             if ($res) {
-                $this->ajaxReturn(['status' => 1, 'msg' => "查询成功, 已将订单置为成功状态, 并回调商户！"]);
+                $this->ajaxReturn(['status' => 1, 'msg' => "查询成功, 已将订单置为成功状态. "]);
             } else {
                 $this->ajaxReturn(['status' => 0, 'msg' => "查询成功, 设置订单失败"]);
             }
@@ -884,7 +835,7 @@ class OrderController extends BaseController
 
         // $data = $where['pay_applydate'][1];
         $cache->Client()->set($KEY, json_encode($dates));
-        $cache->Client()->publish("notify", $KEY);
+        $cache->Client()->Lpush("queue", json_encode(['key' => $KEY, 'payload' => '']));
         $this->ajaxReturn(array('status' => 1, 'info' => "已进入删除队列, 请等待"));
     }
 
@@ -1028,7 +979,10 @@ class OrderController extends BaseController
                 $this->ajaxReturn(['status' => 0, 'msg' => "缺少订单ID！"]);
             }
             $order = M('Order')->where(['id'=>$orderid])->find();
-            if($order['status'] != 0) {
+            if (!$order){
+                $this->ajaxReturn(['status' => 0, 'msg' => "订单信息错误！"]);
+            }
+            if($order['pay_status'] != 0) {
                 $this->ajaxReturn(['status' => 0, 'msg' => "该订单状态为已支付！"]);
             }
             $payModel = D('Pay');
@@ -1073,7 +1027,7 @@ class OrderController extends BaseController
                     }
                 }
             }
-            $res = $payModel->completeOrder($order['pay_orderid'], '', 0);
+            $res = $payModel->completeOrder($order['pay_orderid']);
             if ($res) {
                 $this->ajaxReturn(['status' => 1, 'msg' => "设置成功！"]);
             } else {

@@ -13,92 +13,160 @@ use \Think\Log;
 
 class ShenRobotRechargeLib extends IPhoneRechagerLib
 {
-    const API_URL = "http://118.190.53.24/api/";
+    const API_URL = "/api/recharge";
+
+    const GATEWAY   = 'http://118.190.244.135';
+    const API_ORDER = '/api/recharge';
+    const API_QUERY = '/api/query';
 
     const Channels = [
         '1' => '1',
-        '2' => '3',
-        '3' => '2'
+        '2' => '2',
+        '3' => '3'
+    ];
+
+    const Sences = [
+        "wx_scan_pay"   => "hf_wx_scan_pay",
+        "wx_wap_pay"    => "hf_wx_wap_pay",
+        "ali_scan_pay"  => "hf_ali_scan_pay",
+        "ali_wap_pay"   => "hf_ali_wap_pay",
     ];
 
     public function order(array $params, $gateway, $notify, $pay_orderid)
     {
         if (!$gateway){
-            $gateway = self::API_URL;
+            $gateway = self::GATEWAY;
         }
+
+        $api_url = $gateway . self::API_ORDER;
 
         $this->poolQuery(new PoolDevLib(), $params);
 
         $pool = $params['pool'] ?: [];
         $phone = $pool['phone'];
-
-        /**
-         * {
-        "pay_user":"",
-        "pay_password":"",
-        "pay_orderid":"12345678900987654321",
-        "pay_applydate":"2019-06-24 18:18:18",
-        "pay_mobile":"13635279266",
-        "pay_amount":"30.00",
-        "pay_type":"1",
-        "pay_code":"ali_wap_pay",
-        "pay_notifyurl":"暂无",
-        "pay_returnurl":"暂无",
-        "sign":"暂无"
-        }
-         */
-
+      
         $query = [
-            "pay_user" => "",
-            "pay_password" => "",
-            "pay_orderid"          => $pay_orderid,
-            "pay_applydate"        => date('Y-m-d H:i:s'),
-            "pay_mobile"           => $phone,
-            "pay_amount"           => strval(number_format($params['pay_amount'] / 100, 2)),
-            "pay_type"             => $this->getChannel($params['pool']['channel']),
-            "pay_code"             => $params['pay_bankcode'],
-            "pay_notifyurl"        => $notify ?: '',
-            "pay_returnurl"        => $params['pay_returnurl'] ?: 'http://',
+            "merchant_order_no" => '22345678901234567890123456789012542',//$pay_orderid,
+            "start_time"        => date('YmdHis'),
+            "mobile"            => '15860947285',//$phone,
+            "amount"            => number_format($params['pay_amount'] / 100, 2),
+            "type"              => 1,//$params['pool']['channel'],
+            "pay_sence"         => $this->getSence( $params['pay_bankcode'] ),
+            "notify_url"        => $notify ?: '',
+            "return_url"        => $params['pay_returnurl'] ?: $notify,//'',
+            "sign_type"         => 1,
         ];
 
-        $query['sign'] = md5('liangye&'. date('Ymd') . '@/#A');
-//        echo $gateway;
-        $data = sendJson($gateway, $query);
+//         $query = json_decode('{
+//         "merchant_order_no": "12345678901234567890123456789012345",
+//         "notify_url": "http://www.baidu.com",
+//         "start_time": "20190630192450",
+//         "mobile": "13635271568",
+//         "amount": "10.000",
+//         "type": "1",
+//         "pay_sence": "hf_ali_wap_pay",
+//         "sign_type": "1",
+//         "sign": "9572d838e0ee5d3ee88856dd6928a2f7"
+// }', true);
+        
+
+        $query['sign'] = $this->sign($query);
+        $data = sendJson($api_url, $query);
+        // $data = sendForm($api_url, $query);
+        /*
+         "no": "455835544175192664",
+        "wap_url": "https://qr.alipay.com/upx08672yckvwcfa0d0x0010",
+        "code_url": "",
+        "sign": "8fce09f609c71efebcf0bfbb13236834",
+        "status": 1000,
+        "desc": "保存订单成功"
+         */
+        if (!$data) {
+            throw new Exception( '[RECHARGER] fail');
+            return false;
+        }
         $data = json_decode($data, true);
-        if ($data['status'] != 'success') {
+         if ($data['code'] != 1) {
             Log::write(json_encode($data), Log::WARN);
-            throw new Exception( '[RECHARGER] ' . $data['message']);
+            throw new Exception( '[RECHARGER] ' . $data['msg']);
             return false;
         }
 
         /**
-         * "data": {
-        "orderId": "12345678900987654321",
-        "orderNo": "454889443175194094",
-        "mobile": "13635279266",
-        "amount": "30",
-        "type": "1",
-        "url": "https://qr.alipay.com/upx03812k5qaehskymui2080",
-        "createTime": "2019/07/03 22:10:43"
+         "no": "455835544175192664",
+        "wap_url": "https://qr.alipay.com/upx08672yckvwcfa0d0x0010",
+        "code_url": "",
+        "sign": "8fce09f609c71efebcf0bfbb13236834",
+        "status": 1000,
+        "desc": "保存订单成功"
         }
          */
 
-        return new ChannelOrder( $data['data']['orderNo'], $data['data']['url'], $data['data']['url'], $pool['id'] );
+        return new ChannelOrder( $data['data']['no'], $data['data']['wap_url'], $data['data']['code_url'], $pool['id'] );
 
     }
 
-    public function query($pay_orderid)
+    public function query($gateway, array &$order, &$pool)
     {
-        // TODO: Implement query() method.
+        if (!$gateway){
+            $gateway = self::GATEWAY;
+        }
+        $api_url = $gateway . self::API_QUERY;
+
+        $params = [
+            'no'          => $order['pay_orderid'],
+            'type'        => $pool['channel'],
+            'sign_type'   => '1',
+        ];
+
+        $params['sign'] = $this->sign($params);
+        $data = sendForm( $api_url, $params );
+        if (!$data) {
+            return false;
+        }
+        $data = json_decode($data, true);
+        if ($data['code'] != 1) {
+            return false;
+        }
+        return $data['data']['status'] == 1;
     }
 
     public function notify(array $request)
     {
+        /*
+        status
+msg
+amount
+merchant_order_no
+no
+payment_time
+pay_channel
+pay_channel_name
+sign
+
+         */
+
+        $params = [
+            'status'            => $request['status'],
+            'msg'               => $request['msg'],
+            'amount'            => $request['amount'],
+            'merchant_order_no' => $request['merchant_order_no'],
+            'no'                => $request['no'],
+            'payment_time'      => $request['payment_time'],
+            'pay_channel'       => $request['pay_channel'],
+            'pay_channel_name'  => $request['pay_channel_name'],
+        ];
+
+        if ( $this->sign($params) !== $request['sign']) {
+            return false;
+        }
+
+
         if ($request['status'] != 1) {
             return false;
         }
 
-        return $request['orderid'];
+        return $request['merchant_order_no'];
     }
 
     public static function notify_ok(){
@@ -109,6 +177,23 @@ class ShenRobotRechargeLib extends IPhoneRechagerLib
     }
     protected function getChannel( $channel ) {
         return self::Channels[$channel] ?: '';
+    }
+    protected function getSence( $pay_bankcode ) {
+        return self::Sences[$pay_bankcode] ?: '';
+    }
+
+    protected function sign( $params ) {
+        ksort($params);
+        $md5str = "";
+        foreach ($params as $key => $val) {
+           if (!empty($val)) {
+                $md5str = $md5str . $key . "=" . $val . "&";
+           }
+        }
+        $md5str .= 'secret=liangye';
+        echo $md5str;
+        $sign = md5($md5str);
+        return $sign;
     }
 
 }
