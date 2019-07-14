@@ -18,9 +18,9 @@ error_reporting(E_ALL & ~E_NOTICE);
         if($phoneInfo['data']['sp']=='移动'){
             $data['channel'] = '1';
         }elseif($phoneInfo['data']['sp']=='联通'){
-            $data['channel'] = '2';
-        }else{
             $data['channel'] = '3';
+        }else{
+            $data['channel'] = '2';
         }
 
         var_dump($data);

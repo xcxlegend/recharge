@@ -432,4 +432,30 @@ class IndexController extends OrderController
         ]);
     }
 
+    public function QueryBalance() {
+        if (!$this->request['memberid']) {
+            $this->result_error("需要商户ID");
+            return;
+        }
+        if (!$this->request['time']) {
+            $this->result_error("参数不足");
+            return;
+        }
+        $member = M('Member')->where(['id' => $this->request['memberid'] - 10000])->find();
+        if (!$member) {
+            $this->result_error("商户不存在");
+            return;
+        }
+        $params = [
+            'memberid' => $this->request['memberid'],
+            'time'         => $this->request['time'],
+        ];
+        if (createSign($member['apikey'], $params) !==  $this->request['sign'] ) {
+            $this->result_error("签名错误");
+            return;
+        }
+        $params['balance'] = $member['balance'];
+        $this->result_success($params);
+    }
+
 }
