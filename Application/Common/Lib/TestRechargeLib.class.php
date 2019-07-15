@@ -21,9 +21,9 @@ class TestRechargeLib extends IPhoneRechagerLib
         return new ChannelOrder( $orderNo, $url, $url, $pool['id'] );
     }
 
-    public function query($pay_orderid)
+    public function query($gateway, array &$order, &$pool)
     {
-        // TODO: Implement query() method.
+        return true;
     }
 
     public function notify(array $request)

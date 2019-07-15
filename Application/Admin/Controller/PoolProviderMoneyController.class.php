@@ -46,7 +46,7 @@ class PoolProviderMoneyController extends BaseController
             return;
         }
 
-        $model = M('PoolProvider');
+        $model = D('Common/PoolProvider');
         M()->startTrans();
         $provider = $model->lock(true)->find($id);
         if (!$provider) {
