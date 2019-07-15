@@ -154,6 +154,45 @@ out_trade_id
 
 
 
+    public function QueryBalance() {
+
+        if (
+            !$this->request['appkey']
+            ||  !$this->request['time']
+            ||  !$this->request['sign']
+        ) {
+            $this->result_error("param error", true);
+            return;
+        }
+
+        $provider = M('PoolProvider')->where(['appkey' => $this->request['appkey']])->find();
+        if (!$provider) {
+            $this->result_error("no provider", true);
+            return;
+        }
+
+        $signArray = [
+            "appkey"    => $this->request['appkey'],
+            "time"      => $this->request['time'],
+        ];
+
+        $sign = createSign( $provider['appsecret'], $signArray );
+        if ($sign != $this->request['sign']) {
+            $this->result_error("sign error", $sign);
+            return;
+        }
+
+        $data = [
+            'time'      => $this->request['time'],
+            'balance'   => number_format($provider['balance'], 2),
+            'currency'  => 'RMB',
+            'unit'      => '元',
+        ];
+        $this->result_success($data, "查询成功");
+    }
+
+
+
 
    /* public function getPhone() {
         M()->startTrans();
