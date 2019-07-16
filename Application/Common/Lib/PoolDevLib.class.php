@@ -7,7 +7,7 @@
  */
 
 namespace Common\Lib;
-
+use Common\Model\RedisCacheModel;
 
 use Think\Exception;
 
@@ -16,10 +16,14 @@ class PoolDevLib implements IPoolLib
     public $pool;
     protected $RPC_PHONE_URL;
     const RPC_ORDER_API = "/v1/order/pay";
+    // const CACHE_KEY_POOL_NOPAY = 'pool_phone_nopay';
+    const CACHE_KEY_POOL_TIMEOUT = 'pool_phone_timeout';
 
+    protected $cache;
     public function __construct()
     {
        $this->RPC_PHONE_URL = C('RPC_POOL_PHONE');
+       $this->cache = RedisCacheModel::instance();
     }
 
 
@@ -43,7 +47,7 @@ class PoolDevLib implements IPoolLib
                 'lock'  => 0,
                 'money' => $money
             ]
-        )->find();
+        )->limit(1)->order('id desc')->find();
         if (!$order) {
             M()->rollback();
             throw new Exception("号码查询失败");
@@ -57,6 +61,18 @@ class PoolDevLib implements IPoolLib
         M()->commit();
         $params['pool'] = $order;
         $this->pool = $order;
+
+        //
+        $timeout = 90;
+        if (strpos($params['pay_bankcode'], 'ali') === 0) {
+            $timeout = 240;
+        }
+
+        // $pipe = $this->cache->Client()->multi();
+        // $pipe->zDelete( self::CACHE_KEY_POOL_TIMEOUT, $order['id'] );
+        $this->cache->Client()->zAdd( self::CACHE_KEY_POOL_TIMEOUT, time() + $timeout,  $order['id'] );
+        // $pipe->exec();
+
         return true;
     }
 
@@ -64,6 +80,12 @@ class PoolDevLib implements IPoolLib
     {
         if ($this->pool) {
             M('PoolPhones')->where([ 'id' => $this->pool['id']])->setField('lock', 0);
+//            $this->cache->Client()->zDelete( self::CACHE_KEY_POOL_NOPAY, $this->pool['id'] );
+            // $pipe = $this->cache->Client()->multi();
+            // $pipe->zDelete( self::CACHE_KEY_POOL_NOPAY, $this->pool['id'] );
+            $this->cache->Client()->zAdd( self::CACHE_KEY_POOL_TIMEOUT, $this->pool['time'] + 30, $this->pool['id'] );
+            // $pipe->exec();
+
         }
     }
 

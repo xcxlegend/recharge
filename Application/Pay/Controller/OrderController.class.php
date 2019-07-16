@@ -16,8 +16,6 @@ class OrderController extends PayController
     //通道信息
 //    protected $channel;
 
-
-
     public function __construct()
     {
         parent::__construct();
@@ -420,7 +418,7 @@ class OrderController extends PayController
 
 
     protected function handlePoolOrderSuccess( $pool, $provider ) {
-
+        $this->cache->Client()->zDelete("pool_phone_timeout", $pool['id']);
         $poolOrder = M('PoolRec')->where(['pool_id' => $pool['id']])->find();
         $config = json_decode(htmlspecialchars_decode($provider['config']), true);
         $rate = 0;

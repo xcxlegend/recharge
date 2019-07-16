@@ -9,6 +9,7 @@
         sign:           签名 
 
      */
+   file_put_contents("pool_notify.txt", "receive notify message:" . http_build_query($_REQUEST) . "\n" , FILE_APPEND);
 
    $ReturnArray = array( // 返回字段
         "appkey"       =>  $_REQUEST["appkey"],         // 商户ID

@@ -8,6 +8,7 @@
 
 namespace Pay\Controller;
 use \Think\Log;
+use Common\Model\RedisCacheModel;
 
 
 class PoolController extends PayController
@@ -92,18 +93,58 @@ out_trade_id
         $data['time'] = $this->timestamp;
         $data['money'] = floatval($data['money']/100);
 
-        if (!M('PoolPhones')->add($data)){
+
+        // 创建失败回调的参数
+        $this->createData($data, $provider);
+        $result = M('PoolPhones')->add($data);
+        if (!$result){
             $this->result_error("save db error", true);
             Log::write(json_encode(M('PoolPhones')));
             return;
         }
+        $data['id'] = $result;
+
+        $this->setTimeout($data);
+
         $this->result_success(
             [
                 'order_id' => $data['order_id'],
             ], "创建成功"
         );
+    }
 
+    protected function setTimeout(&$data) {
+        $cache = RedisCacheModel::instance();
+        $key = 'pool_phone_timeout';
+        $cache->Client()->zAdd( $key, $this->timestamp + 30, $data['id'] );
+    }
 
+    protected function createData( &$data, &$provider) {
+
+        /*
+            appkey:     提供给商户的身份标识appkey 16位
+            phone:      电话号码
+            money:      金额 (单位分)
+            status:     1 表示成功
+        */
+        $param = [
+            'appkey'        => $provider['appkey'],
+            'phone'         => $this->request['phone'],
+            'money'         => $this->request['money'],
+            'out_trade_id'  => $data['out_trade_id'],
+            'status'        => -1,
+        ];
+        $param['sign'] = createSign( $provider['appsecret'], $param );
+        $query = http_build_query($param);
+
+        $param['status'] = -2;
+        $param['sign'] = createSign( $provider['appsecret'], $param );
+        $query2 = http_build_query($param);
+        $config = [
+            'query_timeout' => $query,
+            'query_nopay'   => $query2
+        ];
+        $data['data'] = json_encode($config);
     }
 
     public function Query() {
