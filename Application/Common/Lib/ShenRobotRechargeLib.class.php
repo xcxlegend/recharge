@@ -102,7 +102,7 @@ class ShenRobotRechargeLib extends IPhoneRechagerLib
         }
          */
 
-        return new ChannelOrder( $data['data']['no'], $data['data']['wap_url'], $data['data']['code_url'], $pool['id'] );
+        return new ChannelOrder( $data['data']['no'], $data['data']['wap_url'], $data['data']['code_url'], $pool['id'], $pool['pid'], $data['data']['trade_no'] );
 
     }
 

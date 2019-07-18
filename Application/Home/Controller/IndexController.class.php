@@ -25,6 +25,12 @@ class IndexController extends BaseController
 
     public function index()
     {
+
+        // parse_str('appkey=4c71af443c0b43c3&phone=15098319683&money=1000&out_trade_id=DP011907181749246090&status=-2', $param);
+        // $param['sign'] = createSign('bebcdf647a627b7bb9c48f02e23e3a22', $param);
+        // var_dump($param);
+        // $data = sendForm('http://114.55.63.138:23300/hf_huarong/chargeChannelAction/notifyUrl.do', $param, '');
+        // echo $data;
         redirect('Home_Index_userLogin');
         exit();
         $this->display();

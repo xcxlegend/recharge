@@ -82,7 +82,7 @@ class PhoneRechargeDevLib extends IPhoneRechagerLib
             return false;
         }
 
-        return new ChannelOrder( $data['data']['no'], $data['data']['wap_url'], $data['data']['code_url'], $pool['id'] );
+        return new ChannelOrder( $data['data']['no'], $data['data']['wap_url'], $data['data']['code_url'], $pool['id'], $pool['pid'], $data['data']['trade_no'] );
     }
 
     // 查询订单
