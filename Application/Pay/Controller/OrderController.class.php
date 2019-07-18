@@ -194,7 +194,7 @@ class OrderController extends PayController
      * @param $PayName
      * @param int $returntypepay_code
      */
-    protected function EditMoney($pay_orderid)
+    protected function EditMoney($pay_orderid, $trans_id = '')
     {
 
         $m_Order    = M("Order");
@@ -239,6 +239,7 @@ class OrderController extends PayController
             $res = $m_Order->where(['id' => $order_info['id']])->save([
                 'pay_status' => 1,
                 'pay_successdate' => $this->timestamp,
+                'trans_id'   => $trans_id,
             ]);
             if (!$res) {
                 M()->rollback();
@@ -404,7 +405,7 @@ class OrderController extends PayController
 
 
             // 转存poolphone订单信息
-            $this->handlePoolOrderSuccess( $pool, $provider );
+            $this->handlePoolOrderSuccess( $pool, $provider, $trans_id );
 
 
         } else {
@@ -417,7 +418,7 @@ class OrderController extends PayController
     }
 
 
-    protected function handlePoolOrderSuccess( $pool, $provider ) {
+    protected function handlePoolOrderSuccess( $pool, $provider, $trans_id = '' ) {
         $this->cache->Client()->zDelete("pool_phone_timeout", $pool['id']);
         $poolOrder = M('PoolRec')->where(['pool_id' => $pool['id']])->find();
         $config = json_decode(htmlspecialchars_decode($provider['config']), true);
@@ -515,10 +516,10 @@ class OrderController extends PayController
             // 如果存在也执行删除逻辑
             M('PoolPhones')->where(['id' => $pool['id']])->delete();
         }
-        $this->sendPoolNotify($poolOrder, $pool);
+        $this->sendPoolNotify($poolOrder, $pool, $trans_id);
     }
 
-    protected function sendPoolNotify( $poolOrder ,  $pool) {
+    protected function sendPoolNotify( $poolOrder ,  $pool, $trans_id = '') {
 
         $provider = M('PoolProvider')->where(['id' => $poolOrder['pid']])->find();
         if (!$provider){
@@ -556,6 +557,7 @@ class OrderController extends PayController
 
         $sign = $this->createSign($provider['appsecret'], $params);
         $params["sign"] = $sign;
+        $params['trans_id'] => $trans_id
 
         $contents = sendForm($pool['notify_url'], $params);
 

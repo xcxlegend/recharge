@@ -11,7 +11,7 @@ namespace Common\Lib;
 
 class ChannelOrder {
     // 流水号
-    public $transID;
+    // public $transID;
     // 外部订单号
     public $tradeID;
     // 支付地址
@@ -22,9 +22,9 @@ class ChannelOrder {
     public $poolId;
     public $poolPid;
 
-    public function __construct( $tradeID, $wapUrl, $qrUrl = "", $poolId = 0, $poolPid = 0, $transID )
+    public function __construct( $tradeID, $wapUrl, $qrUrl = "", $poolId = 0, $poolPid = 0)
     {
-        $this->transID  = $transID;
+        // $this->transID  = $transID;
         $this->tradeID  = $tradeID;
         $this->wapUrl   = $wapUrl;
         $this->qrUrl    = $qrUrl;
