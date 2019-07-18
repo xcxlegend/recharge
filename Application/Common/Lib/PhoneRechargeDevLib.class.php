@@ -136,6 +136,7 @@ class PhoneRechargeDevLib extends IPhoneRechagerLib
             'payment_time'      => $request['payment_time'],
             'pay_channel'       => $request['pay_channel'],
             'pay_channel_name'  => $request['pay_channel_name'],
+            'trade_no'          => $request['trade_no'],
         ]);
 
         if (!($sign === $request['sign'])){

@@ -44,6 +44,7 @@ class NotifyController extends OrderController
             if (!$pay_orderid) {
 //              exit('err');
                 ChannelManagerLib::notifyErr($this->request['Method']);
+                return;
             }
 
             $trans_id = $this->request['trade_no'];
