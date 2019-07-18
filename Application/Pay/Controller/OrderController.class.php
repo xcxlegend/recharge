@@ -557,7 +557,7 @@ class OrderController extends PayController
 
         $sign = $this->createSign($provider['appsecret'], $params);
         $params["sign"] = $sign;
-        $params['trans_id'] = $trans_id
+        $params['trans_id'] = $trans_id;
 
         $contents = sendForm($pool['notify_url'], $params);
 
