@@ -46,7 +46,7 @@ class NotifyController extends OrderController
                 ChannelManagerLib::notifyErr($this->request['Method']);
             }
 
-            $trans_id = $this->request['no'];
+            $trans_id = $this->request['trade_no'];
 
             $this->EditMoney($pay_orderid, $trans_id);
 //            exit('success');
