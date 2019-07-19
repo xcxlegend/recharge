@@ -51,12 +51,12 @@ class ShenRobotRechargeLib extends IPhoneRechagerLib
             "merchant_order_no" => $pay_orderid, //'22345678901234567890123456789012542',//$pay_orderid,
             "start_time"        => date('YmdHis'),
             "mobile"            => $phone,
-            "amount"            => number_format($params['pay_amount'] / 100, 2),
+            "amount"            => number_format($params['pay_amount'] / 100, 3),
             "type"              => $params['pool']['channel'],
-            "pay_sence"         => $this->getSence( $params['pay_bankcode'] ),
+            "pay_sence"         => strval($this->getSence( $params['pay_bankcode'] )),
             "notify_url"        => $notify ?: '',
             // "return_url"        => $params['pay_returnurl'] ?: $notify,//'',
-            "sign_type"         => 1,
+            "sign_type"         => '1',
         ];
 
         /*
