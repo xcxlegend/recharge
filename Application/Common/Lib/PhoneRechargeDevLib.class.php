@@ -143,7 +143,7 @@ class PhoneRechargeDevLib extends IPhoneRechagerLib
             Log::write("sign err. sign: " . $sign . " === " . $request['sign'] );
             return false;
         }
-        return $request['merchant_order_no'];
+        return [$request['merchant_order_no'], $request['trade_no']];
 
     }
 

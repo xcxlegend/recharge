@@ -181,7 +181,7 @@ sign
             return false;
         }
 
-        return $request['merchant_order_no'];
+        return [$request['merchant_order_no'], $request['no']];
     }
 
     public static function notify_ok(){
