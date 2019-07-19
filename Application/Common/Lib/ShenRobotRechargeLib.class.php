@@ -19,6 +19,8 @@ class ShenRobotRechargeLib extends IPhoneRechagerLib
     const API_ORDER = '/api/recharge';
     const API_QUERY = '/api/query';
 
+    const SECRET = 'secret=1db533b8a718d50468ada8ad2a961e73';
+
     const Channels = [
         '1' => '1',
         '2' => '2',
@@ -190,8 +192,7 @@ sign
                 $md5str = $md5str . $key . "=" . $val . "&";
            }
         }
-        $md5str .= 'secret=liangye';
-        echo $md5str;
+        $md5str .= self::SECRET;
         $sign = md5($md5str);
         return $sign;
     }
