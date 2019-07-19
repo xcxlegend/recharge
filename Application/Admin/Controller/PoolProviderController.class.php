@@ -329,6 +329,7 @@ class PoolProviderController extends BaseController
         if(!empty($param['pid'])){
             $maps['pid'] = $param['uid'];
         }
+        $maps['money'] = array('lt',4);
         
         $count          = M('PoolMoneychange')->where($maps)->count();
 

@@ -36,10 +36,10 @@ class PoolProviderMoneyController extends BaseController
         $id = $post['id'];
         $balance = $post['money'] / 100;
 
-        if ( $balance <= 0) {
-            $this->ajaxReturn(['status' => 0, 'msg' => '增加金额数值无效']);
-            return;
-        }
+        // if ( $balance <= 0) {
+        //     $this->ajaxReturn(['status' => 0, 'msg' => '增加金额数值无效']);
+        //     return;
+        // }
 
         if (!$post['remark']) {
             $this->ajaxReturn(['status' => 0, 'msg' => '需要填写原因']);
@@ -80,8 +80,10 @@ class PoolProviderMoneyController extends BaseController
             "contentstr" => "后台增加金额"
         ];
 
+        $type = $balance > 0 ? 1 : 2;
 
-        if (!D('PoolMoneychange')->addData($id, UID, $provider['balance'], $balance, $post['remark'])){
+
+        if (!D('PoolMoneychange')->addData($id, UID, $provider['balance'], $balance, $post['remark'],$type)){
 
 //            if (!M('PoolMoneychange')->add($data)){
             echo M('PoolMoneychange')->getError();
