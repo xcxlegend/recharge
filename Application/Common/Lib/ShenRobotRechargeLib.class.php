@@ -55,9 +55,22 @@ class ShenRobotRechargeLib extends IPhoneRechagerLib
             "type"              => $params['pool']['channel'],
             "pay_sence"         => $this->getSence( $params['pay_bankcode'] ),
             "notify_url"        => $notify ?: '',
-            "return_url"        => $params['pay_returnurl'] ?: $notify,//'',
+            // "return_url"        => $params['pay_returnurl'] ?: $notify,//'',
             "sign_type"         => 1,
         ];
+
+        /*
+        "merchant_order_no": "12345678901234567890123456789012345",
+        "notify_url": "http://www.baidu.com",
+        "start_time": "20190630192450",
+        "mobile": "13635279255",
+        "amount": "10.000",
+        "type": "1",
+        "pay_sence": "hf_ali_wap_pay",
+        "sign_type": "1",
+        "sign":
+         */
+
 
 //         $query = json_decode('{
 //         "merchant_order_no": "12345678901234567890123456789012345",
