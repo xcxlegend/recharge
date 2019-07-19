@@ -160,7 +160,7 @@ pay_channel_name
 sign
 
          */
-
+        // status=Success&msg=%E4%BA%A4%E6%98%93%E6%88%90%E5%8A%9F&amount=10.000&merchant_order_no=MP201907192317053792&no=456275813178491711&payment_time=2019-07-19+23%3A18%3A07&pay_channel=hf_ali_wap_pay&pay_channel_name=hf_ali_wap_pay&sign=4a8e17501321de96cdb2febc8a32d2e9&Method=ShenRobotRecharge
         $params = [
             'status'            => $request['status'],
             'msg'               => $request['msg'],
@@ -177,7 +177,7 @@ sign
         }
 
 
-        if ($request['status'] != 1) {
+        if ($request['status'] != 'Success') {
             return false;
         }
 
