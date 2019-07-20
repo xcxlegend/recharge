@@ -2,4 +2,4 @@ Runtime
 *.log
 
 nginx\.htaccess
-Application\Common\Conf\db.php
+Application/Common/Conf/db\.php
