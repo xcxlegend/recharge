@@ -83,7 +83,7 @@ class PoolProviderMoneyController extends BaseController
         $type = $balance > 0 ? 1 : 2;
 
 
-        if (!D('PoolMoneychange')->addData($id, UID, $provider['balance'], $balance, $post['remark'],$type)){
+        if (!D('PoolMoneychange')->addData($id, UID, $provider['balance'], $balance, $post['remark'], 0, $type)){
 
 //            if (!M('PoolMoneychange')->add($data)){
             echo M('PoolMoneychange')->getError();
