@@ -40,13 +40,18 @@ class NotifyController extends OrderController
 
         Log::write("notify request:" . http_build_query($this->request));
         try {
-            $pay_orderid = ChannelManagerLib::notify($this->request['Method'], $this->request);
-            if (!$pay_orderid) {
+
+            $res = ChannelManagerLib::notify($this->request['Method'], $this->request);
+            if (!$res) {
 //              exit('err');
                 ChannelManagerLib::notifyErr($this->request['Method']);
+                return;
             }
+            list($pay_orderid, $trans_id) = $res;
 
-            $this->EditMoney($pay_orderid);
+            // $trans_id = $this->request['trade_no'];
+
+            $this->EditMoney($pay_orderid, $trans_id);
 //            exit('success');
             exit(ChannelManagerLib::notifyOK($this->request['Method']));
         } catch (Exception $e){

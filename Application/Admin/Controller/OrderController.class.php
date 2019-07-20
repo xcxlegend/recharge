@@ -442,6 +442,9 @@ class OrderController extends BaseController
      * */
     public function exportorder()
     {
+
+        // 调用redis-task方法
+
         $memberid = I("request.memberid");
         if ($memberid) {
             $where['pay_memberid'] = array('eq', $memberid);

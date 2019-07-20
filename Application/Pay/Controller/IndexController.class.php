@@ -68,7 +68,7 @@ class IndexController extends OrderController
                     'pay_url' => $c_order->wapUrl ?: $c_order->qrUrl ?: '',
                     'pool_phone_id' => $c_order->poolId,
                     'channel_id' => $this->channel['id'],
-                    'trade_id' => $c_order->transID,
+                    'trade_id' => $c_order->tradeID
                 ];
 
                 if (!$this->orderadd($order, $this->product, $this->channel)) {

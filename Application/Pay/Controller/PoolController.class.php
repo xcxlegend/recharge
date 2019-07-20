@@ -127,7 +127,7 @@ out_trade_id
             money:      金额 (单位分)
             status:     1 表示成功
         */
-        $param = [
+        $param2 = $param = [
             'appkey'        => $provider['appkey'],
             'phone'         => $this->request['phone'],
             'money'         => $this->request['money'],
@@ -137,9 +137,9 @@ out_trade_id
         $param['sign'] = createSign( $provider['appsecret'], $param );
         $query = http_build_query($param);
 
-        $param['status'] = -2;
-        $param['sign'] = createSign( $provider['appsecret'], $param );
-        $query2 = http_build_query($param);
+        $param2['status'] = -2;
+        $param2['sign'] = createSign( $provider['appsecret'], $param2 );
+        $query2 = http_build_query($param2);
         $config = [
             'query_timeout' => $query,
             'query_nopay'   => $query2

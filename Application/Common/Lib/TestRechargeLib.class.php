@@ -18,7 +18,7 @@ class TestRechargeLib extends IPhoneRechagerLib
         $pool = $params['pool'] ?: [];
         $url = 'http://testurl';
         $orderNo = createUUID("CR");
-        return new ChannelOrder( $orderNo, $url, $url, $pool['id'] );
+        return new ChannelOrder( $orderNo, $url, $url, $pool['id'], 0, '123123' );
     }
 
     public function query($gateway, array &$order, &$pool)

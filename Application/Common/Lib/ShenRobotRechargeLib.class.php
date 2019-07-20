@@ -19,6 +19,8 @@ class ShenRobotRechargeLib extends IPhoneRechagerLib
     const API_ORDER = '/api/recharge';
     const API_QUERY = '/api/query';
 
+    const SECRET = 'secret=1db533b8a718d50468ada8ad2a961e73';
+
     const Channels = [
         '1' => '1',
         '2' => '2',
@@ -46,16 +48,29 @@ class ShenRobotRechargeLib extends IPhoneRechagerLib
         $phone = $pool['phone'];
       
         $query = [
-            "merchant_order_no" => '22345678901234567890123456789012542',//$pay_orderid,
+            "merchant_order_no" => $pay_orderid, //'22345678901234567890123456789012542',//$pay_orderid,
             "start_time"        => date('YmdHis'),
-            "mobile"            => '15860947285',//$phone,
-            "amount"            => number_format($params['pay_amount'] / 100, 2),
-            "type"              => 1,//$params['pool']['channel'],
-            "pay_sence"         => $this->getSence( $params['pay_bankcode'] ),
+            "mobile"            => $phone,
+            "amount"            => number_format($params['pay_amount'] / 100, 3),
+            "type"              => $params['pool']['channel'],
+            "pay_sence"         => strval($this->getSence( $params['pay_bankcode'] )),
             "notify_url"        => $notify ?: '',
-            "return_url"        => $params['pay_returnurl'] ?: $notify,//'',
-            "sign_type"         => 1,
+            // "return_url"        => $params['pay_returnurl'] ?: $notify,//'',
+            "sign_type"         => '1',
         ];
+
+        /*
+        "merchant_order_no": "12345678901234567890123456789012345",
+        "notify_url": "http://www.baidu.com",
+        "start_time": "20190630192450",
+        "mobile": "13635279255",
+        "amount": "10.000",
+        "type": "1",
+        "pay_sence": "hf_ali_wap_pay",
+        "sign_type": "1",
+        "sign":
+         */
+
 
 //         $query = json_decode('{
 //         "merchant_order_no": "12345678901234567890123456789012345",
@@ -102,7 +117,7 @@ class ShenRobotRechargeLib extends IPhoneRechagerLib
         }
          */
 
-        return new ChannelOrder( $data['data']['no'], $data['data']['wap_url'], $data['data']['code_url'], $pool['id'] );
+        return new ChannelOrder( $data['data']['no'], $data['data']['wap_url'], $data['data']['code_url'], $pool['id'], $pool['pid']);
 
     }
 
@@ -145,7 +160,7 @@ pay_channel_name
 sign
 
          */
-
+        // status=Success&msg=%E4%BA%A4%E6%98%93%E6%88%90%E5%8A%9F&amount=10.000&merchant_order_no=MP201907192317053792&no=456275813178491711&payment_time=2019-07-19+23%3A18%3A07&pay_channel=hf_ali_wap_pay&pay_channel_name=hf_ali_wap_pay&sign=4a8e17501321de96cdb2febc8a32d2e9&Method=ShenRobotRecharge
         $params = [
             'status'            => $request['status'],
             'msg'               => $request['msg'],
@@ -162,11 +177,11 @@ sign
         }
 
 
-        if ($request['status'] != 1) {
+        if ($request['status'] != 'Success') {
             return false;
         }
 
-        return $request['merchant_order_no'];
+        return [$request['merchant_order_no'], $request['no']];
     }
 
     public static function notify_ok(){
@@ -190,8 +205,7 @@ sign
                 $md5str = $md5str . $key . "=" . $val . "&";
            }
         }
-        $md5str .= 'secret=liangye';
-        echo $md5str;
+        $md5str .= self::SECRET;
         $sign = md5($md5str);
         return $sign;
     }

@@ -82,7 +82,7 @@ class PhoneRechargeDevLib extends IPhoneRechagerLib
             return false;
         }
 
-        return new ChannelOrder( $data['data']['no'], $data['data']['wap_url'], $data['data']['code_url'], $pool['id'] );
+        return new ChannelOrder( $data['data']['no'], $data['data']['wap_url'], $data['data']['code_url'], $pool['id'], $pool['pid']);
     }
 
     // 查询订单
@@ -102,8 +102,8 @@ class PhoneRechargeDevLib extends IPhoneRechagerLib
 
 
         $params = [
-            'merchant_no' => MID,
-            'no'          => $order['pay_orderid'],
+            'merchant_no' => self::MID,
+            'no'          => $order['trade_id'],
             'type'        => $pool['channel'],
             'sign_type'   => '1',
         ];
@@ -136,13 +136,14 @@ class PhoneRechargeDevLib extends IPhoneRechagerLib
             'payment_time'      => $request['payment_time'],
             'pay_channel'       => $request['pay_channel'],
             'pay_channel_name'  => $request['pay_channel_name'],
+            'trade_no'          => $request['trade_no'],
         ]);
 
         if (!($sign === $request['sign'])){
             Log::write("sign err. sign: " . $sign . " === " . $request['sign'] );
             return false;
         }
-        return $request['merchant_order_no'];
+        return [$request['merchant_order_no'], $request['trade_no']];
 
     }
 
