@@ -103,7 +103,7 @@ class PhoneRechargeDevLib extends IPhoneRechagerLib
 
         $params = [
             'merchant_no' => self::MID,
-            'no'          => $order['pay_orderid'],
+            'no'          => $order['trade_id'],
             'type'        => $pool['channel'],
             'sign_type'   => '1',
         ];
