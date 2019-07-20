@@ -36,7 +36,7 @@ class PoolRecModel extends Model
         $m = M();
         $m->startTrans();
 
-        if (!D('PoolMoneychange')->addData($provider['id'], UID, $provider['balance'], $actmoney, "订单退单: " . $rec['id'] , $rec['id'])){
+        if (!D('PoolMoneychange')->addData($provider['id'], UID, $provider['balance'], $actmoney, "订单退单: " . $rec['id'] , $rec['id'], 3)){
                 $m->rollback();
                 throw new Exception("操作失败: 金额记录添加失败");
                 return;
