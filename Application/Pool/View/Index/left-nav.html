@@ -31,7 +31,8 @@
          
             <li><a href="#"> <i class="fa fa-money"></i> <span class="nav-label">流水记录</span> <span class="fa arrow"></span> </a>
                 <ul class="nav nav-second-level">
-                    <li><a href="<{:U("Account/addLog")}>" class="J_menuItem"><span class="nav-label">加款记录</span></a> </li>
+                    <li><a href="<{:U("Account/addLog",array('status'=>1))}>" class="J_menuItem"><span class="nav-label">加款记录</span></a> </li>
+                    <li><a href="<{:U("Account/addLog",array('status'=>2))}>" class="J_menuItem"><span class="nav-label">减款记录</span></a> </li>
                     <li><a href="<{:U("Account/returnLog")}>" class="J_menuItem"><span class="nav-label">退款记录</span></a> </li>
                 </ul>
             </li>

@@ -102,8 +102,8 @@ class PhoneRechargeDevLib extends IPhoneRechagerLib
 
 
         $params = [
-            'merchant_no' => MID,
-            'no'          => $order['pay_orderid'],
+            'merchant_no' => self::MID,
+            'no'          => $order['trade_id'],
             'type'        => $pool['channel'],
             'sign_type'   => '1',
         ];
@@ -143,7 +143,7 @@ class PhoneRechargeDevLib extends IPhoneRechagerLib
             Log::write("sign err. sign: " . $sign . " === " . $request['sign'] );
             return false;
         }
-        return $request['merchant_order_no'];
+        return [$request['merchant_order_no'], $request['trade_no']];
 
     }
 

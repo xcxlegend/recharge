@@ -13,11 +13,12 @@ use Think\Model;
 class PoolMoneychangeModel extends Model
 {
 
-    public function addData( $pid, $uid, $ymoney, $balance, $contentstr, $recid = 0 ) {
+    public function addData( $pid, $uid,$ymoney, $balance, $contentstr, $recid = 0 ,$type=0) {
 
         $data = [
             "pid" => $pid,
             "uid" => $uid,
+            "type"=>$type,
             "ymoney" => $ymoney,
             "money" => $balance,
             "gmoney" => $ymoney + $balance,
