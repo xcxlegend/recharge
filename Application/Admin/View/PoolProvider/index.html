@@ -74,10 +74,10 @@
                             <td><{$v.create_time|date='Y-m-d H:i:s',###}></td>
                             <td>
                             <if condition="$param.status gt 0 ">
-                                <a onclick="reset('<{$v[id]}>')" class="layui-btn layui-btn-danger layui-btn-mini"><i class="layui-icon">&#xe640;</i>重置密钥</a>
-                                <a onclick="x_admin_show('余额加钱', '<{:U('PoolProviderMoney/AddProviderBalance',['id'=>$v[id]])}>',540,440)" class="layui-btn layui-btn-danger layui-btn-mini"><i class="layui-icon">&#xe640;</i>加钱</a>
+                                <a onclick="reset('<{$v[id]}>')" class="layui-btn layui-btn-danger layui-btn-mini">重置密钥</a>
+                                <a onclick="x_admin_show('余额加钱', '<{:U('PoolProviderMoney/AddProviderBalance',['id'=>$v[id]])}>',440,300)" class="layui-btn layui-btn-danger layui-btn-mini">加钱</a>
                                 <a href="<{:U('PoolProvider/order',['id'=>$v[id]])}>" class="layui-btn layui-btn-mini layui-btn-success">交易明细</a>
-                                <a onclick="rate('费率设置','<{:U('PoolProvider/rate',['id'=>$v[id]])}>',380,480)" class="layui-btn layui-btn-success layui-btn-mini"><i class="layui-icon">&#xe640;</i>费率</a>
+                                <a onclick="rate('费率设置','<{:U('PoolProvider/rate',['id'=>$v[id]])}>',380,480)" class="layui-btn layui-btn-success layui-btn-mini">费率</a>
                             </if>
                                 <a onclick="edit('编辑号码商','<{:U('PoolProvider/edit',['id'=>$v[id]])}>',540,440)" class="layui-btn layui-btn-mini layui-btn-normal"><i class="layui-icon">&#xe642;</i>编辑</a>
                                 <a onclick="del(this,'<{$v[id]}>')" class="layui-btn layui-btn-danger layui-btn-mini"><i class="layui-icon">&#xe640;</i>删除</a>
