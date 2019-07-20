@@ -69,8 +69,10 @@ class AccountController extends PoolController
 
     public function addLog()
     {
+        $param=I('get.');
         $maps['pid'] = $this->provider['uid'];
         //$maps['type']   = 0;
+        $maps['type'] = $param['status'];
         $count          = M('PoolMoneychange')->where($maps)->count();
 
         $size  = 15;
@@ -84,6 +86,8 @@ class AccountController extends PoolController
             ->limit($page->firstRow . ',' . $page->listRows)
             ->order('id desc')
             ->select();
+        $text = [1=>'加款',2=>'减款',3=>'退款'];
+        $this->assign("text", $text[$maps['type']]);
         $this->assign("list", $list);
         $this->assign('page', $page->show());
         $this->display();

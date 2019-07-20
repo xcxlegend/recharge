@@ -326,10 +326,11 @@ class PoolProviderController extends BaseController
 
     public function addMoneyLog()
     {
+        $param=I('get.');
         if(!empty($param['pid'])){
             $maps['pid'] = $param['uid'];
         }
-        $maps['type'] = array('in','1,2,3');
+        $maps['type'] = $param['status'];
         
         $count          = M('PoolMoneychange')->where($maps)->count();
 
@@ -344,6 +345,9 @@ class PoolProviderController extends BaseController
             ->limit($page->firstRow . ',' . $page->listRows)
             ->order('id desc')
             ->select();
+        $text = [1=>'加款',2=>'减款',3=>'退款'];
+        $this->assign("text", $text[$maps['type']]);
+        $this->assign("param", $param);
         $this->assign("list", $list);
         $this->assign('page', $page->show());
         $this->display();
