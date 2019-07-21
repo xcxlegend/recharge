@@ -19,6 +19,10 @@
                               <input type="text" name="order_id" autocomplete="off" placeholder="请输入平台订单号"
                                      class="layui-input" value="<{$param.order_id}>">
                             </div>
+                            <div class="layui-input-inline">
+                                <input type="text" name="pool_order_id" autocomplete="off" placeholder="请输入商户订单号"
+                                       class="layui-input" value="<{$param.pool_order_id}>">
+                              </div>
               
                             <div class="layui-input-inline">
                               <input type="text" name="trade_id" autocomplete="off" placeholder="充值流水号"
@@ -88,6 +92,7 @@
                                 <th lay-data="{field:'pay_orderid1', width:150}">平台订单号</th>
                                 <th lay-data="{field:'pay_orderid2', width:200}">充值流水号</th>
                                 <th lay-data="{field:'pay_orderid3', width:150}">商户订单号</th>
+                                <th lay-data="{field:'pay_orderid15', width:150}">号码商订单号</th>
                                 <th lay-data="{field:'pay_orderid4', width:80}">商户ID</th>
                                 <th lay-data="{field:'pay_orderid5', width:100}">号码商ID</th>
                                 <th lay-data="{field:'pay_orderid6', width:150}">手机号</th>
@@ -108,6 +113,7 @@
                                     <td><{$v.order_id}></td>
                                     <td><{$v.trade_id}></td>
                                     <td><{$v.pool_order_id}></td>
+                                    <td><{$v.out_trade_id}></td>
                                     <td><{$v.pay_memberid}></td>
                                     <td><{$v.pid}></td>
                                     <td><{$v.phone}></td>
