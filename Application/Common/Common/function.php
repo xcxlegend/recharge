@@ -620,7 +620,7 @@ function sendForm($url,$data,$referer = ''){
         $headerArr[] = $n .':' . $v;
     }
     $ch = curl_init();
-    curl_setopt($ch, CURLOPT_TIMEOUT, 5);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 15);
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
     curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
@@ -643,7 +643,7 @@ function sendJson( $url, $data, $referer ) {
         $headerArr[] = $n .':' . $v;
     }
     $ch = curl_init();
-    curl_setopt($ch, CURLOPT_TIMEOUT, 5);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 15);
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
     curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
