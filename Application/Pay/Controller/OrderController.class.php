@@ -204,17 +204,19 @@ class OrderController extends PayController
             $this->result_error('no order', $this->request);
             return;
         }
-
-        $pool = M('PoolPhones')->where(['id' => $order_info['pool_phone_id']])->find();
-        if (!$pool) {
-            $this->result_error('no pool info', $this->request);
-            return;
-        }
-
         $userid     = $order_info["pay_memberid"]; // 商户ID
 
         //********************************************订单支付成功上游回调处理********************************************//
         if ($order_info["pay_status"] == 0) {
+            
+            if ($order_info['pool_phone_id'] > 0) {
+                $pool = M('PoolPhones')->where(['id' => $order_info['pool_phone_id']])->find();
+                if (!$pool) {
+                    $this->result_error('no pool info', $this->request);
+                    return;
+                }
+            }
+        
 
 //            $product = M('Product')->where(['code' => $order_info['pay_code']])->find();
             $product = D('Common/Product')->getByCode( $order_info['pay_code'] );
@@ -227,12 +229,13 @@ class OrderController extends PayController
                 $this->result_error("no member", $this->request);
                 return false;
             }
-
-            $provider = D('Common/PoolProvider')->getById( $pool['pid'] ); // M('PoolProvider')->where(['id' => $pool['pid']])->find();
-            if (!$provider){
-                log::write("pool provider not exist:" . json_encode($pool));
-                $this->result_error("no pool provider", $this->request);
-                return;
+            if ($pool){
+                $provider = D('Common/PoolProvider')->getById( $pool['pid'] ); // M('PoolProvider')->where(['id' => $pool['pid']])->find();
+                if (!$provider){
+                    log::write("pool provider not exist:" . json_encode($pool));
+                    $this->result_error("no pool provider", $this->request);
+                    return;
+                }
             }
 
             //更新订单状态 1 已成功未返回 2 已成功已返回
@@ -405,7 +408,9 @@ class OrderController extends PayController
 
 
             // 转存poolphone订单信息
-            $this->handlePoolOrderSuccess( $pool, $provider, $trans_id );
+            if ($order_info['pool_phone_id'] > 0) {
+                $this->handlePoolOrderSuccess( $pool, $provider, $trans_id );
+            }
 
 
         } else {
