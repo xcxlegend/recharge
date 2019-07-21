@@ -1,0 +1,64 @@
+<include file="Public/header"/>
+<div class="row">
+    <div class="col-md-12">
+        <div class="ibox float-e-margins">
+            <div class="ibox-title">
+                <h5>号码池管理</h5>
+            </div>
+
+            <div class="ibox-content">
+
+                <div class="list item">
+                    <table class="layui-table" >
+                        <thead>
+                        <tr>
+                            <th lay-data="{field:'pay_orderid', width:60}">#</th>
+                            <th lay-data="{field:'pay_orderid1', width:150}">充值号码</th>
+                            <th lay-data="{field:'pay_orderid2', width:200}">充值金额</th>
+                            <th lay-data="{field:'pay_orderid3', width:150}">运营商</th>
+                            <th lay-data="{field:'pay_orderid15', width:150}">商户订单号</th>
+                            <th lay-data="{field:'pay_orderid4', width:150}">平台订单号</th>
+                            <th lay-data="{field:'pay_orderid5', width:100}">状态</th>
+                            <th lay-data="{field:'pay_orderid13', width:180}">时间</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <volist name="list" id="v">
+                            <tr>
+                                <td><{$v.id}></td>
+                                <td><{$v.phone}></td>
+                                <td><{$v.money|format_money}></td>
+                                <td><{$sp_list[$v['channel']]}></td>
+                                <td><{$v.out_trade_id}></td>
+                                <td><{$v.order_id}></td>
+                                <td>
+                                    <if condition="$v.lock eq 0 ">等待充值</if>
+                                    <if condition="$v.lock eq 1 ">充值中</if>
+                                </td>
+                                <td><{$v.time|date='Y-m-d H:i:s',###}></td>
+                            </tr>
+                        </volist>
+                        </tbody>
+                    </table>
+                    <div class="page">
+                            <form class="layui-form" action="" method="get" id="pageForm"  autocomplete="off">
+                                <{$page}>
+                                <select name="rows" style="height: 32px; display: inline-block;" id="pageList" lay-ignore >
+                                    <option value="">显示条数</option>
+                                    <option <if condition="$_GET[rows] neq '' && $_GET[rows] eq 15">selected</if> value="15">15条</option>
+                                    <option <if condition="$_GET[rows] eq 30">selected</if> value="30">30条</option>
+                                    <option <if condition="$_GET[rows] eq 50">selected</if> value="50">50条</option>
+                                    <option <if condition="$_GET[rows] eq 80">selected</if> value="80">80条</option>
+                                    <option <if condition="$_GET[rows] eq 100">selected</if> value="100">100条</option>
+                                </select>
+                            </form>
+                        </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<include file="Public/footer"/>
+
+</body>
+</html>
