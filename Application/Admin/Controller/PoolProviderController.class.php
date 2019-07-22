@@ -330,7 +330,17 @@ class PoolProviderController extends BaseController
         if(!empty($param['pid'])){
             $maps['pid'] = $param['uid'];
         }
-        $maps['type'] = $param['status'];
+        if($param['status']==2){
+            $maps['type'] = ['in','2,4'];
+        }else{
+            $maps['type'] = $param['status'];
+        }
+
+        if(!empty($param['datetime'])){
+            list($stime, $etime)  = explode('|', $param['datetime']);
+            $maps['datetime'] = ['between', [strtotime($stime), strtotime($etime) ? strtotime($etime) : time()]];
+        }
+        
         
         $count          = M('PoolMoneychange')->where($maps)->count();
 
@@ -345,8 +355,8 @@ class PoolProviderController extends BaseController
             ->limit($page->firstRow . ',' . $page->listRows)
             ->order('id desc')
             ->select();
-        $text = [1=>'加款',2=>'减款',3=>'退款'];
-        $this->assign("text", $text[$maps['type']]);
+        $text = [1=>'加款',2=>'减款',3=>'退款',4=>'订单扣款'];
+        $this->assign("text", $text[$param['status']]);
         $this->assign("param", $param);
         $this->assign("list", $list);
         $this->assign('page', $page->show());
