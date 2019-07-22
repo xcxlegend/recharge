@@ -72,7 +72,16 @@ class AccountController extends PoolController
         $param=I('get.');
         $maps['pid'] = $this->provider['uid'];
         //$maps['type']   = 0;
-        $maps['type'] = $param['status'];
+        if($param['status']==2){
+            $maps['type'] = ['in','2,4'];
+        }else{
+            $maps['type'] = $param['status'];
+        }
+
+        if(!empty($param['datetime'])){
+            list($stime, $etime)  = explode('|', $param['datetime']);
+            $maps['datetime'] = ['between', [strtotime($stime), strtotime($etime) ? strtotime($etime) : time()]];
+        }
         $count          = M('PoolMoneychange')->where($maps)->count();
 
         $size  = 15;
@@ -86,9 +95,10 @@ class AccountController extends PoolController
             ->limit($page->firstRow . ',' . $page->listRows)
             ->order('id desc')
             ->select();
-        $text = [1=>'加款',2=>'减款',3=>'退款'];
-        $this->assign("text", $text[$maps['type']]);
+        $text = [1=>'加款',2=>'减款',3=>'退款',4=>'订单扣款'];
+        $this->assign("text", $text[$param['status']]);
         $this->assign("list", $list);
+        $this->assign("param", $param);
         $this->assign('page', $page->show());
         $this->display();
     }
