@@ -76,6 +76,7 @@ class ChannelManagerLib
 
         $class = self::create($method);
         if  (!$class){
+            throw new Exception("渠道方式接口错误不存在");
             return false;
         }
 
