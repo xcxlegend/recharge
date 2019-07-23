@@ -1,0 +1,74 @@
+<include file="Public/header"/>
+<div class="row">
+    <div class="col-md-12">
+        <form class="layui-form" id="form">
+
+      <div class="layui-form-item">
+        <label class="layui-form-label">地区名称</label>
+        <div class="layui-input-inline" style="width:300px;">
+          <input type="text" name="name" value="<{$info['name']}>" placeholder="请输入地区名称"
+          autocomplete="off" class="layui-input">
+        </div>
+        
+      </div>
+
+      <div class="layui-form-item">
+        <label class="layui-form-label">地区标识</label>
+        <div class="layui-input-inline" style="width:300px;">
+          <input type="text" name="code" value="<{$info['code']}>" lay-verify="required" placeholder="请输入地区标识" autocomplete="off"
+                 class="layui-input">
+                 <div class="layui-form-mid layui-word-aux">必须唯一</div>
+        </div>
+      </div>
+
+      <div class="layui-form-item">
+        <label class="layui-form-label">状态</label>
+        <div class="layui-input-inline" style="width:300px;"> 
+          <input type="radio" name="status" value="0" title="不登录"  <if condition="$info.status eq 0 ">checked</if>>
+                <input type="radio" name="status" value="1" title="登录"  <if condition="$info.status eq 1 ">checked</if>>
+                <input type="radio" name="status" value="2" title="禁止"  <if condition="$info.status eq 2 ">checked</if>>
+        </div>
+      </div>
+            <input type="hidden" name="id" value="<{$info.id}>">
+            <div class="layui-form-item">
+                <div class="layui-input-block">
+                    <button class="layui-btn" lay-submit lay-filter="edit">立即提交</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<include file="Public/footer"/>
+<script>
+    layui.use('form', function () {
+        var form = layui.form,
+            $ = layui.jquery;
+
+        //监听提交
+        form.on('submit(edit)', function(data){
+            $.ajax({
+                url:"<{:U('Area/edit')}>",
+                type:"post",
+                data:$('#form').serialize(),
+                success:function(res){
+                    if(res.status){
+                        layer.alert("操作成功", {icon: 6},function () {
+                            parent.location.reload();
+                            var index = parent.layer.getFrameIndex(window.name);
+                            parent.layer.close(index);
+                        });
+                    }else{
+                        layer.msg(res.msg ? res.msg : "操作失败!", {icon: 5},function () {
+                            
+                        });
+                        return false;
+                    }
+                }
+            });
+            return false;
+        });
+
+    });
+</script>
+</body>
+</html>

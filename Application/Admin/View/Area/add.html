@@ -1,0 +1,74 @@
+<include file="Public/header"/>
+<div class="row">
+  <div class="col-md-12">
+    <form class="layui-form" method="post" autocomplete="off" action="" id="form">
+      <input type="hidden" name="pid" value="<{$_GET[pid]|htmlspecialchars}>">
+      <div class="layui-form-item">
+        <label class="layui-form-label">地区名称</label>
+        <div class="layui-input-inline" style="width:300px;">
+          <input type="text" name="name"  placeholder="请输入地区名称"
+          autocomplete="off" class="layui-input">
+        </div>
+        
+      </div>
+
+      <div class="layui-form-item">
+        <label class="layui-form-label">地区标识</label>
+        <div class="layui-input-inline" style="width:300px;">
+          <input type="text" name="code" lay-verify="required" placeholder="请输入地区标识" autocomplete="off"
+                 class="layui-input">
+                 <div class="layui-form-mid layui-word-aux">必须唯一</div>
+        </div>
+      </div>
+
+      <div class="layui-form-item">
+        <label class="layui-form-label">状态</label>
+        <div class="layui-input-inline" style="width:300px;">
+          <input type="radio" name="status" value="0" title="不登录" checked>
+                <input type="radio" name="status" value="1" title="登录" >
+                <input type="radio" name="status" value="2" title="禁止" >
+        </div>
+      </div>
+
+      <div class="layui-form-item">
+        <div class="layui-input-block">
+          <button class="layui-btn" lay-submit lay-filter="add">立即提交</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+<include file="Public/footer"/>
+<script>
+    layui.use(['layer', 'form','laydate'], function(){
+        var form = layui.form
+            ,laydate = layui.laydate
+            ,$ = layui.jquery
+            ,layer = layui.layer;
+          //监听提交
+          form.on('submit(add)', function(data){
+            $.ajax({
+                url:"<{:U('Area/add')}>",
+                type:'post',
+                data:$('#form').serialize(),
+                success:function(res){
+                    if(res.status){
+                        layer.alert("添加成功", {icon: 6},function () {
+                            parent.location.reload();
+                            var index = parent.layer.getFrameIndex(window.name);
+                            parent.layer.close(index);
+                        });
+                    }else{
+                        layer.msg(res.msg ? res.msg : "操作失败!", {icon: 5},function () {
+                            
+                        });
+                        return false;
+                    }
+                }
+            });
+            return false;
+          });
+	});
+</script>
+</body>
+</html>
