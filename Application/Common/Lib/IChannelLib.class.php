@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Created by PhpStorm.
  * User: Legend.Xie
@@ -9,7 +10,8 @@
 namespace Common\Lib;
 
 
-class ChannelOrder {
+class ChannelOrder
+{
     // 流水号
     // public $transID;
     // 外部订单号
@@ -22,7 +24,7 @@ class ChannelOrder {
     public $poolId;
     public $poolPid;
 
-    public function __construct( $tradeID, $wapUrl, $qrUrl = "", $poolId = 0, $poolPid = 0)
+    public function __construct($tradeID, $wapUrl, $qrUrl = "", $poolId = 0, $poolPid = 0)
     {
         // $this->transID  = $transID;
         $this->tradeID  = $tradeID;
@@ -36,12 +38,27 @@ class ChannelOrder {
 // 上游接口
 interface IChannelLib
 {
-    // 请求订单
-    public function order( array $params, $gateway, $notify, $pay_orderid ) ;
-    // 查询订单
-    public function query( $gateway, array &$order, &$pool );
+    /**
+     * 请求订单 function
+     *
+     * @param array $params
+     * @param string $gateway
+     * @param string $notify
+     * @param string $pay_orderid
+     * @return ChannelOrder
+     */
+    public function order(array $params, $gateway, $notify, $pay_orderid);
+    /**
+     * 查询订单 function
+     *
+     * @param string $gateway
+     * @param array $order
+     * @param array $pool
+     * @return bool
+     */
+    public function query(string $gateway, array &$order, array &$pool);
     // 回调验证并且返回transID
-    public function notify( array $request );
+    public function notify(array $request);
     public static function notify_ok();
     public static function notify_err();
     public function reset();

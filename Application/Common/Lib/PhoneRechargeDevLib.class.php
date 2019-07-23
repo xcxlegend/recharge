@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Created by PhpStorm.
  * User: Legend.Xie
@@ -7,6 +8,7 @@
  */
 
 namespace Common\Lib;
+
 use Think\Exception;
 use \Think\Log;
 
@@ -26,7 +28,6 @@ class PhoneRechargeDevLib extends IPhoneRechagerLib
 
     const API_URL = "http://148.70.91.219/api/reptile/pay.html";
 
-
     const GATEWAY = 'http://148.70.91.219';
     const API_ORDER = '/api/reptile/pay.html';
     const API_QUERY = '/api/reptile/find';
@@ -41,8 +42,9 @@ class PhoneRechargeDevLib extends IPhoneRechagerLib
     ];
 
     // 请求订单
-    public function order( array $params, $gateway, $notify, $pay_orderid ) {
-        if (!$gateway){
+    public function order(array $params, $gateway, $notify, $pay_orderid)
+    {
+        if (!$gateway) {
             $gateway = self::GATEWAY;
         }
         $api_url = $gateway . self::API_ORDER;
@@ -59,7 +61,7 @@ class PhoneRechargeDevLib extends IPhoneRechagerLib
             "mobile"            => $phone,
             "amount"            => round($params['pay_amount'] / 100, 2),
             "type"              => $params['pool']['channel'],
-            "pay_sence"         => $this->getSence( $params['pay_bankcode'] ),
+            "pay_sence"         => $this->getSence($params['pay_bankcode']),
             "notify_url"        => $notify ?: '',
             "return_url"        => $params['pay_returnurl'] ?: '',
             "sign_type"         => 1,
@@ -73,21 +75,26 @@ class PhoneRechargeDevLib extends IPhoneRechagerLib
             }
         }
 
-        $query['sign'] = createSign( self::SECRET, $signData );
+        $query['sign'] = createSign(self::SECRET, $signData);
         $data = sendForm($api_url, $query);
         $data = json_decode($data, true);
+        if (false) {
+            $this->setError(PoolDevLib::ERROR_NEEDLOGIN);
+            return false;
+        }
         if ($data['code'] != 1) {
             Log::write(json_encode($data), Log::WARN);
-            throw new Exception( '[RECHARGER] ' . $data['msg']);
+            throw new Exception('[RECHARGER] ' . $data['msg']);
             return false;
         }
 
-        return new ChannelOrder( $data['data']['no'], $data['data']['wap_url'], $data['data']['code_url'], $pool['id'], $pool['pid']);
+        return new ChannelOrder($data['data']['no'], $data['data']['wap_url'], $data['data']['code_url'], $pool['id'], $pool['pid']);
     }
 
     // 查询订单
-    public function query( $gateway, array &$order, &$pool ) {
-        if (!$gateway){
+    public function query($gateway, array &$order, &$pool)
+    {
+        if (!$gateway) {
             $gateway = self::GATEWAY;
         }
         $api_url = $gateway . self::API_QUERY;
@@ -109,7 +116,7 @@ class PhoneRechargeDevLib extends IPhoneRechagerLib
         ];
 
         $params['sign'] = $this->sign($params);
-        $data = sendForm( $api_url, $params );
+        $data = sendForm($api_url, $params);
         if (!$data) {
             return false;
         }
@@ -121,13 +128,14 @@ class PhoneRechargeDevLib extends IPhoneRechagerLib
     }
 
     // 回调验证并且返回transID
-    public function notify( array $request ) {
+    public function notify(array $request)
+    {
 
         if ($request['status'] != "Success") {
             return false;
         }
 
-        $sign = createSign( self::SECRET , [
+        $sign = createSign(self::SECRET, [
             'status'            => $request['status'],
             'msg'               => $request['msg'],
             'amount'            => $request['amount'],
@@ -139,28 +147,29 @@ class PhoneRechargeDevLib extends IPhoneRechagerLib
             'trade_no'          => $request['trade_no'],
         ]);
 
-        if (!($sign === $request['sign'])){
-            Log::write("sign err. sign: " . $sign . " === " . $request['sign'] );
+        if (!($sign === $request['sign'])) {
+            Log::write("sign err. sign: " . $sign . " === " . $request['sign']);
             return false;
         }
         return [$request['merchant_order_no'], $request['trade_no']];
-
     }
 
-    public static function notify_ok(){
+    public static function notify_ok()
+    {
         return 'success';
     }
-    public static function notify_err(){
+    public static function notify_err()
+    {
         return 'err';
     }
 
-    protected function getSence( $pay_bankcode ) {
+    protected function getSence($pay_bankcode)
+    {
         return self::Sences[$pay_bankcode] ?: '';
     }
 
-    protected function sign( &$params ) {
-        return createSign( self::SECRET, $params);
+    protected function sign(&$params)
+    {
+        return createSign(self::SECRET, $params);
     }
-
-
 }

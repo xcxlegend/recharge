@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Created by PhpStorm.
  * User: Legend.Xie
@@ -8,6 +9,7 @@
 
 namespace Common\Lib;
 
+use Think\Exception;
 
 // 手机充值网厅接口
 abstract class IPhoneRechagerLib implements IChannelLib
@@ -15,18 +17,21 @@ abstract class IPhoneRechagerLib implements IChannelLib
 
     protected $poolMgr;
 
-    public function poolQuery( IPoolLib $poolMgr,  array &$param) {
+    public function poolQuery(IPoolLib $poolMgr,  array &$param)
+    {
         $this->poolMgr = $poolMgr;
         $poolMgr->query($param);
     }
 
-    public function reset() {
+    public function setError($err)
+    {
+        $this->poolMgr->setError($err);
+    }
+
+    public function reset()
+    {
         if ($this->poolMgr) {
             $this->poolMgr->reset();
         }
     }
-
 }
-
-
-

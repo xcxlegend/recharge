@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Created by PhpStorm.
  * User: Legend.Xie
@@ -13,7 +14,7 @@ namespace Common\Lib;
 interface IPoolLib
 {
 
-    public function query( &$params );
-    public function reset( );
-
+    public function query(&$params);
+    public function reset();
+    public function setError($err);
 }

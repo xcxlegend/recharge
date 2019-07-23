@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Created by PhpStorm.
  * User: Legend.Xie
@@ -7,6 +8,7 @@
  */
 
 namespace Common\Lib;
+
 use Think\Exception;
 
 
@@ -16,15 +18,17 @@ class ChannelManagerLib
     public $IPhoneRechagerImpl;
     protected $channel;
 
-    public function __construct( $channel ){
+    public function __construct($channel)
+    {
         $this->channel = $channel;
     }
 
 
-    static protected function  create( $method )  {
+    static protected function  create($method)
+    {
         $classname = 'Common\\Lib\\' . ucfirst($method) . 'Lib';
 
-        if ( !class_exists($classname) ) {
+        if (!class_exists($classname)) {
             throw new Exception("渠道方式不存在");
             return false;
         }
@@ -33,7 +37,8 @@ class ChannelManagerLib
     }
 
     // 处理获取上游订单
-    public function order( $params, $notify_url, $pay_orderid/*, IPoolLib $pool = null*/ ) {
+    public function order($params, $notify_url, $pay_orderid/*, IPoolLib $pool = null*/)
+    {
 
 
         $method = $this->channel['code'];
@@ -41,20 +46,20 @@ class ChannelManagerLib
 
 
         $this->IPhoneRechagerImpl = self::create($method);
-        if  (!$this->IPhoneRechagerImpl){
+        if (!$this->IPhoneRechagerImpl) {
             return false;
         }
 
         if ($this->IPhoneRechagerImpl instanceof IChannelLib) {
 
-//            if ($pool){
-//                if (!$pool->query($params)){
-//                    return false;
-//                }
-//            }
+            //            if ($pool){
+            //                if (!$pool->query($params)){
+            //                    return false;
+            //                }
+            //            }
 
-            $order = $this->IPhoneRechagerImpl->order( $params, $gateway, $notify_url, $pay_orderid );
-            if ( ! ( $order && $order instanceof ChannelOrder ) ) {
+            $order = $this->IPhoneRechagerImpl->order($params, $gateway, $notify_url, $pay_orderid);
+            if (!($order && $order instanceof ChannelOrder)) {
                 throw new Exception("渠道接口返回数据错误");
             }
             return $order;
@@ -64,7 +69,8 @@ class ChannelManagerLib
         return false;
     }
 
-    public function reset() {
+    public function reset()
+    {
         if ($this->IPhoneRechagerImpl && $this->IPhoneRechagerImpl instanceof IChannelLib) {
             $this->IPhoneRechagerImpl->reset();
         }
@@ -72,50 +78,51 @@ class ChannelManagerLib
 
 
     // 处理回调信息
-    static public function notify( $method, $request ) {
+    static public function notify($method, $request)
+    {
 
         $class = self::create($method);
-        if  (!$class){
+        if (!$class) {
             throw new Exception("渠道方式接口错误不存在");
             return false;
         }
 
         if ($class instanceof IChannelLib) {
-            return $class->notify( $request );
+            return $class->notify($request);
         }
 
         throw new Exception("渠道方式接口错误不存在");
         return false;
     }
 
-    static public function notifyOK( $method ) {
+    static public function notifyOK($method)
+    {
         $class = self::create($method);
         return $class->notify_ok();
     }
 
-    static public function notifyErr( $method ) {
+    static public function notifyErr($method)
+    {
         $class = self::create($method);
         return $class->notify_err();
     }
 
 
     // $request => pay_order
-    public function query( &$order, &$pool ) {
+    public function query(array &$order, array &$pool)
+    {
         $method = $this->channel['code'];
         $gateway = $this->channel['gateway'];
         $class = self::create($method);
-        if  (!$class){
+        if (!$class) {
             return false;
         }
 
         if ($class instanceof IChannelLib) {
-            return $class->query( $gateway, $order, $pool );
+            return $class->query($gateway, $order, $pool);
         }
 
         throw new Exception("渠道方式接口错误不存在");
         return false;
     }
-
-
-
 }

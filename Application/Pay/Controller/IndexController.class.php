@@ -1,5 +1,7 @@
 <?php
+
 namespace Pay\Controller;
+
 use Common\Lib\ChannelOrder;
 use Think\Exception;
 use \Think\Log;
@@ -29,26 +31,27 @@ class IndexController extends OrderController
     }
 
 
-    public function index() {
+    public function index()
+    {
 
         if (!$this->check()) {
             return;
         }
 
         list($msec, $sec) = explode(' ', microtime());
-        $pay_orderid = 'MP' . date('YmdHis',$sec) . intval($msec * 10000);
+        $pay_orderid = 'MP' . date('YmdHis', $sec) . intval($msec * 10000);
 
-//        $poolLib = new PoolDevLib();
+        //        $poolLib = new PoolDevLib();
 
-//        $phoneRecharger = 'PhoneRechargeDev';
+        //        $phoneRecharger = 'PhoneRechargeDev';
 
         if (!$this->checkChannel()) {
             return;
         }
         $notify_url = $this->_site . 'Pay_Notify_Index_Method_' . $this->channel['code'];
-        $manager = new ChannelManagerLib( $this->channel );
-        try{
-            $c_order = $manager->order( I('request.'), $notify_url, $pay_orderid);
+        $manager = new ChannelManagerLib($this->channel);
+        try {
+            $c_order = $manager->order(I('request.'), $notify_url, $pay_orderid);
 
             if ($c_order instanceof ChannelOrder) {
 
@@ -85,12 +88,12 @@ class IndexController extends OrderController
                 return true;
             }
             throw new Exception("支付Lib返回信息错误");
-        } catch(Exception $e){
+        } catch (Exception $e) {
             Log::write($e->getMessage());
             $manager->reset();
-//            $c_order->reset();
+            //            $c_order->reset();
             $this->result_error($e->getMessage());
-//            $this->result_error('订单生成失败');
+            //            $this->result_error('订单生成失败');
             return;
         }
     }
@@ -101,7 +104,8 @@ class IndexController extends OrderController
      * 1. 调用接口获取充值的手机和金额
      * 2. 返回接口对外
      */
-    public function index2() {
+    public function index2()
+    {
         /**
         pay_memberid
 
@@ -134,10 +138,10 @@ class IndexController extends OrderController
         }
 
         list($msec, $sec) = explode(' ', microtime());
-        $pay_orderid = 'MP' . date('YmdHis',$sec) . intval($msec * 1000);
+        $pay_orderid = 'MP' . date('YmdHis', $sec) . intval($msec * 1000);
 
         $poolOrder = $this->getPoolOrder($pay_orderid);
-/*
+        /*
  *  {
             "pool_id": '',
             "order":  {
@@ -206,9 +210,9 @@ class IndexController extends OrderController
             'trade_id' => $poolOrder['order']['no'],
         ];
 
-//        $orderModel = M('Order');
-//        $r = $orderModel->add($order);
-        if (!$this->orderadd($order)){
+        //        $orderModel = M('Order');
+        //        $r = $orderModel->add($order);
+        if (!$this->orderadd($order)) {
             $this->result_error("订单保存失败");
             return;
         }
@@ -233,33 +237,35 @@ class IndexController extends OrderController
 
 
     // 参数验证 签名验证
-    protected function check() {
+    protected function check()
+    {
 
         $request = $this->request;
 
-        if ( !$request['pay_memberid']
-        || !$request['pay_orderid']
-        || !$request['pay_applydate']
-        || !$request['pay_bankcode']
-        || !$request['pay_notifyurl']
-        || !$request['pay_amount']
-        || !$request['pay_md5sign']
-        ){
+        if (
+            !$request['pay_memberid']
+            || !$request['pay_orderid']
+            || !$request['pay_applydate']
+            || !$request['pay_bankcode']
+            || !$request['pay_notifyurl']
+            || !$request['pay_amount']
+            || !$request['pay_md5sign']
+        ) {
             $this->result_error("参数不足");
             return;
         }
 
         $userid = intval($request["pay_memberid"] - 10000); // 商户ID
 
-//        $cache = RedisCacheModel::instance();
+        //        $cache = RedisCacheModel::instance();
 
-//        $member = $this->cache->getOrSet("member:".$userid, function () use ($userid){
-//            return M('Member')->where(['id' => $userid])->find();
-//        }, true);
+        //        $member = $this->cache->getOrSet("member:".$userid, function () use ($userid){
+        //            return M('Member')->where(['id' => $userid])->find();
+        //        }, true);
 
         $member = D('Common/Member')->getById($userid);
 
-//        $member = M('Member')->where(['id' => $userid])->find();
+        //        $member = M('Member')->where(['id' => $userid])->find();
         if (!$member) {
             $this->result_error('商户不存在');
             return;
@@ -272,9 +278,9 @@ class IndexController extends OrderController
 
         $this->member = $member;
 
-//        $this->product = $this->cache->getOrSet("product:".$request['pay_bankcode'], function () use (&$request) {
-//            return M('Product')->where(['code' => $request['pay_bankcode']])->find();
-//        }, true);
+        //        $this->product = $this->cache->getOrSet("product:".$request['pay_bankcode'], function () use (&$request) {
+        //            return M('Product')->where(['code' => $request['pay_bankcode']])->find();
+        //        }, true);
         $this->product = D('Common/Product')->getByCode($request['pay_bankcode']);
 
         if (!$this->product) {
@@ -283,9 +289,9 @@ class IndexController extends OrderController
         }
 
         $sign = $request['pay_md5sign'];
-//        unset($request['pay_md5sign']);
-//        unset($request['pay_attach']);
-//        unset($request['pay_productname']);
+        //        unset($request['pay_md5sign']);
+        //        unset($request['pay_attach']);
+        //        unset($request['pay_productname']);
 
         $checkParams = [
             "pay_memberid"      =>  $request["pay_memberid"],
@@ -298,7 +304,7 @@ class IndexController extends OrderController
         ];
 
 
-        if  (!($sign == createSign( $member['apikey'], $checkParams ))){
+        if (!($sign == createSign($member['apikey'], $checkParams))) {
             $this->result_error("签名错误");
             return false;
         }
@@ -315,28 +321,29 @@ class IndexController extends OrderController
     public function judgeRepeatOrder()
     {
         // 默认不允许
-        $is_repeat_order = false;// M('Websiteconfig')->getField('is_repeat_order');
+        $is_repeat_order = false; // M('Websiteconfig')->getField('is_repeat_order');
         if (!$is_repeat_order) {
             //不允许同一个用户提交重复订单
-//            $orders = M('Order')->where(['out_trade_id' => $this->request['pay_orderid']])->select();
-//            $count = 0;
-//
-//            foreach ($orders as $key => $order) {
-//                if ($order['pay_memberid'] == $this->member['id']) {
-//                    $count++;
-//                }
-//            }
-//
-//            if($count){
-//                return false;
-//            }
+            //            $orders = M('Order')->where(['out_trade_id' => $this->request['pay_orderid']])->select();
+            //            $count = 0;
+            //
+            //            foreach ($orders as $key => $order) {
+            //                if ($order['pay_memberid'] == $this->member['id']) {
+            //                    $count++;
+            //                }
+            //            }
+            //
+            //            if($count){
+            //                return false;
+            //            }
             return !$this->cache->Client()->sIsMember("orders:member_pay_orderid:" . $this->member['id'], $this->request['pay_orderid']);
         }
         return true;
     }
 
     // 获取网厅订单
-    protected function getPoolOrder($pay_orderid) {
+    protected function getPoolOrder($pay_orderid)
+    {
 
         $url = self::$RPC_PHONE_URL . self::RPC_ORDER_API;
         $param = [
@@ -346,13 +353,13 @@ class IndexController extends OrderController
             'pay_returnurl' => $this->request['pay_returnurl'],
             'pay_notifyurl' => $this->_site . 'Pay_Notify'
         ];
-        $param['sign'] = createSign( C('RPC_POOL_PHONE_SECRET'), $param );
+        $param['sign'] = createSign(C('RPC_POOL_PHONE_SECRET'), $param);
 
         $data = sendForm($url, $param);
         $data = json_decode($data, true);
 
         if (!$data || $data['status'] != 0) {
-            $this->result_error("RPC ".$data['info'] ?: '订单请求失败');
+            $this->result_error("RPC " . $data['info'] ?: '订单请求失败');
             return false;
         }
 
@@ -368,15 +375,16 @@ class IndexController extends OrderController
         return $data['data'];
     }
 
-    protected function checkChannel() {
-       /* $ProductUser  = $this->cache->getOrSet( "ProductUser:". $this->product['id'] . ':'. $this->member['id'], function () {
+    protected function checkChannel()
+    {
+        /* $ProductUser  = $this->cache->getOrSet( "ProductUser:". $this->product['id'] . ':'. $this->member['id'], function () {
             return M('ProductUser')->where(
             [
                 'userid' => $this->member['id'],
                 'pid' => $this->product['id']
             ])->find();
         }, true);*/
-        $ProductUser = D('Common/ProductUser')->getByMix( $this->product['id'], $this->member['id'] );
+        $ProductUser = D('Common/ProductUser')->getByMix($this->product['id'], $this->member['id']);
         if (!$ProductUser) {
             $this->result_error("商户未设置支付渠道", true);
             return false;
@@ -386,7 +394,7 @@ class IndexController extends OrderController
             return M('Channel')->find($channel_id);
         }, true);*/
 
-        $this->channel = D('Common/Channel')->getById( $channel_id );
+        $this->channel = D('Common/Channel')->getById($channel_id);
 
 
         if (!$this->channel) {
@@ -397,21 +405,22 @@ class IndexController extends OrderController
     }
 
 
-    public function Query(){
+    public function Query()
+    {
 
         $params = [
             'out_trade_id' => $this->request['out_trade_id'],
             'pay_memberid' => $this->request['pay_memberid']
         ];
 
-        $member = D('Common/Member')->getById( $this->request['pay_memberid'] - 10000 );
+        $member = D('Common/Member')->getById($this->request['pay_memberid'] - 10000);
 
         if (!$member) {
             $this->result_error("商户不存在");
             return;
         }
 
-        if (createSign($member['apikey'], $params) !==  $this->request['sign'] ) {
+        if (createSign($member['apikey'], $params) !==  $this->request['sign']) {
             $this->result_error("签名错误");
             return;
         }
@@ -423,7 +432,7 @@ class IndexController extends OrderController
             $this->result_error("订单不存在或未支付");
             return;
         }
-        
+
         $this->result_success([
             "time"          => date('Y-m-d H:i:s', $order['pay_successdate']),
             "amount"        => intval($order['pay_amount'] * 100),
@@ -432,7 +441,8 @@ class IndexController extends OrderController
         ]);
     }
 
-    public function QueryBalance() {
+    public function QueryBalance()
+    {
         if (!$this->request['memberid']) {
             $this->result_error("需要商户ID");
             return;
@@ -450,12 +460,11 @@ class IndexController extends OrderController
             'memberid' => $this->request['memberid'],
             'time'         => $this->request['time'],
         ];
-        if (createSign($member['apikey'], $params) !==  $this->request['sign'] ) {
+        if (createSign($member['apikey'], $params) !==  $this->request['sign']) {
             $this->result_error("签名错误");
             return;
         }
         $params['balance'] = $member['balance'];
         $this->result_success($params);
     }
-
 }
