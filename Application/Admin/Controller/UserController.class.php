@@ -1583,33 +1583,21 @@ class UserController extends BaseController
                 $_tmpData[$item['pid']] = $item;
             }
         }
+
         //重组产品列表
         $list = [];
         if ($products) {
             foreach ($products as $key => $item) {
                 $products[$key]['status']  = $_tmpData[$item['id']]['status'];
-                $products[$key]['channel'] = $_tmpData[$item['id']]['channel'];
-                $products[$key]['polling'] = $_tmpData[$item['id']]['polling'];
-                //权重
-                $weights    = [];
-                $weights    = explode('|', $_tmpData[$item['id']]['weight']);
-                $_tmpWeight = [];
-                if (is_array($weights)) {
-                    foreach ($weights as $value) {
-                        list($pid, $weight) = explode(':', $value);
-                        if ($pid) {
-                            $_tmpWeight[$pid] = ['pid' => $pid, 'weight' => $weight];
-                        }
-                    }
-                } else {
-                    list($pid, $weight) = explode(':', $_tmpData[$item['id']]['weight']);
-                    if ($pid) {
-                        $_tmpWeight[$pid] = ['pid' => $pid, 'weight' => $weight];
-                    }
-                }
-                $products[$key]['weight'] = $_tmpWeight;
+                $products[$key]['type'] = $_tmpData[$item['id']]['type'];
+                $products[$key]['lg_channel'] = $_tmpData[$item['id']]['lg_channel'];
+                $products[$key]['nlg_channel'] = $_tmpData[$item['id']]['nlg_channel'];
             }
         }
+        
+
+        $paytype =C('PAYTYPES') ;
+        $this->assign('paytype', $paytype);
         $this->assign('products', $products);
         $this->display();
     }
@@ -1620,20 +1608,14 @@ class UserController extends BaseController
             $userid = I('post.userid', 0, 'intval');
             $u      = I('post.u/a');
             foreach ($u as $key => $item) {
-                $weightStr = '';
+
                 $status    = $item['status'] ? $item['status'] : 0;
-                if (is_array($item['w'])) {
-                    foreach ($item['w'] as $weigths) {
-                        if ($weigths['pid']) {
-                            $weightStr .= $weigths['pid'] . ':' . $weigths['weight'] . "|";
-                        }
-                    }
-                }
+                
                 $product = M('Product_user')->where(['userid' => $userid, 'pid' => $key])->find();
                 if ($product) {
-                    $data_insert[] = ['id' => $product['id'], 'userid' => $userid, 'pid' => $key, 'status' => $status, 'polling' => $item['polling'], 'channel' => $item['channel'], 'weight' => trim($weightStr, '|')];
+                    $data_insert[] = ['id' => $product['id'], 'userid' => $userid, 'pid' => $key, 'status' => $status, 'type' => $item['type'], 'lg_channel' => $item['lg_channel'], 'nlg_channel' => $item['nlg_channel']];
                 } else {
-                    $data_update[] = ['userid' => $userid, 'pid' => $key, 'status' => $status, 'polling' => $item['polling'], 'channel' => $item['channel'], 'weight' => trim($weightStr, '|')];
+                    $data_update[] = ['userid' => $userid, 'pid' => $key, 'status' => $status, 'type' => $item['type'], 'lg_channel' => $item['lg_channel'], 'nlg_channel' => $item['nlg_channel']];
                 }
             }
             D('Common/ProductUser')->addAll($data_insert, [], true);
