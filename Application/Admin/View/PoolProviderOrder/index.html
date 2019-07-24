@@ -1,4 +1,4 @@
-<include file="Public/header"/>
+<include file="Public/header" />
 <div class="row">
     <div class="col-md-12">
         <div class="ibox float-e-margins">
@@ -7,86 +7,103 @@
             </div>
 
             <div class="ibox-content">
-                    <form class="layui-form" action="" method="get" autocomplete="off" id="sform">
-                        <input type="hidden" name="p" value="1">
-                        <div class="layui-form-item">
+                <form class="layui-form" action="" method="get" autocomplete="off" id="sform">
+                    <input type="hidden" name="p" value="1">
+                    <div class="layui-form-item">
                         <div class="layui-inline">
                             <div class="layui-input-inline">
-                              <input type="text" name="pay_memberid" autocomplete="off" placeholder="请输入商户ID"
-                                     class="layui-input" value="<{$param.pay_memberid}>">
+                                <input type="text" name="pay_memberid" autocomplete="off" placeholder="请输入商户ID"
+                                    class="layui-input" value="<{$param.pay_memberid}>">
                             </div>
                             <div class="layui-input-inline">
-                              <input type="text" name="order_id" autocomplete="off" placeholder="请输入平台订单号"
-                                     class="layui-input" value="<{$param.order_id}>">
+                                <input type="text" name="order_id" autocomplete="off" placeholder="请输入平台订单号"
+                                    class="layui-input" value="<{$param.order_id}>">
                             </div>
                             <div class="layui-input-inline">
                                 <input type="text" name="pool_order_id" autocomplete="off" placeholder="请输入商户订单号"
-                                       class="layui-input" value="<{$param.pool_order_id}>">
-                              </div>
-              
+                                    class="layui-input" value="<{$param.pool_order_id}>">
+                            </div>
+
                             <div class="layui-input-inline">
-                              <input type="text" name="trade_id" autocomplete="off" placeholder="充值流水号"
-                                     class="layui-input" value="<{$param.trade_id}>">
+                                <input type="text" name="trade_id" autocomplete="off" placeholder="充值流水号"
+                                    class="layui-input" value="<{$param.trade_id}>">
                             </div>
                             <div class="layui-input-inline">
-                                <input type="text" name="phone" autocomplete="off" placeholder="手机号"
-                                       class="layui-input" value="<{$param.phone}>">
-                              </div>
-              
+                                <input type="text" name="phone" autocomplete="off" placeholder="手机号" class="layui-input"
+                                    value="<{$param.phone}>">
+                            </div>
+
                             <div class="layui-input-inline" style="width:300px">
-                              <input type="text" class="layui-input" name="create_time" id="create_time"
-                                     placeholder="创建起始时间" value="<{$param.create_time}>">
+                                <input type="text" class="layui-input" name="create_time" id="create_time"
+                                    placeholder="创建起始时间" value="<{$param.create_time}>">
                             </div>
-       
+
                             <div class="layui-input-inline" style="width:80px;">
-                            <input type="text" name="money"  placeholder="金额" class="layui-input" value="<{$param.money}>">
+                                <input type="text" name="money" placeholder="金额" class="layui-input"
+                                    value="<{$param.money}>">
                             </div>
                             <div class="layui-input-inline">
-                              <select name="sp">
-                                <option value="">运营商</option>
-                                <volist name="sp_list" id="vo" key="k">
-                                  <option <if condition="$param['sp'] eq $k">selected</if>
-                                  value="<{$k}>"><{$vo}></option>
-                                </volist>
-                              </select>
+                                <select name="sp">
+                                    <option value="">运营商</option>
+                                    <volist name="sp_list" id="vo" key="k">
+                                        <option <if condition="$param['sp'] eq $k">selected</if>
+                                            value="<{$k}>"><{$vo}>
+                                        </option>
+                                    </volist>
+                                </select>
                             </div>
                             <div class="layui-input-inline">
-                              <select name="status">
-                                <option value="">全部状态</option>
-                                <option <if condition="$param['status'] neq '' && $status eq 0">selected</if> value="0">未回调</option>
-                                <option <if condition="$param['status'] eq 1">selected</if> value="1">回调完成</option>
-                                 <option <if condition="$param['status'] eq 2">selected</if> value="2">退单</option>
-                              </select>
+                                <select name="status">
+                                    <option value="">全部状态</option>
+                                    <option <if condition="$param['status'] neq '' && $status eq 0">selected</if>
+                                        value="0">未回调</option>
+                                    <option <if condition="$param['status'] eq 1">selected</if> value="1">回调完成</option>
+                                    <option <if condition="$param['status'] eq 2">selected</if> value="2">退单</option>
+                                </select>
                             </div>
-                          
-              
+
+
                             <div class="layui-input-inline">
                                 <button onclick="$('#export').val(0);$('#sform').submit();" class="layui-btn"><span
                                         class="glyphicon glyphicon-search"></span> 搜索
                                 </button>
                                 <input type="hidden" id="export" name="export" value="0">
-                                <a onclick="$('#export').val(1);$('#sform').submit();" class="layui-btn layui-btn-danger"><span class="glyphicon glyphicon-export"></span> 导出</a>
+                                <a onclick="$('#export').val(1);$('#sform').submit();"
+                                    class="layui-btn layui-btn-danger"><span class="glyphicon glyphicon-export"></span>
+                                    导出</a>
                             </div>
                         </div>
-                        </div>
-                      </form>
-           
-                      <blockquote class="layui-elem-quote" style="font-size:14px;padding;8px;">
-                            交易总额：<span class="label label-info"><{$count.total.money|format_money}>元</span>  
-                            上月总额：<span class="label label-info"><{$count.month.money|format_money}>元</span>
-                           上周总额：<span class="label label-info"><{$count.week.money|format_money}>元</span>
-                           今日总额：<span class="label label-info"><{$count.today.money|format_money}>元</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                        </blockquote>
-    
-                      <blockquote class="layui-elem-quote" style="font-size:14px;padding;8px;">
-                          订单总量：<span class="label label-info"><{$count.total.count}></span> 
-                         今日订单量：<span class="label label-info"><{$count.today.count}></span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                      </blockquote>
-    
-    
-                     <div class="list item">
-                        <table class="layui-table" lay-data="{width:'100%'}">
-                            <thead>
+                    </div>
+                </form>
+
+                <blockquote class="layui-elem-quote" style="font-size:14px;padding;8px;">
+                    交易总额：<span class="label label-info">
+                        <{$count.total.money|format_money}>元
+                    </span>
+                    上月总额：<span class="label label-info">
+                        <{$count.month.money|format_money}>元
+                    </span>
+                    上周总额：<span class="label label-info">
+                        <{$count.week.money|format_money}>元
+                    </span>
+                    今日总额：<span class="label label-info">
+                        <{$count.today.money|format_money}>元
+                    </span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                </blockquote>
+
+                <blockquote class="layui-elem-quote" style="font-size:14px;padding;8px;">
+                    订单总量：<span class="label label-info">
+                        <{$count.total.count}>
+                    </span>
+                    今日订单量：<span class="label label-info">
+                        <{$count.today.count}>
+                    </span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                </blockquote>
+
+
+                <div class="list item">
+                    <table class="layui-table" lay-data="{width:'100%'}">
+                        <thead>
                             <tr>
                                 <th lay-data="{field:'pay_orderid', width:60}">#</th>
                                 <th lay-data="{field:'pay_orderid1', width:150}">平台订单号</th>
@@ -101,86 +118,118 @@
                                 <th lay-data="{field:'pay_orderid9', width:100}">支付方式</th>
                                 <th lay-data="{field:'pay_orderid10', width:180}">创建时间</th>
                                 <th lay-data="{field:'pay_orderid11', width:180}">成功时间</th>
-                                <th lay-data="{field:'pay_orderid12', width:100}">状态</th>
+                                <th lay-data="{field:'pay_orderid12', width:180}">状态</th>
                                 <th lay-data="{field:'pay_orderid13', width:180}">添加时间</th>
                                 <th lay-data="{field:'pay_orderid14', width:240}">操作</th>
                             </tr>
-                            </thead>
-                            <tbody>
+                        </thead>
+                        <tbody>
                             <volist name="list" id="v">
                                 <tr>
-                                    <td><{$v.id}></td>
-                                    <td><{$v.order_id}></td>
-                                    <td><{$v.trade_id}></td>
-                                    <td><{$v.pool_order_id}></td>
-                                    <td><{$v.out_trade_id}></td>
-                                    <td><{$v.pay_memberid}></td>
-                                    <td><{$v.pid}></td>
-                                    <td><{$v.phone}></td>
-                                    <td><{$v.money|format_money}></td>
-                                    <td><{$sp_list[$v['channel']]}></td>
-                                    <td><{$v.pay_name}></td>
-                                    <td><{$v.pay_applydate|date='Y-m-d H:i:s',###}></td>
-                                    <td><{$v.pay_successdate|date='Y-m-d H:i:s',###}></td>
+                                    <td>
+                                        <{$v.id}>
+                                    </td>
+                                    <td>
+                                        <{$v.order_id}>
+                                    </td>
+                                    <td>
+                                        <{$v.trade_id}>
+                                    </td>
+                                    <td>
+                                        <{$v.pool_order_id}>
+                                    </td>
+                                    <td>
+                                        <{$v.out_trade_id}>
+                                    </td>
+                                    <td>
+                                        <{$v.pay_memberid}>
+                                    </td>
+                                    <td>
+                                        <{$v.pid}>
+                                    </td>
+                                    <td>
+                                        <{$v.phone}>
+                                    </td>
+                                    <td>
+                                        <{$v.money|format_money}>
+                                    </td>
+                                    <td>
+                                        <{$sp_list[$v['channel']]}>
+                                    </td>
+                                    <td>
+                                        <{$v.pay_name}>
+                                    </td>
+                                    <td>
+                                        <{$v.pay_applydate|date='Y-m-d H:i:s',###}>
+                                    </td>
+                                    <td>
+                                        <{$v.pay_successdate|date='Y-m-d H:i:s',###}>
+                                    </td>
                                     <td>
                                         <if condition="$v.status eq 0 ">未回调</if>
                                         <if condition="$v.status eq 1 ">回调成功</if>
                                         <if condition="$v.status eq 2 ">退单</if>
+                                        <if condition="$v.status eq 3 ">成功已通知超时</if>
                                     </td>
-                                    <td><{$v.time|date='Y-m-d H:i:s',###}></td>
                                     <td>
-                                        
-                                        <a onclick="reNotice('<{$v[id]}>')" class="layui-btn layui-btn-danger layui-btn-mini">补发通知</a>
+                                        <{$v.time|date='Y-m-d H:i:s',###}>
+                                    </td>
+                                    <td>
+
+                                        <a onclick="reNotice('<{$v[id]}>')"
+                                            class="layui-btn layui-btn-danger layui-btn-mini">补发通知</a>
                                         <!-- <a onclick="x_admin_show('余额加钱', '<{:U('PoolProviderMoney/AddProviderBalance',['id'=>$v[id]])}>',540,440)" class="layui-btn layui-btn-danger layui-btn-mini"><i class="layui-icon">&#xe640;</i>补单</a> -->
-                                        <a href="<{:U('PoolProviderOrder/info',['id'=>$v[id]])}>" class="layui-btn layui-btn-mini layui-btn-success">订单详情</a>
-                                        <a onclick="drawback('<{$v[id]}>')" class="layui-btn layui-btn-mini layui-btn-danger">退单</a>
+                                        <a href="<{:U('PoolProviderOrder/info',['id'=>$v[id]])}>"
+                                            class="layui-btn layui-btn-mini layui-btn-success">订单详情</a>
+                                        <a onclick="drawback('<{$v[id]}>')"
+                                            class="layui-btn layui-btn-mini layui-btn-danger">退单</a>
                                     </td>
                                 </tr>
                             </volist>
-                            </tbody>
-                        </table>
-                        <{$page}>
-                    </div>
+                        </tbody>
+                    </table>
+                    <{$page}>
                 </div>
+            </div>
         </div>
     </div>
 </div>
-<include file="Public/footer"/>
+<include file="Public/footer" />
 <script>
-    layui.use(['laypage','layer','form'], function() {
+    layui.use(['laypage', 'layer', 'form'], function () {
         var laypage = layui.laypage,
             $ = layui.jquery;
     });
 
-    function info(title,url,w,h) {
-        x_admin_show(title,url,w,h);
+    function info(title, url, w, h) {
+        x_admin_show(title, url, w, h);
     }
 
     function reNotice(id) {
-        layer.confirm('确认要补发通知吗？',function(index){
+        layer.confirm('确认要补发通知吗？', function (index) {
             $.ajax({
-                url:"<{:U('Pay/Order/poolbufa')}>",
-                type:'get',
-                data:'id='+id,
-                success:function(res){
-                    layer.msg('补发申请已发出，请稍候刷新查看结果!',{icon:1,time:1000});
+                url: "<{:U('Pay/Order/poolbufa')}>",
+                type: 'get',
+                data: 'id=' + id,
+                success: function (res) {
+                    layer.msg('补发申请已发出，请稍候刷新查看结果!', { icon: 1, time: 1000 });
                 }
             });
         });
     }
 
     function drawback(id) {
-        layer.confirm('确定要退单吗？',function(index){
+        layer.confirm('确定要退单吗？', function (index) {
             $.ajax({
-                url:"<{:U('PoolProviderOrder/drawback')}>",
-                type:'get',
-                data:'id='+id,
-                success:function(res){
+                url: "<{:U('PoolProviderOrder/drawback')}>",
+                type: 'get',
+                data: 'id=' + id,
+                success: function (res) {
                     if (res.status) {
-                        layer.msg(res.info,{icon:1,time:1000});
+                        layer.msg(res.info, { icon: 1, time: 1000 });
                         window.location.reload();
                     } else {
-                        layer.msg(res.info,{icon:2,time:1500});
+                        layer.msg(res.info, { icon: 2, time: 1500 });
                     }
                 }
             });
@@ -188,21 +237,22 @@
     }
 
 
-    layui.use(['laydate', 'laypage', 'layer', 'table', 'form'], function() {
+    layui.use(['laydate', 'laypage', 'layer', 'table', 'form'], function () {
         var laydate = layui.laydate //日期
             , laypage = layui.laypage //分页
-            ,layer = layui.layer //弹层
-            ,form = layui.form //表单
+            , layer = layui.layer //弹层
+            , form = layui.form //表单
             , table = layui.table; //表格
         //日期时间范围
         laydate.render({
             elem: '#createtime'
             , type: 'datetime'
-            ,theme: 'molv'
+            , theme: 'molv'
             , range: '|'
         });
     });
 
 </script>
 </body>
+
 </html>
