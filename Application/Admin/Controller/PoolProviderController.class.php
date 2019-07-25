@@ -186,10 +186,11 @@ class PoolProviderController extends BaseController
             $config = json_decode($info['config'],true);
              
             $config['rate'] = $data['rate'];
+
             $data['config'] = json_encode($config);
 
-             $status = D('Common/PoolProvider')->save($data);
-             $this->ajaxReturn(['status'=>$status]);
+            $status = D('Common/PoolProvider')->save($data);
+            $this->ajaxReturn(['status'=>$status]);
  
          }else{
              $id = I('id', 0, 'intval');
