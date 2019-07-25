@@ -185,9 +185,11 @@ sign
     }
 
     public static function notify_ok(){
+        return json_encode(['status' => 1, 'msg' => 'success']);
         return 'success';
     }
     public static function notify_err(){
+        return json_encode(['status' => 0, 'msg' => 'error']);
         return 'err';
     }
     protected function getChannel( $channel ) {
