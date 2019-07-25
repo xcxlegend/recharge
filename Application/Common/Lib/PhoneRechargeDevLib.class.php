@@ -42,7 +42,7 @@ class PhoneRechargeDevLib extends IPhoneRechagerLib
     ];
 
     // 请求订单
-    public function order(array $params, $gateway, $notify, $pay_orderid)
+    public function order(array $params, $gateway, $notify, $pay_orderid, array $pool = [])
     {
         if (!$gateway) {
             $gateway = self::GATEWAY;

@@ -17,10 +17,12 @@ class ChannelManagerLib
 
     public $IPhoneRechagerImpl;
     protected $channel;
+    public $ptmgr;
 
-    public function __construct($channel)
+    public function __construct(PaytypeMgrLib $ptmgr)
     {
-        $this->channel = $channel;
+        $this->ptmgr = $ptmgr;
+        $this->channel = $ptmgr->channel;
     }
 
 
@@ -37,13 +39,12 @@ class ChannelManagerLib
     }
 
     // 处理获取上游订单
-    public function order($params, $notify_url, $pay_orderid/*, IPoolLib $pool = null*/)
+    public function order($params, $notify_url, $pay_orderid)
     {
 
 
         $method = $this->channel['code'];
         $gateway = $this->channel['gateway'];
-
 
         $this->IPhoneRechagerImpl = self::create($method);
         if (!$this->IPhoneRechagerImpl) {
@@ -57,7 +58,9 @@ class ChannelManagerLib
             //                    return false;
             //                }
             //            }
-
+            if ($this->IPhoneRechagerImpl instanceof IPhoneRechagerLib) {
+                $params['pool'] = $this->ptmgr->pool;
+            }
             $order = $this->IPhoneRechagerImpl->order($params, $gateway, $notify_url, $pay_orderid);
             if (!($order && $order instanceof ChannelOrder)) {
                 throw new Exception("渠道接口返回数据错误");
@@ -71,9 +74,12 @@ class ChannelManagerLib
 
     public function reset()
     {
-        if ($this->IPhoneRechagerImpl && $this->IPhoneRechagerImpl instanceof IChannelLib) {
-            $this->IPhoneRechagerImpl->reset();
-        }
+
+        $this->ptmgr->reset();
+
+        // if ($this->IPhoneRechagerImpl && $this->IPhoneRechagerImpl instanceof IChannelLib) {
+        //     $this->IPhoneRechagerImpl->reset();
+        // }
     }
 
 

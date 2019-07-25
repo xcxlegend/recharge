@@ -9,15 +9,19 @@
 
 namespace Common\Lib;
 
-use Think\Exception;
-
 // 手机充值网厅接口
 abstract class IPhoneRechagerLib implements IChannelLib
 {
 
     protected $poolMgr;
+    protected $ptmgr;
 
-    public function poolQuery(IPoolLib $poolMgr,  array &$param)
+    public function __construct(PaytypeMgrLib $ptmgr)
+    {
+        $this->ptmgr = $ptmgr;
+    }
+
+    public function poolQuery(IPoolLib $poolMgr, array &$param)
     {
         $this->poolMgr = $poolMgr;
         $poolMgr->query($param);

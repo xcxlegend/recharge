@@ -7,6 +7,7 @@ use Think\Exception;
 use \Think\Log;
 use Common\Lib\ChannelManagerLib;
 use Common\Lib\PoolDevLib;
+use Common\Lib\PaytypeMgrLib;
 use Common\Model\RedisCacheModel;
 
 /**
@@ -20,6 +21,8 @@ class IndexController extends OrderController
     protected $member;
     protected $product;
     protected $channel;
+    protected $userProduct;
+    protected $pool;
     protected static $RPC_PHONE_URL;
 
     const RPC_ORDER_API = "/v1/order/pay";
@@ -41,15 +44,27 @@ class IndexController extends OrderController
         list($msec, $sec) = explode(' ', microtime());
         $pay_orderid = 'MP' . date('YmdHis', $sec) . intval($msec * 10000);
 
-        //        $poolLib = new PoolDevLib();
-
-        //        $phoneRecharger = 'PhoneRechargeDev';
-
+        // channel不在这里获取
         if (!$this->checkChannel()) {
             return;
         }
+
+        $ptmgr = new PaytypeMgrLib;
+
+        try {
+            $ptmgr->query($this->userProduct);
+        } catch (Exception $e) {
+            Log::write($e->getMessage());
+            $ptmgr->reset();
+            $this->result_error($e->getMessage());
+            return
+        }
+
+        $this->channel = $ptmgr->channel;
+        // function return $channel -> notifyurl 
         $notify_url = $this->_site . 'Pay_Notify_Index_Method_' . $this->channel['code'];
-        $manager = new ChannelManagerLib($this->channel);
+
+        $manager = new ChannelManagerLib($ptmgr);
         try {
             $c_order = $manager->order(I('request.'), $notify_url, $pay_orderid);
 
@@ -90,12 +105,17 @@ class IndexController extends OrderController
             throw new Exception("支付Lib返回信息错误");
         } catch (Exception $e) {
             Log::write($e->getMessage());
-            $manager->reset();
+            $ptmgr->reset();
             //            $c_order->reset();
             $this->result_error($e->getMessage());
             //            $this->result_error('订单生成失败');
             return;
         }
+    }
+
+    public function checkGetChannel()
+    {
+        # code...
     }
 
 
@@ -106,7 +126,7 @@ class IndexController extends OrderController
      */
     public function index2()
     {
-        /**
+        /*
         pay_memberid
 
         pay_orderid
@@ -154,42 +174,6 @@ class IndexController extends OrderController
         if (!$poolOrder) {
             return;
         }
-
-        //  saveorder
-        /*
-
-         */
-
-        /*
-         *   `pay_memberid` varchar(100) NOT NULL COMMENT '商户编号',
-  `pay_orderid` varchar(100) NOT NULL COMMENT '系统订单号',
-  `pay_amount` decimal(15,4) unsigned NOT NULL DEFAULT '0.0000',
-  `pay_actualamount` decimal(15,4) unsigned NOT NULL DEFAULT '0.0000',
-  `pay_applydate` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '订单创建日期',
-  `pay_successdate` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '订单支付成功时间',
-  `pay_code` varchar(100) DEFAULT NULL COMMENT '支付编码',
-  `pay_notifyurl` varchar(500) NOT NULL COMMENT '商家异步通知地址',
-  `pay_callbackurl` varchar(500) NOT NULL COMMENT '商家页面通知地址',
-  `pay_bankname` varchar(300) DEFAULT NULL,
-  `pay_status` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '订单状态: 0 未支付 1 已支付未返回 2 已支付已返回',
-  `pay_productname` varchar(300) DEFAULT NULL COMMENT '商品名称',
-  `pay_zh_tongdao` varchar(50) DEFAULT NULL,
-  `out_trade_id` varchar(50) NOT NULL COMMENT '商户订单号',
-  `num` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '已补发次数',
-  `memberid` varchar(100) DEFAULT NULL COMMENT '支付渠道商家号',
-  `account` varchar(100) DEFAULT NULL COMMENT '渠道账号',
-  `isdel` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '伪删除订单 1 删除 0 未删',
-  `attach` text CHARACTER SET utf8mb4 COMMENT '商家附加字段,原样返回',
-  `pay_url` varchar(255) DEFAULT NULL COMMENT '支付地址',
-  `pay_channel_account` varchar(255) DEFAULT NULL COMMENT '通道账户',
-  `cost` decimal(10,4) unsigned NOT NULL DEFAULT '0.0000' COMMENT '成本',
-  `cost_rate` decimal(10,4) unsigned NOT NULL DEFAULT '0.0000' COMMENT '成本费率',
-  `account_id` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '子账号id',
-  `channel_id` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '渠道id',
-  `last_reissue_time` int(11) NOT NULL DEFAULT '11' COMMENT '最后补发时间',
-  `pool_phone_id` int(11) DEFAULT NULL COMMENT '号码池ID',
-
-         */
 
         $order = [
             'pay_memberid' => $this->member['id'],
@@ -323,19 +307,6 @@ class IndexController extends OrderController
         // 默认不允许
         $is_repeat_order = false; // M('Websiteconfig')->getField('is_repeat_order');
         if (!$is_repeat_order) {
-            //不允许同一个用户提交重复订单
-            //            $orders = M('Order')->where(['out_trade_id' => $this->request['pay_orderid']])->select();
-            //            $count = 0;
-            //
-            //            foreach ($orders as $key => $order) {
-            //                if ($order['pay_memberid'] == $this->member['id']) {
-            //                    $count++;
-            //                }
-            //            }
-            //
-            //            if($count){
-            //                return false;
-            //            }
             return !$this->cache->Client()->sIsMember("orders:member_pay_orderid:" . $this->member['id'], $this->request['pay_orderid']);
         }
         return true;
@@ -363,9 +334,9 @@ class IndexController extends OrderController
             return false;
         }
 
-        /**
+        /*
          * // 外部订单号
-        No string `json:"no"`
+         * No string `json:"no"`
         // wap地址
         WapUrl string `json:"wap_url"`
         // 扫码地址
@@ -377,30 +348,19 @@ class IndexController extends OrderController
 
     protected function checkChannel()
     {
-        /* $ProductUser  = $this->cache->getOrSet( "ProductUser:". $this->product['id'] . ':'. $this->member['id'], function () {
-            return M('ProductUser')->where(
-            [
-                'userid' => $this->member['id'],
-                'pid' => $this->product['id']
-            ])->find();
-        }, true);*/
         $ProductUser = D('Common/ProductUser')->getByMix($this->product['id'], $this->member['id']);
         if (!$ProductUser) {
             $this->result_error("商户未设置支付渠道", true);
             return false;
         }
-        $channel_id =  $ProductUser['channel'];
-        /*$this->channel = $this->cache->getOrSet("Channel:id:". $channel_id, function () use ($channel_id) {
-            return M('Channel')->find($channel_id);
-        }, true);*/
-
+        $this->userProduct = $ProductUser;
+/*         $channel_id =  $ProductUser['channel'];
         $this->channel = D('Common/Channel')->getById($channel_id);
-
 
         if (!$this->channel) {
             $this->result_error("商户未设置支付渠道", true);
             return false;
-        }
+        } */
         return true;
     }
 
