@@ -45,52 +45,38 @@
 						lay-text="开启|关闭" value="1">
 					</td>
 					<td>
-						<input type="radio" name="u[<{$p.id}>][polling]" lay-filter="polling" data-pid="<{$p.id}>"
-							   data-type="<{$p.paytype}>"
-						<if
-								condition="$p[polling] eq 0">checked</if> value="0" title="单独">
-						<input type="radio" name="u[<{$p.id}>][polling]" lay-filter="polling" data-pid="<{$p.id}>"
-							   data-type="<{$p.paytype}>"
-						<if condition="$p[polling] eq 1">checked</if>
-						value="1" title="轮询">
-						<div id="selmodel<{$p.id}>" style="display:<if condition="$p['polling']">none</if>;">
-							<select name="u[<{$p.id}>][channel]" lay-verify="" id="channels<{$p.id}>" lay-search="">
-								<option value="">选择或搜索</option>
+						<div style="float: left;width:150px;">
+						<select name="u[<{$p.id}>][type]" >
+							<option value="">请选择充值类型</option>
+							<volist name="paytype" id="vo">
+								
+								<option <if condition="$p[type] eq $vo[id]">selected</if> value="<{$vo.id}>"><{$vo.name}></option>
+								
+							</volist>
+						</select>
+						</div>
+						<div style="float: left;width:180px;">
+							<select name="u[<{$p.id}>][lg_channel]" >
+								<option value="">请选择未登录通道</option>
 								<volist name="channellist" id="c">
 									<if condition="$c['paytype'] eq $p['paytype']">
-									<option <if condition="$p[channel] eq $c[id]">selected</if> value="<{$c.id}>"><{$c.title}></option>
+									<option <if condition="$p[lg_channel] eq $c[id]">selected</if> value="<{$c.id}>"><{$c.title}></option>
 									</if>
 								</volist>
 							</select>
 						</div>
+						<div style="float: left;width:160px;">
+							<select name="u[<{$p.id}>][nlg_channel]" >
+								<option value="">请选择登录通道</option>
+								<volist name="channellist" id="c">
+									<if condition="$c['paytype'] eq $p['paytype']">
+									<option <if condition="$p[nlg_channel] eq $c[id]">selected</if> value="<{$c.id}>"><{$c.title}></option>
+									</if>
+								</volist>
+							</select>
+						</div>			
 
-						<table class="layui-table" lay-skin="line" id="pdtable<{$p.id}>" style="display:<if
-						condition="!$p['polling']">none</if>;">
-							<thead>
-							<tr>
-								<th></th>
-								<th>通道代码</th>
-								<th>通道名称</th>
-								<th>权重(1-9)</th>
-							</tr>
-							</thead>
-							<tbody>
-							<volist name="channellist" id="c">
-								<if condition="$c['paytype'] eq $p['paytype']">
-									<tr>
-										<td><input type="checkbox" name="u[<{$p.id}>][w][<{$c.id}>][pid]" <if
-													condition="$p['weight'][$c['id']][pid]">checked</if>
-												   lay-skin="primary" value="<if condition="$p['weight'][$c['id']]"><{$p['weight'][$c['id']][pid]}><else/><{$c['id']}></if>"></td>
-										<td><{$c.id}></td>
-										<td><{$c.title}></td>
-										<td><input type="number" min="0" max="9" name="u[<{$p.id}>][w][<{$c.id}>][weight]"
-												   class="layui-input" value="<{$p['weight'][$c['id']][weight]}>"></td>
-									</tr>
-								</if>
-							</volist>
 
-							</tbody>
-						</table>
 						
 					</td>
 		
@@ -153,44 +139,7 @@ layui.use(['layer', 'form','laydate'], function(){
 	});
     return false;
   });
-    //监听radio
-    form.on('radio(polling)', function(data){
-        //console.log(data.elem); //得到radio原始DOM对象
-        //console.log(data.value); //被点击的radio的value值
-        var pty = $(this).attr('data-type');
-        var pid = $(this).attr('data-pid');
-        var html = '';
-        if(data.value == 0){
-            $('#selmodel'+pid).css('display','');
-            $('#pdtable'+pid).css('display','none');
-            html += '<option value="">直接选择或搜索选择</option>';
-            for(var i in channels){
-                if(pty==channels[i].paytype){
-                    html += '<option value='+channels[i].id+'>'+channels[i].title+'</option>';
-                }
-            }
-            $('#channels'+pid).html(html);
-        }else{
-            $('#selmodel'+pid).css('display','none');
-            $('#pdtable'+pid).css('display','');
-            for(var i in channels){
-                if(pty == channels[i].paytype){
-                    html += '<tr>';
-                    html += '<td><input type="checkbox" name="u['+pid+'][w]['+channels[i].id+'][pid]" ' +
-						'lay-skin="primary" ' +
-						'value="'+channels[i].id+'"></td>';
-                    html += '<td>'+channels[i].id+'</td>'
-                    html += '<td>'+channels[i].title+'</td>';
-                    html += '<td><input type="number" min="0" max="9" name="u['+pid+'][w]['+channels[i]
-							.id+'][weight]" ' +
-						'class="layui-input" value=""></td>';
-                    html += '</tr>';
-                }
-            }
-            $('#pdtable'+pid+' > tbody').html(html);
-        }
-        form.render();
-    });
+
 });
 </script>
 <!--统计代码，可删除-->

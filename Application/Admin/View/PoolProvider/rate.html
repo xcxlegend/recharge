@@ -9,8 +9,8 @@
             <thead>
             <tr>
               <th>运营商</th>
-              <th>费率</th>
-
+              <th>不登录费率</th>
+              <th>登录费率</th>
             </tr> 
             </thead>
             <tbody>
@@ -19,7 +19,12 @@
                 <td><{$p}></td>
                 <td>
                     <div class="layui-input-inline" style="width: 100px;">
-                    <input type="text" name="rate[<{$k}>]" placeholder="" autocomplete="off" class="layui-input" value="<{$info[$k]}>">
+                    <input type="text" name="rate[nlg][<{$k}>]" placeholder="" autocomplete="off" class="layui-input" value="<{$info['nlg'][$k]}>">
+                    </div>
+                </td>
+                <td>
+                    <div class="layui-input-inline" style="width: 100px;">
+                    <input type="text" name="rate[lg][<{$k}>]" placeholder="" autocomplete="off" class="layui-input" value="<{$info['lg'][$k]}>">
                     </div>
                 </td>
             </tr>
