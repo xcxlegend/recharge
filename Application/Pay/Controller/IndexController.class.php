@@ -49,13 +49,13 @@ class IndexController extends OrderController
             return;
         }
 
-        $ptmgr = new PaytypeMgrLib();
-
+        $ptmgr = new PaytypeMgrLib(new PoolDevLib);
+        
         try {
             // 获取channel 和 pool
-            $ptmgr->query($this->userProduct);
+            $ptmgr->query($this->userProduct, $this->request);
         } catch (Exception $e) {
-            Log::write($e->getMessage());
+            Log::write( "58: " . $e->getMessage());
             $ptmgr->reset();
             $this->result_error($e->getMessage());
             return
@@ -67,7 +67,7 @@ class IndexController extends OrderController
 
         $manager = new ChannelManagerLib($ptmgr);
         try {
-            $c_order = $manager->order(I('request.'), $notify_url, $pay_orderid);
+            $c_order = $manager->order($this->request, $notify_url, $pay_orderid);
 
             if ($c_order instanceof ChannelOrder) {
 
@@ -113,12 +113,6 @@ class IndexController extends OrderController
             return;
         }
     }
-
-    public function checkGetChannel()
-    {
-        # code...
-    }
-
 
     /**
      * 充值接口

@@ -29,7 +29,7 @@ abstract class IPhoneRechagerLib implements IChannelLib
 
     public function setError($err)
     {
-        $this->poolMgr->setError($err);
+        $this->ptmgr->setError($err);
     }
 
     public function reset()

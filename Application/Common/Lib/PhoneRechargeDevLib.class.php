@@ -42,14 +42,14 @@ class PhoneRechargeDevLib extends IPhoneRechagerLib
     ];
 
     // 请求订单
-    public function order(array $params, $gateway, $notify, $pay_orderid, array $pool = [])
+    public function order(array $params, $gateway, $notify, $pay_orderid)
     {
         if (!$gateway) {
             $gateway = self::GATEWAY;
         }
         $api_url = $gateway . self::API_ORDER;
 
-        $this->poolQuery(new PoolDevLib(), $params);
+        // $this->poolQuery(new PoolDevLib(), $params);
 
         $pool = $params['pool'] ?: [];
         $phone = $pool['phone'];
@@ -98,7 +98,7 @@ class PhoneRechargeDevLib extends IPhoneRechagerLib
             $gateway = self::GATEWAY;
         }
         $api_url = $gateway . self::API_QUERY;
-        /**
+        /*
          * merchant_no	是	String	10	网厅分配的唯一商户号	2019061212
         2	no	是	String	35	网厅订单号	452958731168671921
         3	type	否	String	1	运营商,移动(默认) 2电信 3联通	1

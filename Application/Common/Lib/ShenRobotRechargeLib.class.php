@@ -42,7 +42,7 @@ class ShenRobotRechargeLib extends IPhoneRechagerLib
 
         $api_url = $gateway . self::API_ORDER;
 
-        $this->poolQuery(new PoolDevLib(), $params);
+        // $this->poolQuery(new PoolDevLib(), $params);
 
         $pool = $params['pool'] ?: [];
         $phone = $pool['phone'];

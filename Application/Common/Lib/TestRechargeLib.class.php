@@ -8,17 +8,16 @@
 
 namespace Common\Lib;
 
-
 class TestRechargeLib extends IPhoneRechagerLib
 {
 
     public function order(array $params, $gateway, $notify, $pay_orderid)
     {
-        $this->poolQuery(new PoolDevLib(), $params);
+        // $this->poolQuery(new PoolDevLib(), $params);
         $pool = $params['pool'] ?: [];
         $url = 'http://testurl';
         $orderNo = createUUID("CR");
-        return new ChannelOrder( $orderNo, $url, $url, $pool['id'], 0, '123123' );
+        return new ChannelOrder($orderNo, $url, $url, $pool['id'], 0, '123123');
     }
 
     public function query($gateway, array &$order, &$pool)
@@ -31,13 +30,14 @@ class TestRechargeLib extends IPhoneRechagerLib
         return [$request['orderid'], $request['no']];
     }
 
-    public static function notify_ok(){
+    public static function notify_ok()
+    {
         return 'success';
     }
 
-    public static function notify_err(){
+    public static function notify_err()
+    {
         return 'err';
     }
-
 
 }
