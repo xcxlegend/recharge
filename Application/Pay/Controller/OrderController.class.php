@@ -427,6 +427,10 @@ class OrderController extends PayController
         $this->cache->Client()->zDelete("pool_phone_timeout", $pool['id']);
         $poolOrder = M('PoolRec')->where(['pool_id' => $pool['id']])->find();
         $config = json_decode(htmlspecialchars_decode($provider['config']), true);
+
+        // 是否超时订单
+        $isTimeoutOrder = $pool['status'] == 1;
+
         $rate = 0;
         if ($config['rate'] && $config['rate'][$pool['channel']]) {
             $rate = floatval($config['rate'][$pool['channel']]);
@@ -461,7 +465,7 @@ class OrderController extends PayController
                 'out_trade_id'      => $pool['out_trade_id'],
                 'order_id'          => $pool['order_id'],
                 'data'              => json_encode($pool),
-                'status'            => 0,
+                'status'            => $isTimeoutOrder ? 3 : 0,
                 'time'              => $this->timestamp,
                 'year'              => date('Y', $this->timestamp),
                 'month'             => date('m', $this->timestamp),
@@ -492,24 +496,25 @@ class OrderController extends PayController
                 Log::write("dec PoolProvider balance err:" . json_encode($poolOrder));
                 return;
             }*/
+            if (!$isTimeoutOrder) {
+                if (!M('PoolProvider')->where(['id' => $pool['pid']])->save(
+                    [
+                        'money' => [ 'exp', ' money + ' . $actmoney ],
+                        'balance' => [ 'exp', ' balance - ' . $actmoney ]
+                    ]
+                )){
+                    M()->rollback();
+                    Log::write("dec PoolProvider balance err:" . json_encode($poolOrder));
+                    return;
+                }
 
-            if (!M('PoolProvider')->where(['id' => $pool['pid']])->save(
-                [
-                    'money' => [ 'exp', ' money + ' . $actmoney ],
-                    'balance' => [ 'exp', ' balance - ' . $actmoney ]
-                ]
-            )){
-                M()->rollback();
-                Log::write("dec PoolProvider balance err:" . json_encode($poolOrder));
-                return;
+                if (!D('PoolMoneychange')->addData($provider['id'], UID, $provider['balance'], -$actmoney, "支付订单: " . $poolOrder['id'] , $poolOrder['id'], 4)){
+                    M()->rollback();
+                    Log::write("dec PoolProvider balance log err:" . json_encode($poolOrder));
+                    return;
+                }
             }
-
-            if (!D('PoolMoneychange')->addData($provider['id'], UID, $provider['balance'], -$actmoney, "支付订单: " . $poolOrder['id'] , $poolOrder['id'], 4)){
-                M()->rollback();
-                Log::write("dec PoolProvider balance log err:" . json_encode($poolOrder));
-                return;
-            }
-
+            // 删除phone信息
             if (!M('PoolPhones')->where(['id' => $pool['id']])->delete()){
                 M()->rollback();
                 Log::write("delete PoolPhones err:" . json_encode($poolOrder));
@@ -521,7 +526,10 @@ class OrderController extends PayController
             // 如果存在也执行删除逻辑
             M('PoolPhones')->where(['id' => $pool['id']])->delete();
         }
-        $this->sendPoolNotify($poolOrder, $pool, $trans_id);
+        // 非超时订单才回调
+        if (!$isTimeoutOrder) {
+            $this->sendPoolNotify($poolOrder, $pool, $trans_id);
+        }
     }
 
     protected function sendPoolNotify( $poolOrder ,  $pool, $trans_id = '') {

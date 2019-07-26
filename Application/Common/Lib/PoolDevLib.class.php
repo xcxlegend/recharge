@@ -10,7 +10,6 @@
 namespace Common\Lib;
 
 use Common\Model\RedisCacheModel;
-
 use Think\Exception;
 use Common\Model\PhoneCodeModel;
 
@@ -37,7 +36,7 @@ class PoolDevLib implements IPoolLib
     {
         $money = $params['pay_amount'] / 100;
         $query = [
-            'balance' => ['egt', $money]
+            'balance' => ['egt', $money],
         ];
 
         $ids = M('PoolProvider')->where($query)->getField("id", true);
@@ -49,9 +48,9 @@ class PoolDevLib implements IPoolLib
         M()->startTrans();
         $order = M('PoolPhones')->where(
             [
-                'pid'   => ['in', $ids],
-                'lock'  => 0,
-                'money' => $money
+                'pid' => ['in', $ids],
+                'lock' => 0,
+                'money' => $money,
             ]
         )->limit(1)->order('id desc')->find();
         if (!$order) {
@@ -70,13 +69,13 @@ class PoolDevLib implements IPoolLib
 
         //
         $timeout = 90;
-        if (strpos($params['pay_bankcode'], 'ali') === 0) {
+        if (strpos($params['pay_bankcode'], 'ali') === 0 || $params['pay_bankcode'] == 'wx_wap_pay') {
             $timeout = 240;
         }
 
         // $pipe = $this->cache->Client()->multi();
         // $pipe->zDelete( self::CACHE_KEY_POOL_TIMEOUT, $order['id'] );
-        $this->cache->Client()->zAdd(self::CACHE_KEY_POOL_TIMEOUT, time() + $timeout,  $order['id']);
+        $this->cache->Client()->zAdd(self::CACHE_KEY_POOL_TIMEOUT, time() + $timeout, $order['id']);
         // $pipe->exec();
 
         return true;
@@ -92,7 +91,6 @@ class PoolDevLib implements IPoolLib
     {
         if ($this->pool) {
             M('PoolPhones')->where(['id' => $this->pool['id']])->setField('lock', 0);
-            //            $this->cache->Client()->zDelete( self::CACHE_KEY_POOL_NOPAY, $this->pool['id'] );
             // $pipe = $this->cache->Client()->multi();
             // $pipe->zDelete( self::CACHE_KEY_POOL_NOPAY, $this->pool['id'] );
             $this->cache->Client()->zAdd(self::CACHE_KEY_POOL_TIMEOUT, $this->pool['time'] + 30, $this->pool['id']);
@@ -104,4 +102,6 @@ class PoolDevLib implements IPoolLib
             }
         }
     }
+}
+
 }

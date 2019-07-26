@@ -49,9 +49,10 @@ class IndexController extends OrderController
             return;
         }
 
-        $ptmgr = new PaytypeMgrLib;
+        $ptmgr = new PaytypeMgrLib();
 
         try {
+            // 获取channel 和 pool
             $ptmgr->query($this->userProduct);
         } catch (Exception $e) {
             Log::write($e->getMessage());
