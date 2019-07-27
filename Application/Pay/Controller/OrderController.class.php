@@ -194,7 +194,7 @@ class OrderController extends PayController
      * @param $PayName
      * @param int $returntypepay_code
      */
-    protected function EditMoney($pay_orderid, $trans_id = '')
+    protected function EditMoney($pay_orderid, $trans_id = '', $success_url = '')
     {
 
         $m_Order    = M("Order");
@@ -243,6 +243,7 @@ class OrderController extends PayController
                 'pay_status' => 1,
                 'pay_successdate' => $this->timestamp,
                 'trans_id'   => $trans_id,
+                'success_url' => $success_url
             ]);
             if (!$res) {
                 M()->rollback();
