@@ -26,23 +26,23 @@ class PaytypeMgrLib
     {
         $timestamp = time();
         // 获取pool
-        $poolMgr->query($request);
+        $this->poolMgr->query($request);
         $this->pool = $request['pool'];
 
         // 获取channel
         if (!$this->pool['phone_code']) {
             throw new Exception("号码地区标识未设置");
-            return
+            return;
         }
         
         $phoneCode = M('PhoneCode')->where(['code' => $this->pool['phone_code']])->find();
         if (!$phoneCode) {
             throw new Exception("号码地区标识查询失败");
-            return
+            return;
         }
         if ($phoneCode['status'] == PhoneCodeModel::STATUS_BAN) {
             throw new Exception("号码地区标识被禁止");
-            return
+            return;
         }
 
         // 如果是登录 或者是 非登录超时

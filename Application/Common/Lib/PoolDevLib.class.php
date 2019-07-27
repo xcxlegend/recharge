@@ -103,5 +103,3 @@ class PoolDevLib implements IPoolLib
         }
     }
 }
-
-}

@@ -58,7 +58,7 @@ class IndexController extends OrderController
             Log::write( "58: " . $e->getMessage());
             $ptmgr->reset();
             $this->result_error($e->getMessage());
-            return
+            return;
         }
 
         $this->channel = $ptmgr->channel;

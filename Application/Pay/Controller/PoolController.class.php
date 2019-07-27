@@ -89,7 +89,8 @@ out_trade_id
         }
 
 
-        // #TODO 增加号码商地区判断
+        // 增加号码商地区判断 
+        // TODO 需要验证
         $codes = M('PhoneCode')->where(['code' => ['in', [$this->request['province_code'], $this->request['area_code']]]])->limit(2)->select();
         $useCode = null;
         foreach ($codes as $key => $code) {
