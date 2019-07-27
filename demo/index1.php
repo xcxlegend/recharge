@@ -4,7 +4,7 @@ error_reporting(E_ALL ^ E_WARNING ^E_NOTICE);
 header("Content-type: text/html; charset=utf-8");
 
 
-function sendForm($url,$data,$referer){
+function sendForm($url,$data,$referer = ''){
     $headers['Content-Type'] = "application/x-www-form-urlencoded; charset=utf-8";
     $headerArr = array();
     foreach( $headers as $n => $v ) {

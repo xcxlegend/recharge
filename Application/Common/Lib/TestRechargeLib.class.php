@@ -28,7 +28,7 @@ class TestRechargeLib extends IPhoneRechagerLib
 
     public function notify(array $request)
     {
-        return $request['orderid'];
+        return new ChannelNotifyData($request['orderid'], $request['no'], '');
     }
 
     public static function notify_ok(){
