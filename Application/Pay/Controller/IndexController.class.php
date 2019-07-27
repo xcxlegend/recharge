@@ -65,9 +65,9 @@ class IndexController extends OrderController
         // function return $channel -> notifyurl 
         $notify_url = $this->_site . 'Pay_Notify_Index_Method_' . $this->channel['code'];
 
-        $manager = new ChannelManagerLib($ptmgr);
+        $manager = new ChannelManagerLib();
         try {
-            $c_order = $manager->order($this->request, $notify_url, $pay_orderid);
+            $c_order = $manager->order($ptmgr, $this->request, $notify_url, $pay_orderid);
 
             if ($c_order instanceof ChannelOrder) {
 

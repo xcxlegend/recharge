@@ -51,7 +51,6 @@ class PaytypeMgrLib
         } else {
             $channel_id = $userProduct['nlg_channel'];
         }
-
         $this->channel = D('Common/Channel')->getById($channel_id);
 
         if (!$this->channel) {

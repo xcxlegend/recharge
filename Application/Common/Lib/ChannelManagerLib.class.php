@@ -19,14 +19,14 @@ class ChannelManagerLib
     protected $channel;
     public $ptmgr;
 
-    public function __construct(PaytypeMgrLib $ptmgr)
+    public function __construct()
     {
-        $this->ptmgr = $ptmgr;
-        $this->channel = $ptmgr->channel;
+        /* $this->ptmgr = $ptmgr;
+        $this->channel = $ptmgr->channel; */
     }
 
 
-    static protected function  create($method)
+    static protected function  create($method, $ptmgr)
     {
         $classname = 'Common\\Lib\\' . ucfirst($method) . 'Lib';
 
@@ -34,19 +34,20 @@ class ChannelManagerLib
             throw new Exception("渠道方式不存在");
             return false;
         }
-        $class = new $classname();
+        $class = new $classname($ptmgr);
         return $class;
     }
 
     // 处理获取上游订单
-    public function order($params, $notify_url, $pay_orderid)
+    public function order(PaytypeMgrLib $ptmgr, $params, $notify_url, $pay_orderid)
     {
-
+        $this->ptmgr = $ptmgr;
+        $this->channel = $ptmgr->channel;
 
         $method = $this->channel['code'];
         $gateway = $this->channel['gateway'];
 
-        $this->IPhoneRechagerImpl = self::create($method);
+        $this->IPhoneRechagerImpl = self::create($method, $ptmgr);
         if (!$this->IPhoneRechagerImpl) {
             return false;
         }
@@ -84,10 +85,10 @@ class ChannelManagerLib
 
 
     // 处理回调信息
-    static public function notify($method, $request)
+    static public function notify(PaytypeMgrLib $ptmgr, $method, $request)
     {
 
-        $class = self::create($method);
+        $class = self::create($method, $ptmgr);
         if (!$class) {
             throw new Exception("渠道方式接口错误不存在");
             return false;
@@ -115,7 +116,7 @@ class ChannelManagerLib
 
 
     // $request => pay_order
-    public function query(array &$order, array &$pool)
+    public function query(PaytypeMgrLib $ptmgr, array &$order, array &$pool)
     {
         $method = $this->channel['code'];
         $gateway = $this->channel['gateway'];

@@ -21,11 +21,11 @@ abstract class IPhoneRechagerLib implements IChannelLib
         $this->ptmgr = $ptmgr;
     }
 
-    public function poolQuery(IPoolLib $poolMgr, array &$param)
-    {
-        $this->poolMgr = $poolMgr;
-        $poolMgr->query($param);
-    }
+    // public function poolQuery(IPoolLib $poolMgr, array &$param)
+    // {
+    //     $this->poolMgr = $poolMgr;
+    //     $poolMgr->query($param);
+    // }
 
     public function setError($err)
     {

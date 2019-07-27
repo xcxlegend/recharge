@@ -419,9 +419,7 @@ class OrderController extends BaseController
         if ($order['pool_phone_id']) {
             $pool = M('PoolPhones')->find($order['pool_phone_id']);
         }
-
-        $ret = (new ChannelManagerLib($channel_info))->query( $order, $pool );
-
+        $ret = (new ChannelManagerLib($channel_info))->query(new PaytypeMgrLib(new PoolDevLib), $order, $pool );
         if ($ret) {
             $payModel = D('Pay');
             $res = $payModel->completeOrder($order['pay_orderid'], '', 0);

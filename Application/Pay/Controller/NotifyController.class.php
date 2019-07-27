@@ -39,9 +39,10 @@ class NotifyController extends OrderController
         // 1. 回调参数/签名判定
 
         Log::write("notify request:" . http_build_query($this->request));
+        $ptmgr = new PaytypeMgrLib(new PoolDevLib);
         try {
 
-            $res = ChannelManagerLib::notify($this->request['Method'], $this->request);
+            $res = ChannelManagerLib::notify($ptmgr, $this->request['Method'], $this->request);
             if (!$res) {
 //              exit('err');
                 exit(ChannelManagerLib::notifyErr($this->request['Method']));
