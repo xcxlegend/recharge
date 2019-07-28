@@ -137,13 +137,14 @@ class PhoneRechargeDevLib extends IPhoneRechagerLib
             'pay_channel'       => $request['pay_channel'],
             'pay_channel_name'  => $request['pay_channel_name'],
             'trade_no'          => $request['trade_no'],
+            'success_url'       => $request['success_url'],
         ]);
 
         if (!($sign === $request['sign'])){
             Log::write("sign err. sign: " . $sign . " === " . $request['sign'] );
             return false;
         }
-        return [$request['merchant_order_no'], $request['trade_no']];
+        return new ChannelNotifyData($request['merchant_order_no'], $request['trade_no'], $request['success_url']);
 
     }
 
