@@ -64,7 +64,7 @@ class PoolDevLib implements IPoolLib
         //
         $timeout = C('POOL_PHONE_ORDER_WX_TIMEOUT', null, 90);//90;
         if (strpos($params['pay_bankcode'], 'ali') === 0 || $params['pay_bankcode'] == 'wx_wap_pay') {
-            $timeout = C('POOL_PHONE_ORDER_ALI_TIMEOUT', null, 90);//240;
+            $timeout = C('POOL_PHONE_ORDER_ALI_TIMEOUT', null, 240);//240;
         }
 
         // $pipe = $this->cache->Client()->multi();
