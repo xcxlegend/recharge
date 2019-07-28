@@ -98,7 +98,10 @@ class PoolDevLib implements IPoolLib
 
             // 如果是需要登录的错误 那么需要将code的状态充值
             if ($this->error == self::ERROR_NEEDLOGIN) { 
-                D('Common/PhoneCode')->where(['code' => $this->pool['phone_code']])->setField('status', PhoneCodeModel::STATUS_LOGIN);
+                D('Common/PhoneCode')->where(['code' => $this->pool['phone_code']])->setField([
+                        'status' => PhoneCodeModel::STATUS_LOGIN,
+                        'last_time' => time()
+                    ]);
             }
         }
     }

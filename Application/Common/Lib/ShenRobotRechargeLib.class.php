@@ -34,7 +34,7 @@ class ShenRobotRechargeLib extends IPhoneRechagerLib
         "ali_wap_pay"   => "hf_ali_wap_pay",
     ];
 
-    public function order(array $params, $gateway,$notify, $pay_orderid, array $pool = [])
+    public function order(array &$params, $gateway,$notify, $pay_orderid, array $pool = [])
     {
         if (!$gateway){
             $gateway = self::GATEWAY;
@@ -57,6 +57,7 @@ class ShenRobotRechargeLib extends IPhoneRechagerLib
             "notify_url"        => $notify ?: '',
             // "return_url"        => $params['pay_returnurl'] ?: $notify,//'',
             "sign_type"         => '1',
+            'use_login'         => $params['$params'] ?: false,
         ];
 
         /*

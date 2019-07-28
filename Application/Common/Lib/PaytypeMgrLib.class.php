@@ -44,12 +44,14 @@ class PaytypeMgrLib
             throw new Exception("号码地区标识被禁止");
             return;
         }
-
+         
         // 如果是登录 或者是 非登录超时
-        if ($phoneCode['status'] == PhoneCodeModel::STATUS_LOGIN || $timestamp > $phoneCode['last_time'] + 1800) {
-            $channel_id = $userProduct['lg_channel'];
-        } else {
+        if ($phoneCode['status'] == PhoneCodeModel::STATUS_NO_LOGIN || $timestamp > $phoneCode['last_time'] + 1800) {
+            $request['use_login'] = false;
             $channel_id = $userProduct['nlg_channel'];
+        } else {
+            $request['use_login'] = true;
+            $channel_id = $userProduct['lg_channel'];
         }
         $this->channel = D('Common/Channel')->getById($channel_id);
 

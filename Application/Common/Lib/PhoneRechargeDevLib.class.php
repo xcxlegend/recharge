@@ -42,7 +42,7 @@ class PhoneRechargeDevLib extends IPhoneRechagerLib
     ];
 
     // 请求订单
-    public function order(array $params, $gateway, $notify, $pay_orderid)
+    public function order(array &$params, $gateway, $notify, $pay_orderid)
     {
         if (!$gateway) {
             $gateway = self::GATEWAY;
@@ -64,6 +64,7 @@ class PhoneRechargeDevLib extends IPhoneRechagerLib
             "pay_sence"         => $this->getSence($params['pay_bankcode']),
             "notify_url"        => $notify ?: '',
             "return_url"        => $params['pay_returnurl'] ?: '',
+            'use_login'         => $params['$params'] ?: false,
             "sign_type"         => 1,
         ];
 

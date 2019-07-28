@@ -120,7 +120,7 @@ class ChannelManagerLib
     {
         $method = $this->channel['code'];
         $gateway = $this->channel['gateway'];
-        $class = self::create($method);
+        $class = self::create($method, $ptmgr);
         if (!$class) {
             return false;
         }

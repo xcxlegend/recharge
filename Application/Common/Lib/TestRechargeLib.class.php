@@ -11,12 +11,24 @@ namespace Common\Lib;
 class TestRechargeLib extends IPhoneRechagerLib
 {
 
-    public function order(array $params, $gateway, $notify, $pay_orderid)
+    public function order(array &$params, $gateway, $notify, $pay_orderid)
     {
         // $this->poolQuery(new PoolDevLib(), $params);
         $pool = $params['pool'] ?: [];
         $url = 'http://testurl';
         $orderNo = createUUID("CR");
+
+        // ? 来自
+/*         var_dump($params);
+
+        if (!$params['use_login'] && true) {
+            echo 'error use need login';
+            $this->setError(PoolDevLib::ERROR_NEEDLOGIN);
+            return false;
+        }
+        echo 'OK';
+        exit; */
+
         return new ChannelOrder($orderNo, $url, $url, $pool['id'], 0, '123123');
     }
 

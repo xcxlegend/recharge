@@ -47,7 +47,7 @@ interface IChannelLib
      * @param string $pay_orderid
      * @return ChannelOrder
      */
-    public function order(array $params, $gateway, $notify, $pay_orderid);
+    public function order(array &$params, $gateway, $notify, $pay_orderid);
     /**
      * 查询订单 function
      *
