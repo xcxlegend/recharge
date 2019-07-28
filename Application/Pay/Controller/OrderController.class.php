@@ -509,7 +509,7 @@ class OrderController extends PayController
                     return;
                 }
 
-                if (!D('PoolMoneychange')->addData($provider['id'], UID, $provider['balance'], -$actmoney, "支付订单: " . $poolOrder['id'] , $poolOrder['id'], 4)){
+                if (!D('PoolMoneychange')->addData($provider['id'], 0, $provider['balance'], -$actmoney, "支付订单: " . $poolOrder['id'] , $poolOrder['id'], 4)){
                     M()->rollback();
                     Log::write("dec PoolProvider balance log err:" . json_encode($poolOrder));
                     return;
