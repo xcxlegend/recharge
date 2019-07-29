@@ -141,7 +141,7 @@ class PhoneRechargeDevLib extends IPhoneRechagerLib
         if ($request['success_url']) {
             $signs['success_url'] = $request['success_url'];
         }
-        $sign = $this->sign( self::SECRET, $signs);
+        $sign = $this->sign($signs);
 
         if (!($sign === $request['sign'])){
             Log::write("sign err. sign: " . $sign . " === " . $request['sign'] );
