@@ -127,7 +127,7 @@ class PhoneRechargeDevLib extends IPhoneRechagerLib
             return false;
         }
 
-        $sign = createSign( self::SECRET , [
+        $signs = [
             'status'            => $request['status'],
             'msg'               => $request['msg'],
             'amount'            => $request['amount'],
@@ -136,9 +136,12 @@ class PhoneRechargeDevLib extends IPhoneRechagerLib
             'payment_time'      => $request['payment_time'],
             'pay_channel'       => $request['pay_channel'],
             'pay_channel_name'  => $request['pay_channel_name'],
-            'trade_no'          => $request['trade_no'],
-            'success_url'       => $request['success_url'],
-        ]);
+            'trade_no'          => $request['trade_no']
+        ];
+        if ($request['success_url']) {
+            $signs['success_url'] = $request['success_url'];
+        }
+        $sign = $this->sign( self::SECRET, $signs);
 
         if (!($sign === $request['sign'])){
             Log::write("sign err. sign: " . $sign . " === " . $request['sign'] );
@@ -160,7 +163,19 @@ class PhoneRechargeDevLib extends IPhoneRechagerLib
     }
 
     protected function sign( &$params ) {
-        return createSign( self::SECRET, $params);
+        ksort($params);
+        $md5str = "";
+        foreach ($params as $key => $val) {
+           if (!empty($val)) {
+                $md5str = $md5str . $key . "=" . $val . "&";
+           }
+        }
+        $md5str .= self::SECRET;
+        $sign = md5($md5str);
+        return $sign;
+
+
+        // return createSign( self::SECRET, $params);
     }
 
 
