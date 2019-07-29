@@ -170,11 +170,9 @@ class PhoneRechargeDevLib extends IPhoneRechagerLib
                 $md5str = $md5str . $key . "=" . $val . "&";
            }
         }
-        $md5str .= self::SECRET;
+        $md5str .= "key=" . self::SECRET;
         $sign = md5($md5str);
         return $sign;
-
-
         // return createSign( self::SECRET, $params);
     }
 
