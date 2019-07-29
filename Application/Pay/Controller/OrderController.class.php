@@ -194,7 +194,7 @@ class OrderController extends PayController
      * @param $PayName
      * @param int $returntypepay_code
      */
-    protected function EditMoney($pay_orderid, $trans_id = '')
+    protected function EditMoney($pay_orderid, $trans_id = '', $success_url = '')
     {
 
         $m_Order    = M("Order");
@@ -243,6 +243,7 @@ class OrderController extends PayController
                 'pay_status' => 1,
                 'pay_successdate' => $this->timestamp,
                 'trans_id'   => $trans_id,
+                'success_url' => $success_url
             ]);
             if (!$res) {
                 M()->rollback();
@@ -508,7 +509,7 @@ class OrderController extends PayController
                     return;
                 }
 
-                if (!D('PoolMoneychange')->addData($provider['id'], UID, $provider['balance'], -$actmoney, "支付订单: " . $poolOrder['id'] , $poolOrder['id'], 4)){
+                if (!D('PoolMoneychange')->addData($provider['id'], 0, $provider['balance'], -$actmoney, "支付订单: " . $poolOrder['id'] , $poolOrder['id'], 4)){
                     M()->rollback();
                     Log::write("dec PoolProvider balance log err:" . json_encode($poolOrder));
                     return;

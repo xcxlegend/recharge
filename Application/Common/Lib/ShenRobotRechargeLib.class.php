@@ -171,6 +171,7 @@ sign
             'payment_time'      => $request['payment_time'],
             'pay_channel'       => $request['pay_channel'],
             'pay_channel_name'  => $request['pay_channel_name'],
+            'success_url'       => $request['success_url'],
         ];
 
         if ( $this->sign($params) !== $request['sign']) {
@@ -182,7 +183,7 @@ sign
             return false;
         }
 
-        return [$request['merchant_order_no'], $request['no']];
+        return new ChannelNotifyData($request['merchant_order_no'], $request['no'], $request['success_url']); //[$request['merchant_order_no'], $request['no']];
     }
 
     public static function notify_ok(){

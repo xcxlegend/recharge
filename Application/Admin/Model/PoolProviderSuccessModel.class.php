@@ -12,7 +12,7 @@ class PoolProviderSuccessModel extends BaseModel
         
         
         $join = 'LEFT JOIN pay_order b ON b.pool_phone_id=a.pool_id  LEFT JOIN pay_product c ON b.pay_code = c.code';
-        $field = 'a.*,b.pay_memberid,b.trade_id,b.pay_applydate,b.pay_successdate,b.out_trade_id as pool_order_id,c.name as pay_name';
+        $field = 'a.*,b.pay_memberid,b.trade_id,b.pay_applydate,b.pay_successdate,b.out_trade_id as pool_order_id,b.success_url,c.name as pay_name';
         
         $count = $this->alias('a')->where($where)->count();
         $page = new \Think\Page($count, parent::PAGE_LIMIT);
@@ -28,7 +28,7 @@ class PoolProviderSuccessModel extends BaseModel
     {
 
         $join = 'LEFT JOIN pay_order b ON b.pool_phone_id=a.pool_id  LEFT JOIN pay_product c ON b.pay_code = c.code';
-        $field = 'a.*,b.pay_memberid,b.trade_id,b.pay_applydate,b.pay_successdate,b.out_trade_id as pool_order_id,c.name as pay_name';
+        $field = 'a.*,b.pay_memberid,b.trade_id,b.pay_applydate,b.pay_successdate,b.out_trade_id as pool_order_id,b.success_url,c.name as pay_name';
         
         $list = $this->alias('a')->field($field)->join($join)->where($where)->order('a.id DESC')->select();
         
@@ -55,6 +55,7 @@ class PoolProviderSuccessModel extends BaseModel
         b.pay_applydate,
         b.pay_successdate,
         b.out_trade_id as pool_order_id,
+        b.success_url,
         c.name,c.contact,c.contact_tel,
         d.username,
         e.name as pay_name';

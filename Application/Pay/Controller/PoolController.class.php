@@ -146,7 +146,8 @@ out_trade_id
     {
         $cache = RedisCacheModel::instance();
         $key = 'pool_phone_timeout';
-        $cache->Client()->zAdd($key, $this->timestamp + 30, $data['id']);
+        $timeout = C('POOL_PHONE_TIMEOUT', null, 30);
+        $cache->Client()->zAdd( $key, $this->timestamp + $timeout, $data['id'] );
     }
 
     protected function createData(&$data, &$provider)
