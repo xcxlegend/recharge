@@ -101,7 +101,9 @@ class IndexController extends BaseController
 
         $stat['doing'] = M('PoolPhones')->where(['lock'=>1])->count();
         $stat['waiting'] = M('PoolPhones')->where(['lock'=>0])->count();
+        $stat['blacklist'] = M('blacklist')->count();
 
+        $this->assign('blacklist', $blacklist);
         $this->assign('stat', $stat);
         $this->assign('ddata', $ddata);
         $this->assign('wdata', $wdata[0]);
