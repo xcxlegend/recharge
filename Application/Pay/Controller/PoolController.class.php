@@ -80,6 +80,11 @@ out_trade_id
             return;
         }
 
+        // 检查黑名单
+        if ($this->cache->Client()->exists("blacklist.phone." . $this->request['phone'])){
+            $this->result_error('phone in blacklist');
+            return;
+        }
 
         if (M('PoolPhones')->where(['out_trade_id' => $this->request['out_trade_id'], 'pid' => $provider['id']])->count()) {
             $this->result_error("out_trade_id exist", $sign);

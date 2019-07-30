@@ -8,7 +8,7 @@
 
 namespace Pay\Controller;
 use Common\Model\RedisCacheModel;
-
+use Think\Controller;
 
 class PayController
 {
@@ -27,7 +27,7 @@ class PayController
     }
 
     protected function result( $data ) {
-        echo json_encode($data);
+        echo json_encode($data, JSON_UNESCAPED_UNICODE);
         exit;
     }
 
