@@ -364,50 +364,6 @@ class OrderController extends PayController
 
             M()->commit();
 
-            //-----------------------------------------修改用户数据 商户余额、冻结余额end-----------------------------------
-
-            //-----------------------------------------修改通道风控支付数据start----------------------------------------------
-//            $m_Channel     = M('Channel');
-//            $channel_where = ['id' => $order_info['channel_id']];
-//            $channel_info  = D('Common/Channel')->getById( $order_info['channel_id'] );//   $m_Channel->where($channel_where)->find();
-            //判断当天交易金额并修改支付状态
-           /* $this->saveOfflineStatus(
-                $m_Channel,
-                $order_info['channel_id'],
-                $order_info['pay_amount'],
-                $channel_info
-            );*/
-
-            //-----------------------------------------修改通道风控支付数据end------------------------------------------------
-
-            //-----------------------------------------修改子账号风控支付数据start--------------------------------------------
-//            $m_ChannelAccount      = M('ChannelAccount');
-//            $channel_account_where = ['id' => $order_info['account_id']];
-//            $channel_account_info  = $m_ChannelAccount->where($channel_account_where)->find();
-//            if ($channel_account_info['is_defined'] == 0) {
-//                //继承自定义风控规则
-//                $channel_info['paying_money'] = $channel_account_info['paying_money']; //当天已交易金额应该为子账号的交易金额
-//                $channel_account_info         = $channel_info;
-//            }
-//            //判断当天交易金额并修改支付状态
-//            $channel_account_res = $this->saveOfflineStatus(
-//                $m_ChannelAccount,
-//                $order_info['account_id'],
-//                $order_info['pay_amount'],
-//                $channel_account_info
-//            );
-//            if ($channel_account_info['unit_interval']) {
-//                $m_ChannelAccount->where([
-//                    'id' => $order_info['account_id'],
-//                ])->save([
-//                    'unit_paying_number' => ['exp', 'unit_paying_number+1'],
-//                    'unit_paying_amount' => ['exp', 'unit_paying_amount+' . $order_info['pay_actualamount']],
-//                ]);
-//            }
-
-            //-----------------------------------------修改子账号风控支付数据end----------------------------------------------
-
-
             // 转存poolphone订单信息
             if ($order_info['pool_phone_id'] > 0) {
                 $this->handlePoolOrderSuccess( $pool, $provider, $trans_id );
@@ -540,24 +496,7 @@ class OrderController extends PayController
             log::write("pool provider not exist:" . json_encode($poolOrder));
             return;
         }
-        /**
-         * id: 商户ID
-        phone: 电话号码
-        money: 金额 (单位分)
-        out_trade_id: 商户系统的订单ID
-        sign: 签名
-         */
-        /**
-         * `pid` int(11) NOT NULL DEFAULT '0' COMMENT '号码商ID 使用member表',
-        `phone` char(15) NOT NULL DEFAULT '' COMMENT '号码',
-        `money` int(11) NOT NULL DEFAULT '0' COMMENT '充值金额 分',
-        `notify_url` varchar(255) DEFAULT NULL COMMENT '商户回调地址',
-        `time` int(11) NOT NULL DEFAULT '0' COMMENT '时间戳',
-        `channel` tinyint(1) NOT NULL DEFAULT '0' COMMENT '运营商标识 1=移动 2=电信 3=联通',
-        `out_trade_id` varchar(50) NOT NULL DEFAULT '' COMMENT '商户订单号 号码商订单号',
-        `order_id` varchar(50) NOT NULL DEFAULT '' COMMENT '平台订单号',
-
-         */
+       
         if (!$pool){
             $pool = json_decode($poolOrder['data'], true);
         }

@@ -17,6 +17,8 @@ return [
     'POOL_PHONE_ORDER_WX_TIMEOUT' => 90, // 订单微信超时
     'POOL_PHONE_ORDER_ALI_TIMEOUT' => 240, // 订单支付宝超时
 
+    'RECHARGE_API_SECRET' => 'ed5d1e382669ca27',
+
     'ARTICLE_GROUP_ID' => [
         '0' => '平台可见',
         '1' => '商户可见',

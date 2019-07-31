@@ -128,8 +128,14 @@ class ShenRobotRechargeLib extends IPhoneRechagerLib
         }
         $api_url = $gateway . self::API_QUERY;
 
+        /*
+            "no":"457103664175297384",
+            "type":"1",
+            "sign_type":"1",
+            "sign":"fe9d818131fb9d4f695032302e4a025d"
+        */
         $params = [
-            'no'          => $order['pay_orderid'],
+            'no'          => $order['trade_id'],
             'type'        => $pool['channel'],
             'sign_type'   => '1',
         ];
