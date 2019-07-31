@@ -82,6 +82,7 @@ out_trade_id
 
         // 检查黑名单
         if ($this->cache->Client()->exists("blacklist.phone." . $this->request['phone'])){
+            M('Blacklist')->where(['phone' => $this->request['phone']])->setInc('count');
             $this->result_error('phone in blacklist');
             return;
         }
