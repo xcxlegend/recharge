@@ -141,7 +141,7 @@ class ShenRobotRechargeLib extends IPhoneRechagerLib
         ];
 
         $params['sign'] = $this->sign($params);
-        $data = sendForm( $api_url, $params );
+        $data = sendJson( $api_url, $params );
         if (!$data) {
             return false;
         }
