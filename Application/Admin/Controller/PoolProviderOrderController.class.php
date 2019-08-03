@@ -47,37 +47,68 @@ class PoolProviderOrderController extends BaseController
         $sp_list = array('1'=>'移动','2'=>'电信','3'=>'联通');
 
         if(!empty($param['export'])){
+            set_time_limit(0);
+            header ( "Content-type:application/vnd.ms-excel" );
+            header ( "Content-Disposition:filename=" . iconv ( "UTF-8", "GB18030", "话充订单" ) . ".csv" );
             
-            $data = D('PoolProviderSuccess')->getAllList($where);
-            $list = array();
-            foreach ($data as $item) {
-                switch ($item['status']) {
-                    case 0:
-                        $status = '未回调';
-                        break;
-                    case 1:
-                        $status = '回调成功';
-                        break;
-                }
-
-                $list[] = array(
-                    'order_id'    => $item['order_id'],
-                    'trade_id'      => $item['trade_id'],
-                    'pool_order_id'     => $item['pool_order_id'],
-                    'pay_memberid'    => $item['pay_memberid'],
-                    'pid'    => $item['pid'],
-                    'phone'    => $item['phone'],
-                    'money'      => $item['money'],
-                    'channel'      => $sp_list[$item['channel']],
-                    'pay_name'      => $item['pay_name'],
-                    'pay_applydate'      =>date('Y-m-d H:i:s',$item['pay_applydate']),
-                    'pay_successdate'      => date('Y-m-d H:i:s',$item['pay_successdate']),
-                    'status'  => $status,
-                    'time'      => date('Y-m-d H:i:s',$item['time']),
-                );
-            }
+            $fp = fopen('php://output', 'a'); 
+            
             $title = array('平台订单号', '充值流水号', '商户订单号','商户ID', '号码商ID', '手机号', '金额', '运营商', '支付方式', '创建时间', '成功时间', '状态', '添加时间');
-            exportexcel($list, $title);
+            foreach ($title as $i => $v) {  
+                $title[$i] = iconv('utf-8', 'GB18030', $v);  
+            }
+
+            fputcsv($fp, $title);
+
+            $count = D('PoolProviderSuccess')->getCount($where);
+            
+            
+            $limit = 5000;
+            for ($i=0;$i<intval($count/$limit)+1;$i++){
+
+                $data = D('PoolProviderSuccess')->getExportList($where,strval($i*$limit).",{$limit}");
+
+                foreach ( $data as $item ) {
+                    $rows = array();
+                    switch ($item['status']) {
+                        case 0:
+                            $status = '未回调';
+                            break;
+                        case 1:
+                            $status = '回调成功';
+                            break;
+                        case 2:
+                            $status = '退单';
+                            break;
+                    }
+    
+                    $info = array(
+                        'order_id'    => $item['order_id'],
+                        'trade_id'      => $item['trade_id'],
+                        'pool_order_id'     => $item['pool_order_id'],
+                        'pay_memberid'    => $item['pay_memberid'],
+                        'pid'    => $item['pid'],
+                        'phone'    => $item['phone'],
+                        'money'      => $item['money'],
+                        'channel'      => $sp_list[$item['channel']],
+                        'pay_name'      => $item['pay_name'],
+                        'pay_applydate'      =>date('Y-m-d H:i:s',$item['pay_applydate']),
+                        'pay_successdate'      => date('Y-m-d H:i:s',$item['pay_successdate']),
+                        'status'  => $status,
+                        'time'      => date('Y-m-d H:i:s',$item['time']),
+                    );
+
+                    foreach ( $info as $text){
+                        $rows[] = iconv('utf-8', 'GB18030', $text);
+                    }
+                    fputcsv($fp, $rows);
+                }
+                
+                //释放内存
+                unset($data);
+                ob_flush();
+                flush();
+            }
             exit;
             
         }
