@@ -14,6 +14,9 @@ class PoolProviderOrderController extends BaseController
     public function index()
     {
         $param = I("get.");
+        if(!empty($param['pid'])){
+            $where['a.pid'] = $param['pid'];
+        }
         if(!empty($param['pay_memberid'])){
             $where['b.pay_memberid'] = $param['pay_memberid'];
         }
