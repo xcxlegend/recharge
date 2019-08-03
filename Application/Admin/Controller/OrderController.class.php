@@ -61,36 +61,64 @@ class OrderController extends BaseController
         
 
         if(!empty($param['export'])){
-            
-            $data = M('Order')->where($where)->order('id DESC')->select();
-            $list = array();
-            foreach ($data as $item) {
-                switch ($item['status']) {
-                    case 0:
-                        $status = '未支付';
-                        break;
-                    case 1:
-                        $status = '已支付，未返回';
-                        break;
-                    case 2:
-                        $status = '已支付，已返回';
-                        break;
-                }
 
-                $list[] = array(
-                    'order_id'    => $item['pay_orderid'],
-                    'trade_id'      => $item['trade_id'],
-                    'out_trade_id'    => $item['out_trade_id'],
-                    'pay_memberid'    => $item['pay_memberid'],
-                    'pay_actualamount'      => $item['pay_actualamount'],
-                    'pay_name'      => $paylist[$item['pay_code']]['name'],
-                    'pay_applydate'      =>date('Y-m-d H:i:s',$item['pay_applydate']),
-                    'pay_successdate'      => date('Y-m-d H:i:s',$item['pay_successdate']),
-                    'status'  => $status,
-                );
-            }
+            set_time_limit(0);
+            header ( "Content-type:application/vnd.ms-excel" );
+            header ( "Content-Disposition:filename=" . iconv ( "UTF-8", "GB18030", "商户订单" ) . ".csv" );
+            
+            $fp = fopen('php://output', 'a'); 
+            
             $title = array('平台订单号', '充值流水号', '商户订单号','商户ID', '金额', '支付方式', '创建时间', '成功时间', '状态');
-            exportexcel($list, $title);
+            foreach ($title as $i => $v) {  
+                $title[$i] = iconv('utf-8', 'GB18030', $v);  
+            }
+
+            fputcsv($fp, $title);
+
+            $count = M('Order')->where($where)->count();
+            $limit = 5000;
+
+            for ($i=0;$i<intval($count/$limit)+1;$i++){
+
+                $data = M('Order')->where($where)->limit(strval($i*$limit).",{$limit}")->order('id DESC')->select();
+
+                foreach ( $data as $item ) {
+                    $rows = array();
+                    switch ($item['status']) {
+                        case 0:
+                            $status = '未支付';
+                            break;
+                        case 1:
+                            $status = '已支付，未返回';
+                            break;
+                        case 2:
+                            $status = '已支付，已返回';
+                            break;
+                    }
+    
+                    $info = array(
+                        'order_id'    => $item['pay_orderid'],
+                        'trade_id'      => $item['trade_id'],
+                        'out_trade_id'    => $item['out_trade_id'],
+                        'pay_memberid'    => $item['pay_memberid'],
+                        'pay_actualamount'      => $item['pay_actualamount'],
+                        'pay_name'      => $paylist[$item['pay_code']]['name'],
+                        'pay_applydate'      =>date('Y-m-d H:i:s',$item['pay_applydate']),
+                        'pay_successdate'      => date('Y-m-d H:i:s',$item['pay_successdate']),
+                        'status'  => $status,
+                    );
+
+                    foreach ($info as $text){
+                        $rows[] = iconv('utf-8', 'GB18030', $text);
+                    }
+                    fputcsv($fp, $rows);
+                }
+                
+                //释放内存
+                unset($data);
+                ob_flush();
+                flush();
+            }
             exit;
             
         }

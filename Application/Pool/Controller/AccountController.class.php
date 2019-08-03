@@ -78,6 +78,10 @@ class AccountController extends PoolController
             $maps['type'] = $param['status'];
         }
 
+        if(!empty($param['remark'])){
+            $maps['contentstr'] = array('like','%'.$param['remark'].'%');
+        }
+
         if(!empty($param['datetime'])){
             list($stime, $etime)  = explode('|', $param['datetime']);
             $maps['datetime'] = ['between', [strtotime($stime), strtotime($etime) ? strtotime($etime) : time()]];

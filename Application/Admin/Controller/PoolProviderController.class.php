@@ -24,35 +24,63 @@ class PoolProviderController extends BaseController
         }
 
         if(!empty($param['export'])){
+            set_time_limit(0);
+            header ( "Content-type:application/vnd.ms-excel" );
+            header ( "Content-Disposition:filename=" . iconv ( "UTF-8", "GB18030", "号码商" ) . ".csv" );
+            
+            $fp = fopen('php://output', 'a'); 
+            
             $title = array('商户名称', '联系人', '联系方式', '总收入', '余额', '状态', '创建时间');
-            $data = D('PoolProvider')->where($where)->select();
-            $list = array();
-            foreach ($data as $item) {
-                switch ($item['status']) {
-                    case 0:
-                        $status = '未认证';
-                        break;
-                    case 1:
-                        $status = '正常';
-                        break;
-                    case 2:
-                        $status = '已关闭';
-                        break;
-                }
-
-                $list[] = array(
-                    'name'    => $item['name'],
-                    'contact'      => $item['contact'],
-                    'contact_tel'     => $item['contact'],
-                    'money'    => $item['money'],
-                    'balance'      => $item['balance'],
-                    'status'  => $status,
-                    'create_time' => date('Y-m-d H:i:s', $item['create_time']),
-                );
+            foreach ($title as $i => $v) {  
+                $title[$i] = iconv('utf-8', 'GB18030', $v);  
             }
 
-            exportexcel($list, $title);
+            fputcsv($fp, $title);
+
+            $count = M('PoolProvider')->where($where)->count();
+            $limit = 5000;
+
+            for ($i=0;$i<intval($count/$limit)+1;$i++){
+
+                $data = M('PoolProvider')->where($where)->limit(strval($i*$limit).",{$limit}")->order('id DESC')->select();
+
+                foreach ( $data as $item ) {
+                    $rows = array();
+                    switch ($item['status']) {
+                        case 0:
+                            $status = '未认证';
+                            break;
+                        case 1:
+                            $status = '正常';
+                            break;
+                        case 2:
+                            $status = '已关闭';
+                            break;
+                    }
+    
+                    $info = array(
+                        'name'    => $item['name'],
+                        'contact'      => $item['contact'],
+                        'contact_tel'     => $item['contact'],
+                        'money'    => $item['money'],
+                        'balance'      => $item['balance'],
+                        'status'  => $status,
+                        'create_time' => date('Y-m-d H:i:s', $item['create_time']),
+                    );
+
+                    foreach ($info as $text){
+                        $rows[] = iconv('utf-8', 'GB18030', $text);
+                    }
+                    fputcsv($fp, $rows);
+                }
+                
+                //释放内存
+                unset($data);
+                ob_flush();
+                flush();
+            }
             exit;
+
         }
 
         $data = D('PoolProvider')->getList($where);
@@ -250,34 +278,64 @@ class PoolProviderController extends BaseController
         
 
         if(!empty($param['export'])){
-            
-            $data = D('PoolProviderSuccess')->getAllList($where);
-            $list = array();
-            foreach ($data as $item) {
-                switch ($item['status']) {
-                    case 0:
-                        $status = '未回调';
-                        break;
-                    case 1:
-                        $status = '回调成功';
-                        break;
-                }
 
-                $list[] = array(
-                    'order_id'    => $item['order_id'],
-                    'trade_id'      => $item['trade_id'],
-                    'pool_order_id'     => $item['pool_order_id'],
-                    'phone'    => $item['phone'],
-                    'money'      => $item['money'],
-                    'channel'      => $sp_list[$item['channel']],
-                    'pay_name'      => $item['pay_name'],
-                    'pay_applydate'      =>date('Y-m-d H:i:s',$item['pay_applydate']),
-                    'pay_successdate'      => date('Y-m-d H:i:s',$item['pay_successdate']),
-                    'status'  => $status,
-                );
-            }
+            set_time_limit(0);
+            header ( "Content-type:application/vnd.ms-excel" );
+            header ( "Content-Disposition:filename=" . iconv ( "UTF-8", "GB18030", "话充订单" ) . ".csv" );
+            
+            $fp = fopen('php://output', 'a'); 
+            
             $title = array('平台订单号', '充值流水号', '商户订单号', '手机号', '金额', '运营商', '支付方式', '创建时间', '成功时间', '状态');
-            exportexcel($list, $title);
+            foreach ($title as $i => $v) {  
+                $title[$i] = iconv('utf-8', 'GB18030', $v);  
+            }
+
+            fputcsv($fp, $title);
+
+            $count = D('PoolProviderSuccess')->getCount($where);
+            $limit = 5000;
+            for ($i=0;$i<intval($count/$limit)+1;$i++){
+
+                $data = D('PoolProviderSuccess')->getExportList($where,strval($i*$limit).",{$limit}");
+
+                foreach ( $data as $item ) {
+                    $rows = array();
+                    switch ($item['status']) {
+                        case 0:
+                            $status = '未回调';
+                            break;
+                        case 1:
+                            $status = '回调成功';
+                            break;
+                        case 2:
+                            $status = '退单';
+                            break;
+                    }
+    
+                    $info = array(
+                        'order_id'    => $item['order_id'],
+                        'trade_id'      => $item['trade_id'],
+                        'pool_order_id'     => $item['pool_order_id'],
+                        'phone'    => $item['phone'],
+                        'money'      => $item['money'],
+                        'channel'      => $sp_list[$item['channel']],
+                        'pay_name'      => $item['pay_name'],
+                        'pay_applydate'      =>date('Y-m-d H:i:s',$item['pay_applydate']),
+                        'pay_successdate'      => date('Y-m-d H:i:s',$item['pay_successdate']),
+                        'status'  => $status,
+                    );
+
+                    foreach ($info as $text){
+                        $rows[] = iconv('utf-8', 'GB18030', $text);
+                    }
+                    fputcsv($fp, $rows);
+                }
+                
+                //释放内存
+                unset($data);
+                ob_flush();
+                flush();
+            }
             exit;
             
         }
@@ -335,6 +393,11 @@ class PoolProviderController extends BaseController
         }else{
             $maps['type'] = $param['status'];
         }
+
+        if(!empty($param['remark'])){
+            $maps['contentstr'] = array('like','%'.$param['remark'].'%');
+        }
+
 
         if(!empty($param['datetime'])){
             list($stime, $etime)  = explode('|', $param['datetime']);
