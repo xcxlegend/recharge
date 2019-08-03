@@ -80,6 +80,12 @@ out_trade_id
             return;
         }
 
+        // 检查黑名单
+        if ($this->cache->Client()->exists("blacklist.phone." . $this->request['phone'])){
+            M('Blacklist')->where(['phone' => $this->request['phone']])->setInc('count');
+            $this->result_error('phone in blacklist');
+            return;
+        }
 
         if (M('PoolPhones')->where(['out_trade_id' => $this->request['out_trade_id'], 'pid' => $provider['id']])->count()) {
             $this->result_error("out_trade_id exist", $sign);
@@ -116,7 +122,8 @@ out_trade_id
     protected function setTimeout(&$data) {
         $cache = RedisCacheModel::instance();
         $key = 'pool_phone_timeout';
-        $cache->Client()->zAdd( $key, $this->timestamp + 30, $data['id'] );
+        $timeout = C('POOL_PHONE_TIMEOUT', null, 30);
+        $cache->Client()->zAdd( $key, $this->timestamp + $timeout, $data['id'] );
     }
 
     protected function createData( &$data, &$provider) {

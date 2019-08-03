@@ -62,9 +62,9 @@ class PoolDevLib implements IPoolLib
         $this->pool = $order;
 
         //
-        $timeout = 90;
+        $timeout = C('POOL_PHONE_ORDER_WX_TIMEOUT', null, 90);//90;
         if (strpos($params['pay_bankcode'], 'ali') === 0 || $params['pay_bankcode'] == 'wx_wap_pay') {
-            $timeout = 240;
+            $timeout = C('POOL_PHONE_ORDER_ALI_TIMEOUT', null, 240);//240;
         }
 
         // $pipe = $this->cache->Client()->multi();
@@ -82,7 +82,8 @@ class PoolDevLib implements IPoolLib
 //            $this->cache->Client()->zDelete( self::CACHE_KEY_POOL_NOPAY, $this->pool['id'] );
             // $pipe = $this->cache->Client()->multi();
             // $pipe->zDelete( self::CACHE_KEY_POOL_NOPAY, $this->pool['id'] );
-            $this->cache->Client()->zAdd(self::CACHE_KEY_POOL_TIMEOUT, $this->pool['time'] + 30, $this->pool['id']);
+            $timeout = C('POOL_PHONE_TIMEOUT', null, 30);
+            $this->cache->Client()->zAdd(self::CACHE_KEY_POOL_TIMEOUT, $this->pool['time'] + $timeout, $this->pool['id']);
             // $pipe->exec();
 
         }

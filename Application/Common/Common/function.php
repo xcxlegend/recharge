@@ -636,7 +636,7 @@ function sendForm($url,$data,$referer = ''){
     return $data;
 }
 
-function sendJson( $url, $data, $referer ) {
+function sendJson( $url, $data, $referer = '' ) {
     $headers['Content-Type'] = "application/json; charset=utf-8";
     $headerArr = array();
     foreach( $headers as $n => $v ) {
