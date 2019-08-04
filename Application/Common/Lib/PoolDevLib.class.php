@@ -38,26 +38,51 @@ class PoolDevLib implements IPoolLib
             throw new Exception("号码查询失败");
             return false;
         }
-
-        M()->startTrans();
-        $order = M('PoolPhones')->where(
-            [
+        $i = 0;
+        while($i < 3) {
+            M()->startTrans();
+            $count = M('PoolPhones')->where([
                 'pid' => ['in', $ids],
                 'lock' => 0,
                 'money' => $money,
-            ]
-        )->limit(1)->order('id desc')->find();
+            ])->count();
+            if (!$count) {
+                break;
+            }
+            $startId = M('PoolPhones')->where([
+                'pid' => ['in', $ids],
+                'lock' => 0,
+                'money' => $money,
+            ])->limit(1)->getField('id');
+            $id = $startId + mt_rand(0, $count - 1);
+            $order = M('PoolPhones')->where(
+                [
+                    'pid' => ['in', $ids],
+                    'lock' => 0,
+                    'money' => $money,
+                    'id' => ['egt', $id]
+                ]
+            )->limit(1)->order('id asc')->lock(1)->find();
+            if (!$order) {
+                M()->rollback();
+                $i++;
+                continue;
+            }
+            if (!M('PoolPhones')->where(['id' => $order['id'], 'lock' => 0])->setField('lock', 1)) {
+                M()->rollback();
+                $order = null;
+                $i++;
+                continue;
+            }
+            M()->commit();
+            break;
+        }
+
         if (!$order) {
-            M()->rollback();
             throw new Exception("号码查询失败");
             return false;
         }
-        if (!M('PoolPhones')->where(['id' => $order['id']])->setField('lock', 1)) {
-            M()->rollback();
-            throw new Exception("设置号码lock失败");
-            return false;
-        }
-        M()->commit();
+
         $params['pool'] = $order;
         $this->pool = $order;
 
