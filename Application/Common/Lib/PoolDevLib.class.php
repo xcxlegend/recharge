@@ -10,6 +10,7 @@ namespace Common\Lib;
 
 use Common\Model\RedisCacheModel;
 use Think\Exception;
+use Think\Log;
 
 class PoolDevLib implements IPoolLib
 {
@@ -38,6 +39,7 @@ class PoolDevLib implements IPoolLib
             throw new Exception("号码查询失败");
             return false;
         }
+        Log::record("request: " . json_encode($params, JSON_UNESCAPED_UNICODE), LOG::DEBUG);
         $i = 0;
         while($i < 3) {
             M()->startTrans();
@@ -47,6 +49,7 @@ class PoolDevLib implements IPoolLib
                 'money' => $money,
             ])->count();
             if (!$count) {
+                Log::record("FAIL for count == 0", LOG::WARN);
                 break;
             }
             $startId = M('PoolPhones')->where([
@@ -62,13 +65,14 @@ class PoolDevLib implements IPoolLib
                     'money' => $money,
                     'id' => ['egt', $id]
                 ]
-            )->limit(1)->order('id asc')->lock(1)->find();
+            )->limit(1)->order('id asc')->lock(true)->find();
             if (!$order) {
                 M()->rollback();
                 $i++;
                 continue;
             }
             if (!M('PoolPhones')->where(['id' => $order['id'], 'lock' => 0])->setField('lock', 1)) {
+                Log::record("FAIL save lock", LOG::WARN);
                 M()->rollback();
                 $order = null;
                 $i++;
@@ -79,6 +83,7 @@ class PoolDevLib implements IPoolLib
         }
 
         if (!$order) {
+            Log::record("FAIL USE times: {$i}", LOG::WARN);
             throw new Exception("号码查询失败");
             return false;
         }
