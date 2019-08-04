@@ -39,7 +39,7 @@ class PoolPhoneController extends BaseController
         if (!$rows) {
             $rows = $size;
         }
-        $page           = new Page($count, $rows);
+        
 
         if($param['status']==1){
             $count  = M('PoolPhones')
@@ -48,6 +48,7 @@ class PoolPhoneController extends BaseController
                 ->join('LEFT JOIN pay_order b ON a.id=b.pool_phone_id')
                 ->where($where)
                 ->count();
+            $page           = new Page($count, $rows);
             $list           = M('PoolPhones')
                 ->alias('a')
                 ->field('a.*,b.out_trade_id as user_order_id')
@@ -58,6 +59,7 @@ class PoolPhoneController extends BaseController
                 ->select();
         }else{
             $count  = M('PoolPhones')->where($where)->count();
+            $page           = new Page($count, $rows);
             $list           = M('PoolPhones')
                 ->alias('a')
                 ->field('a.*')
@@ -66,12 +68,6 @@ class PoolPhoneController extends BaseController
                 ->order('a.id desc')
                 ->select();
         }
-        
-        
-
-        
-
-
         
         $sp_list = array('1'=>'移动','2'=>'电信','3'=>'联通');
         $this->assign("sp_list", $sp_list);
