@@ -58,7 +58,7 @@ class PoolPhoneController extends BaseController
                 ->order('a.id desc')
                 ->select();
         }else{
-            $count  = M('PoolPhones')->where($where)->count();
+            $count  = M('PoolPhones')->alias('a')->where($where)->count();
             $page           = new Page($count, $rows);
             $list           = M('PoolPhones')
                 ->alias('a')
@@ -68,6 +68,7 @@ class PoolPhoneController extends BaseController
                 ->order('a.id desc')
                 ->select();
         }
+
         
         $sp_list = array('1'=>'移动','2'=>'电信','3'=>'联通');
         $this->assign("sp_list", $sp_list);
