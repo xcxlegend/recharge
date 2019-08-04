@@ -182,9 +182,14 @@ out_trade_id
             return;
         }
 
-
-        $rec = M('PoolRec')->where(['out_trade_id' => $this->request['out_trade_id'], 'pid' => $provider['id']])->find();
+        $query = ['out_trade_id' => $this->request['out_trade_id'], 'pid' => $provider['id']];
+        $rec = M('PoolRec')->where($query)->find();
         if (!$rec) {
+            $pool = M('PoolPhones')->where($query)->find();
+            if (!$pool || !$pool['lock']){
+                $this->result_error("未匹配");
+                return;
+            }
             $this->result_error("订单未支付");
             return;
         }

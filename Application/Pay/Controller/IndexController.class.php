@@ -458,4 +458,31 @@ class IndexController extends OrderController
         $this->result_success($params);
     }
 
+    public function test() {
+
+        $count = M('PoolPhones')->where([
+            'pid' => ['in', [1]],
+            'lock' => 0,
+            'money' => 10,
+        ])->count();
+        $startId = M('PoolPhones')->where([
+            'pid' => ['in', [1]],
+            'lock' => 0,
+            'money' => 10,
+        ])->limit(1)->getField('id');
+        echo $count;
+        print_r($startId);
+//        M()->startTrans();
+//        $pool = M("pool_phones")->where([
+//            'id' => ['in', [1]],
+//            'lock' => 0,
+//            'money' => 10,
+//            'id' => ['gt', 2],
+//        ])->lock(true)->limit(1)->find();
+//        print_r($pool);
+//        sleep(10);
+//        M()->commit();
+        exit("ok");
+    }
+
 }
