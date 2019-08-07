@@ -471,7 +471,11 @@ class OrderController extends BaseController
     public function exportorder()
     {
 
-        // 调用redis-task方法
+        set_time_limit(0);
+        header ( "Content-type:application/vnd.ms-excel" );
+        header ( "Content-Disposition:filename=" . iconv ( "UTF-8", "GB18030", "商户订单" ) . ".csv" );
+        
+        $fp = fopen('php://output', 'a'); 
 
         $memberid = I("request.memberid");
         if ($memberid) {
@@ -527,22 +531,76 @@ class OrderController extends BaseController
             '通道商户号',
             '状态',
         ];
-        $numberField = ['pay_amount', 'pay_poundage', 'pay_actualamount'];
 
-        $query = M('Order')
+        foreach ($title as $i => $v) {  
+            $title[$i] = iconv('utf-8', 'GB18030', $v);  
+        }
+
+        fputcsv($fp, $title);
+
+        $count = M('Order')
             ->join('LEFT JOIN __MEMBER__ ON __MEMBER__.id+10000 = __ORDER__.pay_memberid')
-            ->where($where) ->field('pay_order.*, pay_member.username');
-
-
-        $total = $query->count();
+            ->where($where) ->field('pay_order.*, pay_member.username')->count();
         $limit = 5000;
+
+        for ($i=0;$i<intval($count/$limit)+1;$i++){
+            $data = M('Order')
+            ->join('LEFT JOIN __MEMBER__ ON __MEMBER__.id+10000 = __ORDER__.pay_memberid')
+            ->where($where) ->field('pay_order.*, pay_member.username')->limit(strval($i*$limit).",{$limit}")->select();
+
+            foreach ( $data as $item ) {
+                $rows = array();
+                switch ($item['pay_status']) {
+                    case 0:
+                        $status = '未处理';
+                        break;
+                    case 1:
+                        $status = '成功，未返回';
+                        break;
+                    case 2:
+                        $status = '成功，已返回';
+                        break;
+                }
+
+                if ($item['pay_successdate']) {
+                    $pay_successdate = date('Y-m-d H:i:s', $item['pay_successdate']);
+                } else {
+                    $pay_successdate = 0;
+                }
+                $info = [
+                    'id'               => $item['id'],
+                    'out_trade_id'     => $item['out_trade_id'],
+                    'pay_orderid'      => $item['pay_orderid'],
+                    'pay_memberid'     => $item['pay_memberid'],
+                    'username'     => $item['username'],
+                    'pay_amount'       => $item['pay_amount'],
+                    'pay_poundage'     => $item['pay_poundage'],
+                    'pay_actualamount' => $item['pay_actualamount'],
+                    'pay_applydate'    => date('Y-m-d H:i:s', $item['pay_applydate']),
+                    'pay_successdate'  => $pay_successdate,
+                    'pay_zh_tongdao'   => $item['pay_zh_tongdao'],
+                    'memberid'         => $item['memberid'],
+                    'pay_status'       => $status,
+                ];
+
+                foreach ( $info as $text){
+                    $rows[] = iconv('utf-8', 'GB18030', $text);
+                }
+                fputcsv($fp, $rows);
+            }
+            
+            //释放内存
+            unset($data);
+            ob_flush();
+            flush();
+        }
+        exit;
+
 
         $pager = intval($total / $limit ) + 1;
 
         for ($i = 1; $i <= $pager; $i++){
-            $data = M('Order')
-                ->join('LEFT JOIN __MEMBER__ ON __MEMBER__.id+10000 = __ORDER__.pay_memberid')
-                ->where($where) ->field('pay_order.*, pay_member.username')->limit($limit)->page($i)->select();
+           
             foreach ($data as $item) {
                 switch ($item['pay_status']) {
                     case 0:
@@ -579,47 +637,6 @@ class OrderController extends BaseController
             unset($data);
         }
 
-        /*$data = $query->select();
-        foreach ($data as $item) {
-
-            switch ($item['pay_status']) {
-                case 0:
-                    $status = '未处理';
-                    break;
-                case 1:
-                    $status = '成功，未返回';
-                    break;
-                case 2:
-                    $status = '成功，已返回';
-                    break;
-            }
-            if ($item['pay_successdate']) {
-                $pay_successdate = date('Y-m-d H:i:s', $item['pay_successdate']);
-            } else {
-                $pay_successdate = 0;
-            }
-            $list[] = [
-                'out_trade_id'     => $item['out_trade_id'],
-                'pay_orderid'      => $item['pay_orderid'],
-                'pay_memberid'     => $item['pay_memberid'],
-                'username'     => $item['username'],
-                'pay_amount'       => $item['pay_amount'],
-                'pay_poundage'     => $item['pay_poundage'],
-                'pay_actualamount' => $item['pay_actualamount'],
-                'pay_applydate'    => date('Y-m-d H:i:s', $item['pay_applydate']),
-                'pay_successdate'  => $pay_successdate,
-                'pay_zh_tongdao'   => $item['pay_zh_tongdao'],
-                'memberid'         => $item['memberid'],
-                'pay_status'       => $status,
-            ];
-        }*/
-        // exportexcel($list, $title, $numberField);
-        // 将已经写到csv中的数据存储变量销毁，释放内存占用
-        // unset($list);
-
-        //刷新缓冲区
-        // ob_flush();
-        // flush();
 
     }
 
