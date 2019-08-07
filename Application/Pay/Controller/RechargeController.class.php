@@ -73,14 +73,15 @@ type:*/
             'channel'   => $this->request['type'],
             'cid'       => $channel_id,
             'time'      => $this->timestamp,
-            'count'     => 1
+            'count'     => 1,
+            'orderid'   => $this->request['orderid']
         ];
 
-        $order = M('Order')->where(['pay_orderid' => $this->request['orderid']])->find();
+/*        $order = M('Order')->where(['pay_orderid' => $this->request['orderid']])->find();
         if ($order && $order['pool_phone_id']) {
             $pool = M('PoolPhones')->find($order['pool_phone_id']);
             $data['pid'] = $pool['pid'];
-        }
+        }*/
 
         M('Blacklist')->add($data);
 
