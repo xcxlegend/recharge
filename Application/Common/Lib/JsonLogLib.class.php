@@ -5,7 +5,7 @@ use Think\Log;
 
 class JsonLogLib extends Log
 {
-    static function write(array $message,$level=self::INFO,$type='',$destination='') {
+    static function write($message,$level=self::INFO,$type='',$destination='') {
         if(!self::$storage){
             $type 	= 	$type ? : C('LOG_TYPE');
             $class  =   'Think\\Log\\Driver\\'. ucwords($type);
@@ -15,10 +15,12 @@ class JsonLogLib extends Log
         if(empty($destination)){
             $destination = C('LOG_PATH').date('y_m_d').'.log';
         }
-        $message['level'] = $level;
-        $message['timestamp'] = time();
-        $message['datetime'] = date('Y-m-d H:i:s');
-        self::$storage->write(json_encode($message), $destination);
+        if (is_array($message)) {
+            $message['level'] = $level;
+            $message['timestamp'] = time();
+            $message['datetime'] = date('Y-m-d H:i:s');
+            self::$storage->write(json_encode($message), $destination);
+        }
     }
 
 }
