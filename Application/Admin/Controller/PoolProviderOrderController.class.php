@@ -26,6 +26,9 @@ class PoolProviderOrderController extends BaseController
         if(!empty($param['pool_order_id'])){
             $where['b.out_trade_id'] = $param['pool_order_id'];
         }
+        if(!empty($param['out_trade_id'])){
+            $where['a.out_trade_id'] = $param['out_trade_id'];
+        }
         if(!empty($param['trade_id'])){
             $where['b.trade_id'] = $param['trade_id'];
         }
