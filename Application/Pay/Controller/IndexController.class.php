@@ -1,12 +1,12 @@
 <?php
 namespace Pay\Controller;
 use Common\Lib\ChannelOrder;
+use Common\Lib\JsonLogLib;
 use Think\Exception;
 use \Think\Log;
 use Common\Lib\ChannelManagerLib;
 use Common\Lib\PoolDevLib;
 use Common\Model\RedisCacheModel;
-
 /**
  * Class IndexController
  * @package Pay\Controller
@@ -460,7 +460,15 @@ class IndexController extends OrderController
 
     public function test() {
 
-        $count = M('PoolPhones')->where([
+        $log = [
+            'request'  => I('request'),
+            'response' => ['status' => 0, 'msg' => 'ok'],
+            'action'   => 'api',
+            'url'      => 'Pay_Index_test',
+        ];
+        JsonLogLib::write($log);
+
+      /*  $count = M('PoolPhones')->where([
             'pid' => ['in', [1]],
             'lock' => 0,
             'money' => 10,
@@ -471,7 +479,7 @@ class IndexController extends OrderController
             'money' => 10,
         ])->limit(1)->getField('id');
         echo $count;
-        print_r($startId);
+        print_r($startId);*/
 //        M()->startTrans();
 //        $pool = M("pool_phones")->where([
 //            'id' => ['in', [1]],
