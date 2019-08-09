@@ -399,6 +399,7 @@ class OrderController extends PayController
 
         if (!$poolOrder){
             M()->startTrans();
+
             /*
              *  `pool_id` int(11) NOT NULL DEFAULT '0' COMMENT 'POOL序列ID order里对应字段索引',
   `pid` int(11) NOT NULL DEFAULT '0' COMMENT '号码商ID',
@@ -454,7 +455,9 @@ class OrderController extends PayController
                 return;
             }*/
             if (!$isTimeoutOrder) {
-                if (!M('PoolProvider')->where(['id' => $pool['pid']])->save(
+                $provider = M('PoolProvider')->lock(true)->find($provider['id']);
+
+                if (!M('PoolProvider')->where(['id' => $provider['id']])->save(
                     [
                         'money' => [ 'exp', ' money + ' . $actmoney ],
                         'balance' => [ 'exp', ' balance - ' . $actmoney ]
@@ -464,6 +467,7 @@ class OrderController extends PayController
                     Log::write("dec PoolProvider balance err:" . json_encode($poolOrder));
                     return;
                 }
+
 
                 if (!D('PoolMoneychange')->addData($provider['id'], 0, $provider['balance'], -$actmoney, "支付订单: " . $poolOrder['id'] , $poolOrder['id'], 4)){
                     M()->rollback();
