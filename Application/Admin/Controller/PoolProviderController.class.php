@@ -404,8 +404,56 @@ class PoolProviderController extends BaseController
             $maps['datetime'] = ['between', [strtotime($stime), strtotime($etime) ? strtotime($etime) : time()]];
         }
         
-        
+        $text = [1=>'加款',2=>'减款',3=>'退款',4=>'订单扣款'];
         $count          = M('PoolMoneychange')->where($maps)->count();
+
+        if(!empty($param['export'])){
+
+            set_time_limit(0);
+            header ( "Content-type:application/vnd.ms-excel" );
+            header ( "Content-Disposition:filename=" . iconv ( "UTF-8", "GB18030", $text[$param['status']]."记录" ) . ".csv" );
+            
+            $fp = fopen('php://output', 'a'); 
+            
+            $title = array($text[$param['status']].'编号', '号码商ID', $text[$param['status']].'前金额', $text[$param['status']].'金额', $text[$param['status']].'后金额', $text[$param['status']].'员ID', $text[$param['status']].'备注', $text[$param['status']].'时间');
+            foreach ($title as $i => $v) {  
+                $title[$i] = iconv('utf-8', 'GB18030', $v);  
+            }
+
+            fputcsv($fp, $title);
+
+            $limit = 5000;
+            for ($i=0;$i<intval($count/$limit)+1;$i++){
+
+                $data = M('PoolMoneychange')->where($where)->limit(strval($i*$limit).",{$limit}")->order('id DESC')->select();
+
+                foreach ( $data as $item ) {
+                    $rows = array();
+                    $info = array(
+                        'id'    => $item['id'],
+                        'pid'      => $item['pid'],
+                        'ymoney'     => format_money($item['ymoney']),
+                        'money'    => format_money($item['money']),
+                        'gmoney'      => format_money($item['gmoney']),
+                        'uid'      => $item['uid'],
+                        'contentstr'      => $item['contentstr'],
+                        'datetime'      =>date('Y-m-d H:i:s',$item['datetime']),
+                    );
+
+                    foreach ($info as $text){
+                        $rows[] = iconv('utf-8', 'GB18030', $text);
+                    }
+                    fputcsv($fp, $rows);
+                }
+                
+                //释放内存
+                unset($data);
+                ob_flush();
+                flush();
+            }
+            exit;
+            
+        }
 
         $size  = 15;
         $rows  = I('get.rows', $size, 'intval');
@@ -418,7 +466,7 @@ class PoolProviderController extends BaseController
             ->limit($page->firstRow . ',' . $page->listRows)
             ->order('id desc')
             ->select();
-        $text = [1=>'加款',2=>'减款',3=>'退款',4=>'订单扣款'];
+        
         $this->assign("text", $text[$param['status']]);
         $this->assign("param", $param);
         $this->assign("list", $list);
