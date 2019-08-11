@@ -36,17 +36,23 @@
                     </div>
                     </div>
                   </form>
-               <table class="layui-table" lay-skin="line">
+               <table class="layui-table" lay-skin="line" lay-data="{width:'100%'}">
                    <thead>
                    <tr>
-                       <th><{$text}>编号</th>
-                       <th>号码商ID</th>
-                       <th><{$text}>前金额</th>
-                       <th><{$text}>金额</th>
-                       <th><{$text}>后金额</th>
-                       <th><{$text}>员ID</th>
-                       <th><{$text}>备注</th>
-                       <th><{$text}>时间</th>
+                       <th  lay-data="{field:'pay_orderid1', width:100}"><{$text}>编号</th>
+                       <th  lay-data="{field:'pay_orderid2', width:100}">号码商ID</th>
+                       <th  lay-data="{field:'pay_orderid3', width:100}"><{$text}>前金额</th>
+                       <th  lay-data="{field:'pay_orderid4', width:100}"><{$text}>金额</th>
+                       <th  lay-data="{field:'pay_orderid5', width:100}"><{$text}>后金额</th>
+                       <if condition="$param.status eq 2 ">
+                       <th  lay-data="{field:'pay_orderid6', width:150}">号码商订单号</th>
+                       <th  lay-data="{field:'pay_orderid7', width:180}">平台订单号</th>
+                       <th  lay-data="{field:'pay_orderid8', width:150}">手机号</th>
+                       <th  lay-data="{field:'pay_orderid9', width:120}">订单金额</th>
+                    </if>
+                       <th  lay-data="{field:'pay_orderid10', width:100}"><{$text}>员ID</th>
+                       <th  lay-data="{field:'pay_orderid111', width:180}"><{$text}>备注</th>
+                       <th  lay-data="{field:'pay_orderid12', width:180}"><{$text}>时间</th>
                    </tr>
                    </thead>
                    <tbody>
@@ -57,6 +63,12 @@
                        <td><{$vo.ymoney|format_money}></td>
                        <td><{$vo.money|format_money}></td>
                        <td><{$vo.gmoney|format_money}></td>
+                       <if condition="$param.status eq 2 ">
+                       <td><{$vo.out_trade_id}></td>
+                       <td><{$vo.order_id}></td>
+                       <td><{$vo.phone}></td>
+                       <td><{$vo.order_money|format_money}></td>
+                    </if>
                        <td><{$vo.uid}></td>
                        <td><{$vo.contentstr}></td>
                        <td><{$vo.datetime|date='Y-m-d H:i:s',###}></td>
