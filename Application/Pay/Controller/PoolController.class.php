@@ -147,9 +147,13 @@ out_trade_id
         $param2['status'] = -2;
         $param2['sign'] = createSign( $provider['appsecret'], $param2 );
         $query2 = http_build_query($param2);
+
+        // 获取provider的配置 保存是否可以被转发
+        $pconfig = json_decode($provider['config'], true);
         $config = [
             'query_timeout' => $query,
-            'query_nopay'   => $query2
+            'query_nopay'   => $query2,
+            'transe'        => $pconfig['transe'] ?: 0, // 0 == no
         ];
         $data['data'] = json_encode($config);
     }
