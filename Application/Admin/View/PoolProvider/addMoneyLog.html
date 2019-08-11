@@ -24,13 +24,15 @@
                         <input type="text" class="layui-input" name="datetime" id="datetime"
                                 placeholder="创建起始时间" value="<{$param.datetime}>">
                         </div>
-                      
-          
+
                         <div class="layui-input-inline">
-                            <button type="submit" class="layui-btn"><span
+                            <button onclick="$('#export').val(0);$('#sform').submit();" class="layui-btn"><span
                                     class="glyphicon glyphicon-search"></span> 搜索
                             </button>
-                         </div>
+                            <input type="hidden" id="export" name="export" value="0">
+                            <a onclick="$('#export').val(1);$('#sform').submit();"  class="layui-btn layui-btn-danger"><span class="glyphicon glyphicon-export"></span> 导出</a>
+                        </div>
+ 
                     </div>
                     </div>
                   </form>
