@@ -51,6 +51,50 @@ use Think\Exception;class RpcController extends PayController
                 if ($result) {
                     // save and delete
                     M()->startTrans();
+                    /*
+                     *
+                     * pool_id
+                    pid
+                    phone
+                    money
+                    notify_url
+                    time
+                    channel
+                    out_trade_id
+                    order_id
+                    data
+                    phone_code
+                    status
+                    cid
+                    order_time
+                    pay_trade_id
+                     *
+                     */
+                    $order = [
+                        'pool_id'       => $pool['id'],
+                        'pid'           => $pool['pid'],
+                        'phone'         => $pool['phone'],
+                        'money'         => $pool['money'],
+                        'notify_url'    => $pool['notify_url'],
+                        'time'          => $pool['time'],
+                        'channel'       => $pool['channel'],
+                        'out_trade_id'  => $pool['out_trade_id'],
+                        'order_id'      => $pool['order_id'],
+                        'data'          => $pool['data'],
+                        'phone_code'    => $pool['phone_code'],
+                        'status'        => 0,
+                        'cid'           => $channel['id'],
+                        'order_time'    => time(),
+                        'pay_trade_id'  => '',
+                    ];
+                    if (!M('PoolOrder')->add($order)) {
+                        M()->rollback();
+                        throw new Exception("save order error");
+                    }
+                    if (!M('PoolPhones')->delete($pool['id'])) {
+
+                    }
+
                 }
             }catch(Exception $e) {
                 $this->result_error($e->getMessage());
