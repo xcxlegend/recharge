@@ -1422,7 +1422,15 @@ function createUUID( $prefix = "" ) {
     return $prefix . date('YmdHis',$sec) . intval($msec * 1000);
 }
 
-
+function LogApiQuery($url, $request, $response) {
+    $log = [
+        'request'  => $request,
+        'response' => $response,
+        'action'   => 'request',
+        'url'      => $url,
+    ];
+    \Common\Lib\JsonLogLib::write($log, \Think\Log::INFO);
+}
 
 
 

@@ -2,31 +2,33 @@
 namespace Pay\Controller;
 
 use Common\Lib\TranserManager;
-use Think\Controller;
-
-use
+use Think\Exception;
 
 /**
  * 内部RPC请求
  * Class RpcController
  * @package Pay\Controller
  */
-use Think\Exception;class RpcController extends PayController
+
+class RpcController extends PayController
 {
 
     // 认证
     public function __construct(){
         parent::__construct();
         //
+
     }
 
 
     public function index() {
+        $body = file_get_contents('php://input');
+        $this->request = json_decode($body, true);
         $call = $this->request['call'];
         if ($call){
             return call_user_func_array([$this, $call], $this->request);
         }
-        $this->result_error('no call');
+        $this->result_error('no call', true);
     }
 
     protected function PhoneTimeout(){
@@ -38,8 +40,8 @@ use Think\Exception;class RpcController extends PayController
         if (!$pool) {
             return $this->result_error('no pool phones');
         }
-        if ($pool['status'] != 3) {
-            return $this->result_error('pool status need 3');
+        if ($pool['status'] != 2) {
+            return $this->result_error('pool status need 2');
         }
 
         $data = json_decode($pool['data'], true);
@@ -47,29 +49,12 @@ use Think\Exception;class RpcController extends PayController
         if ($data['transe']) {
             $channel = M('Channel')->find($data['transe']);
             try{
-                $result = TranserManager::order($channel, $pool);
+                $notify_url = $this->_site . 'Pay_Trans_Notify_Method_' . $channel['code'];
+                $manger = new TranserManager($channel);
+                $result = $manger->order($pool, $notify_url);
                 if ($result) {
                     // save and delete
                     M()->startTrans();
-                    /*
-                     *
-                     * pool_id
-                    pid
-                    phone
-                    money
-                    notify_url
-                    time
-                    channel
-                    out_trade_id
-                    order_id
-                    data
-                    phone_code
-                    status
-                    cid
-                    order_time
-                    pay_trade_id
-                     *
-                     */
                     $order = [
                         'pool_id'       => $pool['id'],
                         'pid'           => $pool['pid'],
@@ -82,19 +67,17 @@ use Think\Exception;class RpcController extends PayController
                         'order_id'      => $pool['order_id'],
                         'data'          => $pool['data'],
                         'phone_code'    => $pool['phone_code'],
-                        'status'        => 0,
+                        'status'        => 0, //  其实不需要状态
                         'cid'           => $channel['id'],
-                        'order_time'    => time(),
-                        'pay_trade_id'  => '',
+                        'order_time'    => $this->timestamp,
+                        'pay_trade_id'  => $result['pay_trade_id'] ?: '',
                     ];
                     if (!M('PoolOrder')->add($order)) {
                         M()->rollback();
                         throw new Exception("save order error");
                     }
-                    if (!M('PoolPhones')->delete($pool['id'])) {
-
-                    }
-
+                    M()->commit();
+                    return $this->result_success($order);
                 }
             }catch(Exception $e) {
                 $this->result_error($e->getMessage());
@@ -102,9 +85,17 @@ use Think\Exception;class RpcController extends PayController
         }
 
         if ($success) {
-
+            $this->result_success('order');
         } else {
-
+            // 直接回调匹配超时 并且删除缓存 删除数据库数据
+            // notify
+            /*sendForm($pool['notify_url'], $data['query_timeout']);
+            // clear cache
+            $this->cache->Client()->zDelete("pool_phone_timeout", $pool['id']);
+            // delete
+            M('PoolPhones')->delete($pool['id']);
+            $this->result_success('deleted');*/
+            $this->result_error('deleted');
         }
 
 

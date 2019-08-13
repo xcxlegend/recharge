@@ -12,12 +12,13 @@ use Think\Exception;
  */
 interface IPoolTranser
 {
-    public function order(&$pool);
+    public function order(&$pool, $notify_url);
     public function query(&$poolOrder);
 
     /**
      * @param $request
-     * @return array
+     * @return ChannelNotifyData
      */
-    public function notify(&$request);
+    public function notify(&$request): ChannelNotifyData;
+    public function notifySuccess();
 }

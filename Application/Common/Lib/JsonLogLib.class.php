@@ -19,7 +19,7 @@ class JsonLogLib extends Log
             $message['level'] = $level;
             $message['timestamp'] = time();
             $message['datetime'] = date('Y-m-d H:i:s');
-            self::$storage->write(json_encode($message), $destination);
+            self::$storage->write(json_encode($message, JSON_UNESCAPED_UNICODE), $destination);
         }
     }
 

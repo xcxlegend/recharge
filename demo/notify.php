@@ -10,7 +10,7 @@
 
      */
    file_put_contents("pool_notify.txt", "receive notify message:" . http_build_query($_REQUEST) . "\n" , FILE_APPEND);
-
+   exit('ok');
    $ReturnArray = array( // 返回字段
         "appkey"       =>  $_REQUEST["appkey"],         // 商户ID
         "phone"        =>  $_REQUEST["phone"],          // 订单号
