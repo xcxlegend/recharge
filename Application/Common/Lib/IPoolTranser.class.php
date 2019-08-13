@@ -19,6 +19,6 @@ interface IPoolTranser
      * @param $request
      * @return ChannelNotifyData
      */
-    public function notify(&$request): ChannelNotifyData;
+    public function notify(&$request);
     public function notifySuccess();
 }

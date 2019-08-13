@@ -22,7 +22,7 @@ class TestTransePhoneLib implements IPoolTranser
 
     public function query(&$poolOrder){}
 
-    public function notify(&$request): ChannelNotifyData
+    public function notify(&$request)
     {
         return true;
         // TODO: Implement notify() method.

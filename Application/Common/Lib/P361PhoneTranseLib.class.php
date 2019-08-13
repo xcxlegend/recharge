@@ -88,7 +88,7 @@ class P361PhoneTranseLib extends BaseTransLib implements IPoolTranser
      * @param $request
      * @return array
      */
-    public function notify(&$request): ChannelNotifyData
+    public function notify(&$request)
     {
         /**
          * 商户ID	mchno	Y	商户id，由平台分配

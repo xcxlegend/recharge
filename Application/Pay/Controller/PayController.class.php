@@ -34,7 +34,7 @@ class PayController
     }
 
 
-    protected function result_error( $info , $with_log = false): bool {
+    protected function result_error( $info , $with_log = false) {
         $data = [
             'status'  => "error",
             "message" => $info,
@@ -53,7 +53,7 @@ class PayController
         return false;
     }
 
-    protected function result_success( $param, $info = "ok"): bool {
+    protected function result_success( $param, $info = "ok") {
         $data = [
             'status' => "success",
             'message'   => $info,
