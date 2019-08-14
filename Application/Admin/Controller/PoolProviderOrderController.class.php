@@ -186,7 +186,52 @@ class PoolProviderOrderController extends BaseController
         $this->ajaxReturn(['info'=>'退单成功', 'status' => true]);
     }
 
-    
+    //列表
+    public function transe()
+    {
+        $param = I("get.");
+        if(!empty($param['pid'])){
+            $where['pid'] = $param['pid'];
+        }
+        if(!empty($param['order_id'])){
+            $where['order_id'] = $param['order_id'];
+        }
+
+        if(!empty($param['out_trade_id'])){
+            $where['out_trade_id'] = $param['out_trade_id'];
+        }
+        if(!empty($param['pay_trade_id'])){
+            $where['pay_trade_id'] = $param['pay_trade_id'];
+        }
+        if(!empty($param['phone'])){
+            $where['phone'] = $param['phone'];
+        }
+        if(!empty($param['order_time'])){
+            list($stime, $etime)  = explode('|', $param['order_time']);
+            $where['order_time'] = ['between', [strtotime($stime), strtotime($etime) ? strtotime($etime) : time()]];
+        }
+        if(!empty($param['money'])){
+            $where['money'] = $param['money']*100;//分
+        }
+        if(!empty($param['sp'])){
+            $where['channel'] = $param['sp'];
+        }
+        if(is_numeric($param['status'])){
+            $where['status'] = $param['status'];
+        }
+
+        $sp_list = array('1'=>'移动','2'=>'电信','3'=>'联通');
+
+
+        $data = D('PoolOrder')->getList($where);
+        
+
+        $this->assign('param', $param);
+        $this->assign('sp_list', $sp_list);
+        $this->assign('list', $data['list']);
+        $this->assign('page', $data['page']);
+        $this->display();
+    }
 
 }
 ?>
