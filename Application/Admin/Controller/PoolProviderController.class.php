@@ -119,11 +119,16 @@ class PoolProviderController extends BaseController
             $data["create_time"]=time();
             $data["update_time"]=time();
 
+            $config['transe'] = $post['transe'];
+            $data['config'] = json_encode($config);
+
             $status = D('Common/PoolProvider')->add($data);
 
             $this->ajaxReturn(['status'=>$status]);
 
         }else{
+            $transe = M('Channel')->field('id','title')->select();
+            $this->assign('transe',$transe);
             $this->display();
         }
         
@@ -179,6 +184,17 @@ class PoolProviderController extends BaseController
                 $data['password'] = md5($data['password']);
             }
             $data["update_time"]=time();
+            $where = array(
+                'id'     => $data['id']
+            );
+
+            $info = D('PoolProvider')->where($where)->find();
+
+            $config = json_decode($info['config'],true);
+             
+            $config['transe'] = $data['transe'];
+            $data['config'] = json_encode($config);
+
             $status = D('Common/PoolProvider')->save($data);
             $this->ajaxReturn(['status'=>$status]);
 
@@ -192,6 +208,11 @@ class PoolProviderController extends BaseController
             );
 
             $info = D('PoolProvider')->where($where)->find();
+            $config = json_decode($info['config'],true);
+            $info['transe'] = $config['transe'];
+            $transe = M('Channel')->select();
+            
+            $this->assign('transe',$transe);
             
             $this->assign('info',$info);
             $this->display();
