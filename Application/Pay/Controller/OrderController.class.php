@@ -245,6 +245,7 @@ class OrderController extends PayController
                 'trans_id'   => $trans_id,
                 'success_url' => $success_url
             ]);
+            $order_info['pay_successdate'] = $this->timestamp;
             if (!$res) {
                 M()->rollback();
                 return false;
