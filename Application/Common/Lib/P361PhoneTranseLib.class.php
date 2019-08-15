@@ -142,7 +142,7 @@ class P361PhoneTranseLib extends BaseTransLib implements IPoolTranser
      * @param $params
      * @return string
      */
-    protected function sign($params): string {
+    protected function sign($params) {
         $datas = $params;
         foreach ($datas as $key => $value) {
             if (empty($value)) {
