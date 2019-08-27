@@ -1409,10 +1409,9 @@ function createSign($Md5key, $params){
     }
     $md5str .= "key=" . $Md5key;
 
-    logResult("md5str:". $md5str);
-
+//    logResult("md5str:". $md5str);
     $sign = md5($md5str);
-    logResult("md5:". $sign);
+//    logResult("md5:". $sign);
 
     return $sign;
 }
@@ -1432,6 +1431,42 @@ function LogApiQuery($url, $request, $response) {
     \Common\Lib\JsonLogLib::write($log, \Think\Log::INFO);
 }
 
+/*
+$str = '{"account":"15959209756",
+        "amount":"10.0",
+        "chanelcode":"YDCZ",
+        "chaneltype":"1",
+        "dealtime":"20190815210610",
+        "mchno":"188913",
+        "msg":"匹配失败",
+        "orderno":"PL20190815210502203",
+        "ordertime":"20190815210524",
+        "sign":"af8f342d3b0b51ad90dfac1a9e354c20",
+        "status":"-1",
+        "sysorderno":"",
+        "Method":"P361PhoneTranse"}';
+$request = json_decode($str, true);
 
 
-?>
+$data = [
+    'mchno'         => $request['mchno'],
+    'sysorderno'    => $request['sysorderno'],
+    'orderno'       => $request['orderno'],
+    'account'       => $request['account'],
+    'amount'        => $request['amount'],
+    'chanelcode'    => $request['chanelcode'],
+    'chaneltype'    => $request['chaneltype'],
+    'ordertime'     => $request['ordertime'],
+    'dealtime'      => $request['dealtime'],
+    'status'        => $request['status'],
+];
+print_r($data);
+$datas = $data;
+foreach ($datas as $key => $value) {
+    if (empty($value)) {
+        unset($datas[$key]);
+    }
+}
+
+print_r($datas);
+echo createSign('ab7a5a6e5b6849fca7d59687a3c8e5c0', $datas);*/
