@@ -102,6 +102,55 @@ class NotifyController extends OrderController
     }
 
 
+    /**
+     *  接受直接话充回调
+     */
+    public function phone() {
+        /**
+         *
+            phone: 		电话号码
+            money: 		金额 (单位分)
+            out_trade_id: 	商户系统的订单ID
+            status:		1 表示成功
+         */
+        if (!$this->request['method']){
+            return $this->result_error('no method');
+        }
+
+        if (
+            !$this->request['phone'] ||
+            !$this->request['money'] ||
+            !$this->request['out_trade_id'] ||
+            !$this->request['status']
+        ) {
+            return $this->result_error('param error');
+        }
+
+        $pool = D('PoolPhones')->where(['order_id' => $this->request['out_trade_id']])->find();
+        if (!$pool) {
+            return $this->result_error('no order');
+        }
+
+        if ($this->request['status'] == 1) {
+            $provider = D('Common/PoolProvider')->getById( $pool['pid'] );
+            if (!$provider) {
+                return $this->result_error('no provider');
+            }
+            $this->handlePoolOrderSuccess($pool, $provider);
+            echo 'ok';
+            // 处理订单 回调号码商
+        } else if ($this->request['status'] == -1) {
+            // 超时回调
+            // 直接超时
+            $this->cache->Client()->zAdd('pool_phone_timeout', time(), $pool['id']);
+            echo 'ok';
+        } else {
+            $this->result_error('unkown status');
+        }
+        return;
+    }
+
+
     protected function check()
     {
         return createSign(C('RPC_PHONE_MKEY'), [
