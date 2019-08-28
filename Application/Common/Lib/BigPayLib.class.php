@@ -56,7 +56,7 @@ class BigPayLib implements IDirectPayLib
             'username'      => $this->username,
             'out_trade_id'  => $pool['order_id'],
             'phone'         => $pool['phone'],
-            'money'         => $pool['money'] / 100,
+            'money'         => $pool['money'],
             'notify_url'    => $this->notify_url,
         ];
 
