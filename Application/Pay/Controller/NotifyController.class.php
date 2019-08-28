@@ -113,7 +113,7 @@ class NotifyController extends OrderController
             out_trade_id: 	商户系统的订单ID
             status:		1 表示成功
          */
-        if (!$this->request['method']){
+        if (!$this->request['Method']){
             return $this->result_error('no method');
         }
 
