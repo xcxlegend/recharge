@@ -74,7 +74,7 @@ class OrderController extends UserController
         }
         $this->assign("successtime", $successtime);
         $where['isdel'] = 0;
-        $where['pay_memberid'] = $this->fans['memberid'];
+        $where['pay_memberid'] = $this->fans['memberid'] - 10000;
         $count = M('Order')->where($where)->count();
         $size = 15;
         $rows  = I('get.rows', $size, 'intval');
