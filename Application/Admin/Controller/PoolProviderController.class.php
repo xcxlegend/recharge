@@ -119,11 +119,16 @@ class PoolProviderController extends BaseController
             $data["create_time"]=time();
             $data["update_time"]=time();
 
+            $config['transe'] = $post['transe'];
+            $data['config'] = json_encode($config);
+
             $status = D('Common/PoolProvider')->add($data);
 
             $this->ajaxReturn(['status'=>$status]);
 
         }else{
+            $transe = M('Channel')->field('id','title')->select();
+            $this->assign('transe',$transe);
             $this->display();
         }
         
@@ -179,6 +184,17 @@ class PoolProviderController extends BaseController
                 $data['password'] = md5($data['password']);
             }
             $data["update_time"]=time();
+            $where = array(
+                'id'     => $data['id']
+            );
+
+            $info = D('PoolProvider')->where($where)->find();
+
+            $config = json_decode($info['config'],true);
+             
+            $config['transe'] = $data['transe'];
+            $data['config'] = json_encode($config);
+
             $status = D('Common/PoolProvider')->save($data);
             $this->ajaxReturn(['status'=>$status]);
 
@@ -192,6 +208,11 @@ class PoolProviderController extends BaseController
             );
 
             $info = D('PoolProvider')->where($where)->find();
+            $config = json_decode($info['config'],true);
+            $info['transe'] = $config['transe'];
+            $transe = M('Channel')->select();
+            
+            $this->assign('transe',$transe);
             
             $this->assign('info',$info);
             $this->display();
@@ -386,26 +407,110 @@ class PoolProviderController extends BaseController
     {
         $param=I('get.');
         if(!empty($param['pid'])){
-            $maps['pid'] = $param['uid'];
+            $maps['a.pid'] = $param['uid'];
         }
         if($param['status']==2){
-            $maps['type'] = ['in','2,4'];
+            $maps['a.type'] = ['in','2,4'];
         }else{
-            $maps['type'] = $param['status'];
+            $maps['a.type'] = $param['status'];
         }
 
         if(!empty($param['remark'])){
-            $maps['contentstr'] = array('like','%'.$param['remark'].'%');
+            $maps['a.contentstr'] = array('like','%'.$param['remark'].'%');
         }
 
 
         if(!empty($param['datetime'])){
             list($stime, $etime)  = explode('|', $param['datetime']);
-            $maps['datetime'] = ['between', [strtotime($stime), strtotime($etime) ? strtotime($etime) : time()]];
+            $maps['a.datetime'] = ['between', [strtotime($stime), strtotime($etime) ? strtotime($etime) : time()]];
         }
         
+        $text = [1=>'加款',2=>'减款',3=>'退款',4=>'订单扣款'];
+
+        $count = M('PoolMoneychange')->alias('a')->where($maps)->count();
+
+        if(!empty($param['export'])){
+
+            set_time_limit(0);
+            header ( "Content-type:application/vnd.ms-excel" );
+            header ( "Content-Disposition:filename=" . iconv ( "UTF-8", "GB18030", $text[$param['status']]."记录" ) . ".csv" );
+            
+            $fp = fopen('php://output', 'a'); 
+            
+            if($param['status']==2){
+                $title = array($text[$param['status']].'编号', '号码商ID', $text[$param['status']].'前金额', $text[$param['status']].'金额', $text[$param['status']].'后金额', '号码商订单号','平台订单号','手机号','订单金额',$text[$param['status']].'员ID', $text[$param['status']].'备注', $text[$param['status']].'时间');
+            }else{
+                $title = array($text[$param['status']].'编号', '号码商ID', $text[$param['status']].'前金额', $text[$param['status']].'金额', $text[$param['status']].'后金额', $text[$param['status']].'员ID', $text[$param['status']].'备注', $text[$param['status']].'时间');
+            }
+            
+            foreach ($title as $i => $v) {  
+                $title[$i] = iconv('utf-8', 'GB18030', $v);  
+            }
+
+            fputcsv($fp, $title);
+
+            $limit = 5000;
+            for ($i=0;$i<intval($count/$limit)+1;$i++){
+
+                if($param['status']==2){
+                    $join = 'LEFT JOIN pay_pool_rec b ON a.recid=b.id';
+                    $field = 'a.*,b.out_trade_id,b.order_id,b.phone,b.money as order_money';
         
-        $count          = M('PoolMoneychange')->where($maps)->count();
+                    $data = M('PoolMoneychange')->alias('a')->join($join)->field($field)->where($maps)->limit(strval($i*$limit).",{$limit}")->order('a.id DESC')->select();
+                }else{
+                    $data = M('PoolMoneychange')->alias('a')->where($maps)->limit(strval($i*$limit).",{$limit}")->order('a.id DESC')->select();
+                }
+                
+
+                foreach ( $data as $item ) {
+                    $rows = array();
+
+                    if($param['status']==2){
+                        $info = array(
+                            'id'    => $item['id'],
+                            'pid'      => $item['pid'],
+                            'ymoney'     => format_money($item['ymoney']),
+                            'money'    => format_money($item['money']),
+                            'gmoney'      => format_money($item['gmoney']),
+                            
+                            'out_trade_id'      => $item['out_trade_id'],
+                            'order_id'      => $item['order_id'],
+                            'phone'      => $item['phone'],
+                            'order_money'      => format_money($item['order_money']),
+    
+                            'uid'      => $item['uid'],
+                            'contentstr'      => $item['contentstr'],
+                            'datetime'      =>date('Y-m-d H:i:s',$item['datetime']),
+                        );
+                    }else{
+                        $info = array(
+                            'id'    => $item['id'],
+                            'pid'      => $item['pid'],
+                            'ymoney'     => format_money($item['ymoney']),
+                            'money'    => format_money($item['money']),
+                            'gmoney'      => format_money($item['gmoney']),
+    
+                            'uid'      => $item['uid'],
+                            'contentstr'      => $item['contentstr'],
+                            'datetime'      =>date('Y-m-d H:i:s',$item['datetime']),
+                        );
+                    }
+                    
+
+                    foreach ($info as $text){
+                        $rows[] = iconv('utf-8', 'GB18030', $text);
+                    }
+                    fputcsv($fp, $rows);
+                }
+                
+                //释放内存
+                unset($data);
+                ob_flush();
+                flush();
+            }
+            exit;
+            
+        }
 
         $size  = 15;
         $rows  = I('get.rows', $size, 'intval');
@@ -413,12 +518,20 @@ class PoolProviderController extends BaseController
             $rows = $size;
         }
         $page           = new Page($count, $rows);
-        $list           = M('PoolMoneychange')
-            ->where($maps)
-            ->limit($page->firstRow . ',' . $page->listRows)
-            ->order('id desc')
-            ->select();
-        $text = [1=>'加款',2=>'减款',3=>'退款',4=>'订单扣款'];
+
+        
+
+        if($param['status']==2){
+            $join = 'LEFT JOIN pay_pool_rec b ON a.recid=b.id';
+            $field = 'a.*,b.out_trade_id,b.order_id,b.phone,b.money as order_money';
+
+            $list = M('PoolMoneychange')->alias('a')->join($join)->field($field)->where($maps)->limit($page->firstRow . ',' . $page->listRows)->order('a.id DESC')->select();
+        }else{
+            $list = M('PoolMoneychange')->alias('a')->where($maps)->limit($page->firstRow . ',' . $page->listRows)->order('a.id DESC')->select();
+        }
+
+        
+        
         $this->assign("text", $text[$param['status']]);
         $this->assign("param", $param);
         $this->assign("list", $list);

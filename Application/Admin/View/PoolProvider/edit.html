@@ -33,6 +33,18 @@
         </div>
     </div>
     <div class="layui-form-item">
+            <label class="layui-form-label">转发通道：</label>
+            <div class="layui-input-inline">
+            <select name="transe">
+                    <option value="0">默认通道</option>
+            <foreach name="transe" item="v" key="k">
+                <option value="<{$v.id}>" <if condition="$v['id'] eq $info['transe']">selected</if>><{$v.title}></option>
+            </foreach>
+               
+            </select>
+        </div>
+        </div>
+    <div class="layui-form-item">
         <label class="layui-form-label">状态：</label>
         <div class="layui-col-md12">  
             <input type="radio" name="status" value="1" title="已认证" <if condition="$info.status eq 1 ">checked</if>>
