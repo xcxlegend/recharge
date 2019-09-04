@@ -7,6 +7,7 @@
  */
 
 namespace Pay\Controller;
+use Common\Lib\BigPayLib;
 use \Think\Log;
 use Common\Model\RedisCacheModel;
 
@@ -102,6 +103,16 @@ out_trade_id
 
         // 创建失败回调的参数
         $this->createData($data, $provider);
+        $lock = false;
+        if ($this->request['channel'] == 2) {
+            $notify_url = $this->_site . 'Pay_Notify_Phone_Method_BigPay';
+            $Pay = new BigPayLib($notify_url);
+            if ($Pay->phoneOrder($data)){
+                $data['lock'] = 1;
+                $lock = true;
+            }
+        } // 联通
+
         $result = M('PoolPhones')->add($data);
         if (!$result){
             $this->result_error("save db error", true);
@@ -109,9 +120,12 @@ out_trade_id
             return;
         }
         $data['id'] = $result;
+        // 如果是联通号码 则直接走bigpay
 
-        $this->setTimeout($data);
-
+        if (!$lock) {
+            // 如果没有直接转发则进入超时
+            $this->setTimeout($data);
+        }
         $this->result_success(
             [
                 'order_id' => $data['order_id'],

@@ -24,4 +24,9 @@ return [
         '1' => '商户可见',
         '2' => '代理可见',
     ],
+    'BigPay' => [
+        'gateway'  => 'http://47.244.237.40:9091',
+        'username' => 'test',
+        'appkey'   => 'fSZKPq3CoIAQDJEaWxiRpLXh6OMtgw8N'
+    ],
 ];
