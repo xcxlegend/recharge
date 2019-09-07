@@ -39,7 +39,7 @@ class DLPhoneTranseLib extends BaseTransLib implements IPoolTranser
             'account'         => self::MID, //用户名
             'orderNumber'       => $pool['order_id'],
             'mobile'       => $pool['phone'], //所充话费的手机号码
-            'flowCode'    => self::CHANNELS[$pool['money']], //产品编码
+            'flowCode'    => self::CHANNELS[intval($pool['money'])], //产品编码
             'chargeType'    => 0, //充值类型  0 快充(默认) 1 自动慢充 2 手动慢充 
             'callbackURL'   => urlencode($notify_url), //回调地址
         ];
