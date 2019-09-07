@@ -55,7 +55,7 @@ class DLPhoneTranseLib extends BaseTransLib implements IPoolTranser
 
         $resData = json_decode($res, true);
 
-        return $resData['status'] == "2000";
+        return $resData['code'] == "2000";
     }
 
     public function query(&$poolOrder)
