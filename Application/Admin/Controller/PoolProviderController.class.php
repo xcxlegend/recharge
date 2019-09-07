@@ -192,7 +192,7 @@ class PoolProviderController extends BaseController
 
             $config = json_decode($info['config'],true);
              
-            $config['transe'] = $data['transe'];
+            $config['transe'] =  intval($data['transe']);
             $data['config'] = json_encode($config);
 
             $status = D('Common/PoolProvider')->save($data);
