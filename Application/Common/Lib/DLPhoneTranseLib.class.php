@@ -82,6 +82,7 @@ class DLPhoneTranseLib extends BaseTransLib implements IPoolTranser
     public function notify(&$request)
     {
 
+        Log::write(json_encode($request));
         //大写( md5( md5(密码)+ 平台订单号+秘钥 ) )
         $sign = strtoupper(md5(md5(self::PASSWORD).$request['order_number'].self::SECRET));
 
