@@ -79,9 +79,10 @@ class DLPhoneTranseLib extends BaseTransLib implements IPoolTranser
      * @param $request
      * @return array
      */
-    public function notify(&$request)
+    public function notify()
     {
 
+        $request = file_get_contents('php://input');
         Log::write($request);
         $params = json_decode($request, true);
         //大写( md5( md5(密码)+ 平台订单号+秘钥 ) )
