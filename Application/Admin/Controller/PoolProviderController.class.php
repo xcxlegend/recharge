@@ -210,7 +210,7 @@ class PoolProviderController extends BaseController
             $info = D('PoolProvider')->where($where)->find();
             $config = json_decode($info['config'],true);
             $info['transe'] = $config['transe'];
-            $transe = M('Channel')->where(['paytype'=>3])->field('id','title')->select();
+            $transe = M('Channel')->field('id,title')->where(['paytype'=>3])->select();
             
             $this->assign('transe',$transe);
             

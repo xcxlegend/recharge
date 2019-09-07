@@ -27,7 +27,7 @@ class DLPhoneTranseLib extends BaseTransLib implements IPoolTranser
     ];
 
     const APIORDER = 'http://119.147.44.182/index.php/Api/Order/flow'; 
-    const APIURL = 'http://119.147.44.198/Api/Order/order_search'; 
+    const APIURL = 'http://119.147.44.198/index.php/Api/Order/order_search'; 
 
 
 
