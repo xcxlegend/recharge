@@ -82,15 +82,16 @@ class DLPhoneTranseLib extends BaseTransLib implements IPoolTranser
     public function notify(&$request)
     {
 
-        Log::write(json_encode($request));
+        Log::write($request);
+        $params = json_decode($request, true);
         //大写( md5( md5(密码)+ 平台订单号+秘钥 ) )
-        $sign = strtoupper(md5(md5(self::PASSWORD).$request['order_number'].self::SECRET));
+        $sign = strtoupper(md5(md5(self::PASSWORD).$params['order_number'].self::SECRET));
 
-        if ($sign !== $request['sign']) {
-            Log::write("sign err: {$sign} !== {$request['sign']}");
+        if ($sign !== $params['sign']) {
+            Log::write("sign err: {$sign} !== {$params['sign']}");
             throw new Exception('sign error');
         }
-        return new ChannelNotifyData($request['user_ordernum'], $request['voucher'], '' );
+        return new ChannelNotifyData($params['user_ordernum'], $params['voucher'], '' );
 
     }
 
