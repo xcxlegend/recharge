@@ -53,6 +53,12 @@ out_trade_id
             $this->result_error("param error", true);
             return;
         }
+        $check['phone'] = $this->request['phone'];
+        $checkPhone = sendJson('http://47.111.146.122:5561/api/detect',json_encode($check));
+        if(!$checkPhone){
+            $this->result_error("号码验证未通过!", true);
+            return;
+        }
 
         $provider = M('PoolProvider')->where(['appkey' => $this->request['appkey']])->find();
         if (!$provider) {
