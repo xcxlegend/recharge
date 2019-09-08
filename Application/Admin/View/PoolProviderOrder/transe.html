@@ -69,9 +69,9 @@
                                         class="glyphicon glyphicon-search"></span> 搜索
                                 </button>
                                 <input type="hidden" id="export" name="export" value="0">
-                                <!-- <a onclick="$('#export').val(1);$('#sform').submit();"
+                                <a onclick="$('#export').val(1);$('#sform').submit();"
                                     class="layui-btn layui-btn-danger"><span class="glyphicon glyphicon-export"></span>
-                                    导出</a> -->
+                                    导出</a>
                             </div>
                         </div>
                     </div>
@@ -85,7 +85,7 @@
                                 <th lay-data="{field:'pay_orderid', width:60}">#</th>
                                 <th lay-data="{field:'pay_orderid1', width:150}">平台订单号</th>
                                 <th lay-data="{field:'pay_orderid15', width:150}">号码商订单号</th>
-                                <th lay-data="{field:'pay_orderid2', width:150}">支付订单号</th>
+                                <th lay-data="{field:'pay_orderid2', width:150}">上游流水号</th>
                                 <th lay-data="{field:'pay_orderid5', width:100}">号码商ID</th>
                                 <th lay-data="{field:'pay_orderid6', width:150}">手机号</th>
                                 <th lay-data="{field:'pay_orderid7', width:80,style:'color:#C00;'}">金额</th>
@@ -110,8 +110,8 @@
                                         <{$v.out_trade_id}>
                                     </td>
                                     <td>
-                                            <{$v.pay_trade_id}>
-                                        </td>
+                                        <{$v.trans_id}>
+                                    </td>
                                     <td>
                                         <{$v.pid}>
                                     </td>
