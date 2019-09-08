@@ -6,7 +6,22 @@
  * Time: 21:09
  */
 error_reporting(E_ALL ^ E_WARNING ^E_NOTICE);
-
+function sendJson($url, $jsonStr)
+{
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_POST, 1);
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonStr);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+            'Content-Type: application/json; charset=utf-8',
+            'Content-Length: ' . strlen($jsonStr)
+        )
+    );
+    $data = curl_exec($ch);
+    curl_close($ch);
+    return $data;
+}
 function sendForm($url,$data,$referer){
     $headers['Content-Type'] = "application/x-www-form-urlencoded; charset=utf-8";
     $headerArr = array();
