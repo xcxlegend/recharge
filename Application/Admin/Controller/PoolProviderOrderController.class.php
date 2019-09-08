@@ -186,7 +186,114 @@ class PoolProviderOrderController extends BaseController
         $this->ajaxReturn(['info'=>'退单成功', 'status' => true]);
     }
 
+    //列表
+    public function transe()
+    {
+        $param = I("get.");
+        if(!empty($param['pid'])){
+            $where['pid'] = $param['pid'];
+        }
+        if(!empty($param['order_id'])){
+            $where['order_id'] = $param['order_id'];
+        }
+
+        if(!empty($param['out_trade_id'])){
+            $where['out_trade_id'] = $param['out_trade_id'];
+        }
+        if(!empty($param['pay_trade_id'])){
+            $where['pay_trade_id'] = $param['pay_trade_id'];
+        }
+        if(!empty($param['phone'])){
+            $where['phone'] = $param['phone'];
+        }
+        if(!empty($param['order_time'])){
+            list($stime, $etime)  = explode('|', $param['order_time']);
+            $where['order_time'] = ['between', [strtotime($stime), strtotime($etime) ? strtotime($etime) : time()]];
+        }
+        if(!empty($param['money'])){
+            $where['money'] = $param['money']*100;//分
+        }
+        if(!empty($param['sp'])){
+            $where['channel'] = $param['sp'];
+        }
+        if(is_numeric($param['status'])){
+            $where['status'] = $param['status'];
+        }
+
+        $sp_list = array('1'=>'移动','2'=>'电信','3'=>'联通');
+
+        if(!empty($param['export'])){
+            set_time_limit(0);
+            header ( "Content-type:application/vnd.ms-excel" );
+            header ( "Content-Disposition:filename=" . iconv ( "UTF-8", "GB18030", "转号订单" ) . ".csv" );
+            
+            $fp = fopen('php://output', 'a'); 
+            
+            $title = array('平台订单号', '号码商订单号', '上游流水号','号码商ID', '手机号', '金额', '运营商', '创建时间', '成功时间', '状态', '添加时间');
+            foreach ($title as $i => $v) {  
+                $title[$i] = iconv('utf-8', 'GB18030', $v);  
+            }
+
+            fputcsv($fp, $title);
+
+            $count = D('PoolOrder')->where($where)->count();
+            
+            
+            $limit = 5000;
+            for ($i=0;$i<intval($count/$limit)+1;$i++){
+
+                $data = D('PoolOrder')->where($where)->limit(strval($i*$limit).",{$limit}")->order('id DESC')->select();
+
+                foreach ( $data as $item ) {
+                    $rows = array();
+                    switch ($item['status']) {
+                        case 0:
+                            $status = '未支付';
+                            break;
+                        case 1:
+                            $status = '支付成功';
+                            break;
+
+                    }
     
+                    $info = array(
+                        'order_id'    => $item['order_id'],
+                        'trade_id'      => $item['out_trade_id'],
+                        'pool_order_id'     => $item['trans_id'],
+                        'pid'    => $item['pid'],
+                        'phone'    => $item['phone'],
+                        'money'      => $item['money'],
+                        'channel'      => $sp_list[$item['channel']],
+                        'pay_applydate'      =>date('Y-m-d H:i:s',$item['pay_applydate']),
+                        'pay_successdate'      => date('Y-m-d H:i:s',$item['pay_successdate']),
+                        'status'  => $status,
+                        'time'      => date('Y-m-d H:i:s',$item['time']),
+                    );
+
+                    foreach ( $info as $text){
+                        $rows[] = iconv('utf-8', 'GB18030', $text);
+                    }
+                    fputcsv($fp, $rows);
+                }
+                
+                //释放内存
+                unset($data);
+                ob_flush();
+                flush();
+            }
+            exit;
+            
+        }
+
+        $data = D('PoolOrder')->getList($where);
+        
+
+        $this->assign('param', $param);
+        $this->assign('sp_list', $sp_list);
+        $this->assign('list', $data['list']);
+        $this->assign('page', $data['page']);
+        $this->display();
+    }
 
 }
 ?>

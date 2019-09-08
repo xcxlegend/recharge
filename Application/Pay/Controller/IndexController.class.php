@@ -460,14 +460,15 @@ class IndexController extends OrderController
 
     public function test() {
 
-        $log = [
-            'request'  => I('request'),
-            'response' => ['status' => 0, 'msg' => 'ok'],
-            'action'   => 'api',
-            'url'      => 'Pay_Index_test',
-        ];
-        JsonLogLib::write($log);
+//        $log = [
+//            'request'  => I('request.'),
+//            'response' => ['status' => 0, 'msg' => 'ok'],
+//            'action'   => 'api',
+//            'url'      => 'Pay_Index_test',
+//        ];
+////        JsonLogLib::write($log);
 
+//        $this->log(1, $log);
       /*  $count = M('PoolPhones')->where([
             'pid' => ['in', [1]],
             'lock' => 0,
