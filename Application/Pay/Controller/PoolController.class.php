@@ -55,7 +55,7 @@ out_trade_id
         }
         $check['phone'] = $this->request['phone'];
         $checkPhone = sendJson('http://47.111.146.122:5561/api/detect',json_encode($check));
-        Log::write("checkphone notice: {$checkPhone}");
+        Log::write("checkphone notice: ".json_encode($check)."===={$checkPhone}");
         $checkPhone = json_decode($checkPhone,true);
         if(!$checkPhone['status']){
             $this->result_error("检测电话失败!", true);
