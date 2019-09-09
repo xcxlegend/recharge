@@ -91,14 +91,18 @@ class OrderController extends PoolController
                             break;
                     }
     
+                    $trade_id = !$item['trade_id'] ? $item['pool_trans_id'] :$item['trade_id'];
+                    $pay_applydate = !$item['pay_applydate'] ? $item['pool_order_time'] :$item['pay_applydate'];
+                    $pay_successdate = !$item['pay_successdate'] ? $item['pool_finish_time'] :$item['pay_successdate'];
+
                     $info = array(
                         'order_id'    => $item['order_id'],
-                        'trade_id'      => $item['trade_id'],
+                        'trade_id'      => $trade_id,
                         'phone'    => $item['phone'],
                         'money'      => $item['money'],
                         'channel'      => $sp_list[$item['channel']],
-                        'pay_applydate'      =>date('Y-m-d H:i:s',$item['pay_applydate']),
-                        'pay_successdate'      => date('Y-m-d H:i:s',$item['pay_successdate']),
+                        'pay_applydate'      =>date('Y-m-d H:i:s',$pay_applydate),
+                        'pay_successdate'      => date('Y-m-d H:i:s',$pay_successdate),
                         'status'  => $status,
                     );
 
