@@ -21,7 +21,8 @@ function sendJson($url, $jsonStr)
     );
     $data = curl_exec($ch);
     $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    //print_r($code)
+    print_r($code);
+    exit;
     curl_close($ch);
     return $data;
 }
