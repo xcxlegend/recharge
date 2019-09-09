@@ -15,8 +15,7 @@ function sendJson($url, $jsonStr)
     curl_setopt($ch, CURLOPT_POSTFIELDS, '{"phone":"15051871409"}');
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
     curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-            'Content-Type: application/json; charset=utf-8',
-            'Content-Length: ' . strlen($jsonStr)
+            'Content-Type: application/json; charset=utf-8'
         )
     );
     $data = curl_exec($ch);
