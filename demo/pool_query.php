@@ -9,9 +9,10 @@ error_reporting(E_ALL ^ E_WARNING ^E_NOTICE);
 function sendJson($url, $jsonStr)
 {
     $ch = curl_init();
+    curl_setopt($ch, CURLOPT_TIMEOUT, 30);
     curl_setopt($ch, CURLOPT_POST, 1);
     curl_setopt($ch, CURLOPT_URL, $url);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonStr);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, '{"phone":"15051871409"}');
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
     curl_setopt($ch, CURLOPT_HTTPHEADER, array(
             'Content-Type: application/json; charset=utf-8',
@@ -19,6 +20,8 @@ function sendJson($url, $jsonStr)
         )
     );
     $data = curl_exec($ch);
+    $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    //print_r($code)
     curl_close($ch);
     return $data;
 }
