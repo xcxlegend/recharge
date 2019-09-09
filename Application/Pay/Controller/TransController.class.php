@@ -37,7 +37,7 @@ class TransController extends OrderController
                     return;
                 }
 
-                $this->handlePoolOrderSuccess($pool, $provider);
+                $this->handlePoolOrderSuccess($pool, $provider,$res->trans_id);
                 D('PoolOrder')->where(['id' => $order['id']])->setField([
                     'status' => 1,
                     'finish_time' => $this->timestamp,

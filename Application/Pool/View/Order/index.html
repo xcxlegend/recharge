@@ -119,6 +119,9 @@
                                         <{$v.order_id}>
                                     </td>
                                     <td>
+                                            <if condition="!$v.trade_id">
+                                                    <{$v.pool_trans_id}>
+                                                </if>
                                         <{$v.trade_id}>
                                     </td>
                                     <td>
@@ -131,11 +134,18 @@
                                         <{$sp_list[$v['channel']]}>
                                     </td>
                                     <td>
-                                        <{$v.pay_applydate|date='Y-m-d H:i:s',###}>
-                                    </td>
-                                    <td>
-                                        <{$v.pay_successdate|date='Y-m-d H:i:s',###}>
-                                    </td>
+                                            <if condition="!$v.pay_applydate">
+                                                <{$v.pool_order_time|date='Y-m-d H:i:s',###}>
+                                            </if>
+                                            <{$v.pay_applydate|date='Y-m-d H:i:s',###}>
+                                        </td>
+    
+                                        <td>
+                                                <if condition="!$v.pay_successdate">
+                                                    <{$v.pool_finish_time|date='Y-m-d H:i:s',###}>
+                                                </if>
+                                            <{$v.pay_successdate|date='Y-m-d H:i:s',###}>
+                                        </td>
                                     <td>
                                         <if condition="$v.status eq 0 ">未回调
                                             <elseif condition="$v.status eq 1" />回调成功
