@@ -144,10 +144,11 @@
                                         <{$v.order_id}>
                                     </td>
                                     <td>
-                                            <if condition="$v.trade_id ==''">
-                                                    <{$v.pool_trans_id}>
-                                                </if>
+                                        <if condition="$v.trade_id ==''">
+                                                <{$v.pool_trans_id}>
+                                        <else/>
                                         <{$v.trade_id}>
+                                        </if>
                                     </td>
                                     <td>
                                         <{$v.pool_order_id}>
@@ -176,21 +177,27 @@
                                     <td>
                                         <if condition="!$v.pay_applydate">
                                             <{$v.pool_order_time|date='Y-m-d H:i:s',###}>
+                                            <else/>
+                                            <{$v.pay_applydate|date='Y-m-d H:i:s',###}>
                                         </if>
-                                        <{$v.pay_applydate|date='Y-m-d H:i:s',###}>
+                                        
                                     </td>
 
                                     <td>
                                             <if condition="!$v.pay_successdate">
                                                 <{$v.pool_finish_time|date='Y-m-d H:i:s',###}>
+                                                <else/>
+                                                <{$v.pay_successdate|date='Y-m-d H:i:s',###}>
                                             </if>
-                                        <{$v.pay_successdate|date='Y-m-d H:i:s',###}>
+                                        
                                     </td>
                                     <td>
                                             <if condition="!$v.success_url">
-                                                    <{$v.pool_notify_url}>
-                                                </if>
-                                        <{$v.success_url}>
+                                                <{$v.pool_notify_url}>
+                                                <else/>
+                                                <{$v.success_url}>
+                                            </if>
+                                        
                                     </td>
                                     <td>
                                         <if condition="$v.status eq 0 ">未回调</if>
