@@ -1416,9 +1416,19 @@ function createSign($Md5key, $params){
     return $sign;
 }
 
-function createUUID( $prefix = "" ) {
+function createUUID( $prefix = "",$length=24) {
     list($msec, $sec) = explode(' ', microtime());
-    return $prefix . date('YmdHis',$sec) . intval($msec * 1000);
+    $chars = array('a', 'b', 'c', 'd', 'e', 'f', 'g', 'h','i', 'j', 'k', 'l','m', 'n', 'o', 'p', 'q', 'r', 's', 
+'t', 'u', 'v', 'w', 'x', 'y','z', 'A', 'B', 'C', 'D','E', 'F', 'G', 'H', 'I', 'J', 'K', 'L','M', 'N', 'O', 
+'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y','Z'); 
+    $length =  $length - 23;//随机3位
+    $fix='';
+    for ( $i = 0; $i < $length; $i++ ) 
+    { 
+        $rand =mt_rand(0,51);
+        $fix .= $chars[$rand];
+    } 
+    return $prefix . date('YmdHis',$sec) .$fix.substr($msec, 2, 4) ;
 }
 
 function LogApiQuery($url, $request, $response) {
