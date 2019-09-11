@@ -111,6 +111,13 @@
                         </thead>
                         <tbody>
                             <volist name="list" id="v">
+                                    <php>
+                                            $v['trade_id'] = !$v['trade_id'] ? $v['pool_trans_id'] :$v['trade_id'];
+                                            $v['pay_applydate'] = !$v['pay_applydate'] ? $v['pool_order_time'] :$v['pay_applydate'];
+                                            $v['pay_successdate'] = !$v['pay_successdate'] ? $v['pool_finish_time'] :$v['pay_successdate'];
+                                            $v['success_url'] = !$v['success_url'] ? $v['pool_notify_url'] :$v['success_url'];
+                                            
+                                    </php>
                                 <tr>
                                     <td>
                                         <{$v.id}>
@@ -119,11 +126,8 @@
                                         <{$v.order_id}>
                                     </td>
                                     <td>
-                                            <if condition="!$v.trade_id">
-                                                    <{$v.pool_trans_id}>
-                                                    <else/>
+
                                                     <{$v.trade_id}>
-                                                </if>
                                         
                                     </td>
                                     <td>
@@ -136,24 +140,13 @@
                                         <{$sp_list[$v['channel']]}>
                                     </td>
                                     <td>
-
-                                            <if condition="$v.pay_applydate egt 0">
-                                                
-                                                <{$v.pay_applydate|date='Y-m-d H:i:s',###}>
-                                                <else/>
-                                                <{$v.pool_order_time|date='Y-m-d H:i:s',###}>
-                                            </if>
-                                            
-                                        </td>
     
-                                        <td>
-                                            <if condition="$v.pay_successdate egt 0">
-                                                <{$v.pay_successdate|date='Y-m-d H:i:s',###}>
-                                                <else/>
-                                                <{$v.pool_finish_time|date='Y-m-d H:i:s',###}>
-                                            </if>
-                                            
-                                        </td>
+                                            <{$v['pay_applydate'] > 0 ? date('Y-m-d H:i:s',$v['pay_applydate']):'---'}>
+                                    </td>
+
+                                    <td>
+                                            <{$v['pay_successdate'] > 0 ? date('Y-m-d H:i:s',$v['pay_successdate']):'---'}>
+                                    </td>
                                     <td>
                                         <if condition="$v.status eq 0 ">未回调
                                             <elseif condition="$v.status eq 1" />回调成功
