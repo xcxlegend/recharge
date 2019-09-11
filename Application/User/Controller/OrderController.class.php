@@ -346,10 +346,10 @@ class OrderController extends UserController
         }
 
         if($order['pay_memberid'] != $this->fans['memberid']) {
-            $parentId = D('Common/Member')->where(['id'=>$order['pay_memberid']-10000])->getField('parentid');
-            if($parentId != $this->fans['uid']) {
+            // $parentId = D('Common/Member')->where(['id'=>$order['pay_memberid']-10000])->getField('parentid');
+            // if($parentId != $this->fans['uid']) {
                 $this->error('没有权限查看该订单');
-            }
+            // }
         }
         $this->assign('order',$order);
         $this->display();
