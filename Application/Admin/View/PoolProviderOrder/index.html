@@ -175,20 +175,22 @@
                                         <{$v.pay_name}>
                                     </td>
                                     <td>
-                                        <if condition="!$v.pay_applydate">
-                                            <{$v.pool_order_time|date='Y-m-d H:i:s',###}>
-                                            <else/>
+
+                                        <if condition="$v.pay_applydate egt 0">
+                                            
                                             <{$v.pay_applydate|date='Y-m-d H:i:s',###}>
+                                            <else/>
+                                            <{$v.pool_order_time|date='Y-m-d H:i:s',###}>
                                         </if>
                                         
                                     </td>
 
                                     <td>
-                                            <if condition="!$v.pay_successdate">
-                                                <{$v.pool_finish_time|date='Y-m-d H:i:s',###}>
-                                                <else/>
-                                                <{$v.pay_successdate|date='Y-m-d H:i:s',###}>
-                                            </if>
+                                        <if condition="$v.pay_successdate egt 0">
+                                            <{$v.pay_successdate|date='Y-m-d H:i:s',###}>
+                                            <else/>
+                                            <{$v.pool_finish_time|date='Y-m-d H:i:s',###}>
+                                        </if>
                                         
                                     </td>
                                     <td>
@@ -196,8 +198,7 @@
                                                 <{$v.pool_notify_url}>
                                                 <else/>
                                                 <{$v.success_url}>
-                                            </if>
-                                        
+                                            </if
                                     </td>
                                     <td>
                                         <if condition="$v.status eq 0 ">未回调</if>
