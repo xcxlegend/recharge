@@ -133,7 +133,7 @@
               <td style="text-align:center;"><{$vo.pay_productname}></td>
               <td style="text-align:center; color:#369"><{$vo['pay_status']|status=###}></td>
               <td>
-                <button class="layui-btn layui-btn-small" onclick="order_view('订单号:<{$vo.out_trade_id}>','<{:U('User/Order/show',['oid'=>$vo[id]])}>',780,630)">订单详情</button>
+                <button class="layui-btn layui-btn-small" onclick="order_view('订单号:<{$vo.out_trade_id}>','<{:U('Order/show',['oid'=>$vo[id]])}>',780,630)">订单详情</button>
 
                 <eq name="vo.pay_status" value="0">
                 <button  class="layui-btn layui-btn-small" onclick="checkOrder(<{$vo['id']}>)">查单</button>
