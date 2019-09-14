@@ -43,6 +43,7 @@ class NotifyController extends OrderController
             //处理充值失败
             if ($request['status'] == 'Faild') {
                 $order = M('Order')->where(['pay_orderid' => $this->request['merchant_order_no']])->find();
+                print_r($order);
                 if (!$order) {
                     exit(ChannelManagerLib::notifyErr($this->request['Method']));
                     return;
