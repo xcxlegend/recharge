@@ -101,12 +101,7 @@
                                     <td><{$paylist[$v['pay_code']]['name']}></td>
                                     <td><{$v.pay_applydate|date='Y-m-d H:i:s',###}></td>
                                     <td><{$v.pay_successdate|date='Y-m-d H:i:s',###}></td>
-                                    <td>
-                                        <if condition="$v.pay_status eq 0 ">未支付
-                                            <elseif condition="$v.pay_status eq 1"/>已支付，未返回
-                                            <else />已支付，已返回
-                                        </if>
-                                    </td>
+                                    <td style="text-align:center; color:#369"><{$vo['pay_status']|status=###}></td>
                                     <td>
                                         <a href="<{:U('Order/info',['id'=>$v[id]])}>" class="layui-btn layui-btn-mini layui-btn-success">订单详情</a>
                                     </td>

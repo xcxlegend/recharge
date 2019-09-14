@@ -40,7 +40,19 @@ class NotifyController extends OrderController
 
         Log::write("notify request:" . http_build_query($this->request));
         try {
-
+            //处理充值失败
+            if ($request['status'] != 'Success') {
+                $order = M('Order')->where(['pay_orderid' => $this->request['merchant_order_no']])->find();
+                if (!$order) {
+                    exit(ChannelManagerLib::notifyErr($this->request['Method']));
+                    return;
+                }
+                M('Order')->where(['id' => $order['id']])->save([
+                    'pay_status' => -1,
+                    'pay_successdate' => $this->timestamp,
+                ]);
+                exit(ChannelManagerLib::notifyOK($this->request['Method']));
+            }
             $res = ChannelManagerLib::notify($this->request['Method'], $this->request);
             if (!$res) {
 //              exit('err');

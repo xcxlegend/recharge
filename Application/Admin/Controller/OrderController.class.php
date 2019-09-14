@@ -85,6 +85,9 @@ class OrderController extends BaseController
                 foreach ( $data as $item ) {
                     $rows = array();
                     switch ($item['status']) {
+                        case -1:
+                            $status = '充值失败';
+                            break;
                         case 0:
                             $status = '未支付';
                             break;
@@ -551,6 +554,9 @@ class OrderController extends BaseController
             foreach ( $data as $item ) {
                 $rows = array();
                 switch ($item['pay_status']) {
+                    case -1:
+                        $status = '充值失败';
+                        break;
                     case 0:
                         $status = '未处理';
                         break;
@@ -603,6 +609,9 @@ class OrderController extends BaseController
            
             foreach ($data as $item) {
                 switch ($item['pay_status']) {
+                    case -1:
+                        $status = '充值失败';
+                        break;
                     case 0:
                         $status = '未处理';
                         break;
