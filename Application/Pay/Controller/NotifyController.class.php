@@ -67,7 +67,7 @@ class NotifyController extends OrderController
                     'status'        => -2,
                 ];
         
-                $sign = parent::createSign($provider['appsecret'], $params);
+                $sign = $this->createSign($provider['appsecret'], $params);
                 $params["sign"] = $sign;
                 $params['trans_id'] = $trans_id;
         
