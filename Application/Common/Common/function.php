@@ -272,6 +272,9 @@ function status($pay_status)
         case 2:
             return "<span style='color:#030'>成功,已返回</span>";
             break;
+        case 3:
+            return "<span style='color:#f00'>充值失败</span>";
+            break;
     }
 }
 

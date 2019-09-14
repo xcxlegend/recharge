@@ -68,10 +68,12 @@
               <div class="layui-input-inline">
                 <select name="status">
                   <option value="">全部状态</option>
+                  
                   <option <if condition="$status neq '' && $status eq 0">selected</if> value="0">未处理</option>
                   <option <if condition="$status eq 1">selected</if> value="1">成功，未返回</option>
                   <option <if condition="$status eq 2">selected</if> value="2">成功，已返回</option>
                   <option <if condition="$status eq '1or2'">selected</if> value="1or2">成功，已/未返回</option>
+                  <option <if condition="$status eq 3">selected</if> value="0">充值失败</option>
                 </select>
               </div>
               <div class="layui-input-inline">

@@ -94,6 +94,9 @@ class OrderController extends BaseController
                         case 2:
                             $status = '已支付，已返回';
                             break;
+                        case 3:
+                            $status = '充值失败';
+                            break;
                     }
     
                     $info = array(
@@ -560,6 +563,9 @@ class OrderController extends BaseController
                     case 2:
                         $status = '成功，已返回';
                         break;
+                    case 3:
+                        $status = '充值失败';
+                        break;
                 }
 
                 if ($item['pay_successdate']) {
@@ -611,6 +617,9 @@ class OrderController extends BaseController
                         break;
                     case 2:
                         $status = '成功，已返回';
+                        break;
+                    case 3:
+                        $status = '充值失败';
                         break;
                 }
                 if ($item['pay_successdate']) {
