@@ -48,7 +48,7 @@ class NotifyController extends OrderController
                     return;
                 }
                 M('Order')->where(['id' => $order['id']])->save([
-                    'pay_status' => -1,
+                    'pay_status' => 3,
                     'pay_successdate' => time(),
                 ]);
 
@@ -58,6 +58,27 @@ class NotifyController extends OrderController
                 $trans_id = $this->request['no'];
 
                 $provider = M('PoolProvider')->where(['id' => $pool['pid']])->find();
+
+                $poolOrder = [
+                    'pool_id'           => $pool['id'],
+                    'pid'               => $pool['pid'],
+                    'out_trade_id'      => $pool['out_trade_id'],
+                    'order_id'          => $pool['order_id'],
+                    'data'              => json_encode($pool),
+                    'status'            => 1,
+                    'time'              => $this->timestamp,
+                    'year'              => date('Y', $this->timestamp),
+                    'month'             => date('m', $this->timestamp),
+                    'day'               => date('d', $this->timestamp),
+                    'money'             => $pool['money'],
+                    'channel'           => $pool['channel'],
+                    'phone'             => $pool['phone']
+                ];
+
+                if (!M('PoolFaild')->add($poolOrder)){
+                    Log::write("add poolFaildOrder err:" . json_encode($poolOrder));
+                    return;
+                }
                 
                 $params = [
                     'appkey'        => $provider['appkey'],
@@ -73,7 +94,7 @@ class NotifyController extends OrderController
         
                 $contents = sendForm($pool['notify_url'], $params);
         
-                Log::write(" pool notify fail: ". $order["pay_orderid"] . " url: " . $pool["notify_url"] . http_build_query($params) . " resp: " . $contents);
+                Log::write(" pool notify faild: ". $order["pay_orderid"] . " url: " . $pool["notify_url"] . http_build_query($params) . " resp: " . $contents);
 
                 exit(ChannelManagerLib::notifyOK($this->request['Method']));
             }

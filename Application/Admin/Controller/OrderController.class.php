@@ -85,9 +85,6 @@ class OrderController extends BaseController
                 foreach ( $data as $item ) {
                     $rows = array();
                     switch ($item['status']) {
-                        case -1:
-                            $status = '充值失败';
-                            break;
                         case 0:
                             $status = '未支付';
                             break;
@@ -96,6 +93,9 @@ class OrderController extends BaseController
                             break;
                         case 2:
                             $status = '已支付，已返回';
+                            break;
+                        case 3:
+                            $status = '充值失败';
                             break;
                     }
     
@@ -554,9 +554,6 @@ class OrderController extends BaseController
             foreach ( $data as $item ) {
                 $rows = array();
                 switch ($item['pay_status']) {
-                    case -1:
-                        $status = '充值失败';
-                        break;
                     case 0:
                         $status = '未处理';
                         break;
@@ -565,6 +562,9 @@ class OrderController extends BaseController
                         break;
                     case 2:
                         $status = '成功，已返回';
+                        break;
+                    case 3:
+                        $status = '充值失败';
                         break;
                 }
 
@@ -609,9 +609,6 @@ class OrderController extends BaseController
            
             foreach ($data as $item) {
                 switch ($item['pay_status']) {
-                    case -1:
-                        $status = '充值失败';
-                        break;
                     case 0:
                         $status = '未处理';
                         break;
@@ -620,6 +617,9 @@ class OrderController extends BaseController
                         break;
                     case 2:
                         $status = '成功，已返回';
+                        break;
+                    case 3:
+                        $status = '充值失败';
                         break;
                 }
                 if ($item['pay_successdate']) {

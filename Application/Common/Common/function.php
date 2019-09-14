@@ -263,9 +263,6 @@ function qianbaoyue($id)
 function status($pay_status)
 {
     switch ($pay_status) {
-        case -1:
-            return "<span style='color:#f00'>充值失败</span>";
-            break;
         case 0:
             return "<span style='color:#f00'>未处理</span>";
             break;
@@ -274,6 +271,9 @@ function status($pay_status)
             break;
         case 2:
             return "<span style='color:#030'>成功,已返回</span>";
+            break;
+        case 3:
+            return "<span style='color:#f00'>充值失败</span>";
             break;
     }
 }
