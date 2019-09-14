@@ -49,7 +49,7 @@ class NotifyController extends OrderController
                 }
                 M('Order')->where(['id' => $order['id']])->save([
                     'pay_status' => -1,
-                    'pay_successdate' => $this->timestamp,
+                    'pay_successdate' => time(),
                 ]);
 
 
@@ -67,13 +67,13 @@ class NotifyController extends OrderController
                     'status'        => -2,
                 ];
         
-                $sign = $this->createSign($provider['appsecret'], $params);
+                $sign = parent::createSign($provider['appsecret'], $params);
                 $params["sign"] = $sign;
                 $params['trans_id'] = $trans_id;
         
                 $contents = sendForm($pool['notify_url'], $params);
         
-                Log::write(" pool notify: ". $order["pay_orderid"] . " url: " . $pool["notify_url"] . http_build_query($params) . " resp: " . $contents);
+                Log::write(" pool notify fail: ". $order["pay_orderid"] . " url: " . $pool["notify_url"] . http_build_query($params) . " resp: " . $contents);
 
                 exit(ChannelManagerLib::notifyOK($this->request['Method']));
             }
