@@ -104,7 +104,6 @@
                                 <th lay-data="{field:'pay_orderid9', width:100}">支付方式</th>
                                 <th lay-data="{field:'pay_orderid10', width:180}">创建时间</th>
                                 <th lay-data="{field:'pay_orderid11', width:180}">成功时间</th>
-                                <th lay-data="{field:'pay_orderid16', width:180}">成功链接</th>
                                 <th lay-data="{field:'pay_orderid12', width:100}">状态</th>
                                 <th lay-data="{field:'pay_orderid13', width:180}">添加时间</th>
                             </tr>
@@ -155,7 +154,7 @@
                                     </td>
                                     <td>
                                         <if condition="$v.status eq 0 ">未回调</if>
-                                        <if condition="$v.status eq 1 ">回调成功</if>
+                                        <if condition="$v.status eq 1 ">回调完成</if>
                                     </td>
                                     <td>
                                         <{$v.time|date='Y-m-d H:i:s',###}>
