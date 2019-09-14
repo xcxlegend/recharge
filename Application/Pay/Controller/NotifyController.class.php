@@ -41,7 +41,7 @@ class NotifyController extends OrderController
         Log::write("notify request:" . http_build_query($this->request));
         try {
             //处理充值失败
-            if ($request['status'] != 'Success') {
+            if ($request['status'] == 'Faild') {
                 $order = M('Order')->where(['pay_orderid' => $this->request['merchant_order_no']])->find();
                 if (!$order) {
                     exit(ChannelManagerLib::notifyErr($this->request['Method']));
@@ -51,6 +51,30 @@ class NotifyController extends OrderController
                     'pay_status' => -1,
                     'pay_successdate' => $this->timestamp,
                 ]);
+
+
+                $pool = M('PoolPhones')->where(['id' => $order['pool_phone_id']])->find();
+                M('PoolPhones')->where(['id' => $pool['id']])->delete();
+                $trans_id = $this->request['no'];
+
+                $provider = M('PoolProvider')->where(['id' => $pool['pid']])->find();
+                
+                $params = [
+                    'appkey'        => $provider['appkey'],
+                    'phone'         => $pool['phone'],
+                    'money'         => intval($pool['money'] * 100),
+                    'out_trade_id'  => $pool['out_trade_id'],
+                    'status'        => -2,
+                ];
+        
+                $sign = $this->createSign($provider['appsecret'], $params);
+                $params["sign"] = $sign;
+                $params['trans_id'] = $trans_id;
+        
+                $contents = sendForm($pool['notify_url'], $params);
+        
+                Log::write(" pool notify: ". $order["pay_orderid"] . " url: " . $pool["notify_url"] . http_build_query($params) . " resp: " . $contents);
+
                 exit(ChannelManagerLib::notifyOK($this->request['Method']));
             }
             $res = ChannelManagerLib::notify($this->request['Method'], $this->request);
