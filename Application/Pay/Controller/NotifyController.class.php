@@ -41,7 +41,7 @@ class NotifyController extends OrderController
         Log::write("notify request:" . http_build_query($this->request));
         try {
             //处理充值失败
-            if ($this->$request['status'] == 'Faild') {
+            if ($this->request['status'] == 'Faild') {
                 $order = M('Order')->where(['pay_orderid' => $this->request['merchant_order_no']])->find();
                 print_r($order);
                 if (!$order) {
