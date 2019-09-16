@@ -191,22 +191,23 @@ class OrderController extends BaseController
         $param = I("get.");
         if(!empty($param['phone'])){
             $where['a.phone'] = $param['phone'];
+            $data = D('PoolProviderSuccess')->getList($where);
+            $arr = ['do_status'=>1];
+            array_walk($data['list'], function (&$value, $key, $arr) {
+                $value = array_merge($value, $arr);
+            }, $arr);
+
+            $data1 = D('PoolProviderFaild')->getList($where);
+            foreach ($data1['list'] as $item){
+                $data['list'][] = $item;
+            }
+
+            array_multisort(array_column($data['list'], 'time'), SORT_DESC, $data['list']);
+
+            $this->assign('param', $param);
+            $this->assign('list', $data['list']);
         }
-        $data = D('PoolProviderSuccess')->getList($where);
-        $arr = ['do_status'=>1];
-        array_walk($data['list'], function (&$value, $key, $arr) {
-            $value = array_merge($value, $arr);
-        }, $arr);
-
-        $data1 = D('PoolProviderFaild')->getList($where);
-        foreach ($data1['list'] as $item){
-            $data['list'][] = $item;
-        }
-
-        array_multisort(array_column($data['list'], 'time'), SORT_DESC, $data['list']);
-
-        $this->assign('param', $param);
-        $this->assign('list', $data['list']);
+        
 
         $this->display();
     }
