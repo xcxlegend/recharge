@@ -213,7 +213,7 @@ out_trade_id
         if (!$rec) {
             $pool = M('PoolPhones')->where($query)->find();
             if (!$pool || !$pool['lock']){
-                $this->result_error("未匹配");
+                $this->result_error("匹配中");
                 return;
             }
             $this->result_error("订单未支付");
