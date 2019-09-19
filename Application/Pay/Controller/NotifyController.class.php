@@ -90,7 +90,7 @@ class NotifyController extends OrderController
                     "status" => -1, // 交易状态
                 ];
 
-                $member_info = M('Member')->where(['id' => $order['pay_memberid'])->find();
+                $member_info = M('Member')->where(['id' => $order['pay_memberid']])->find();
                 $sign = $this->createSign($member_info['apikey'], $params);
                 $params["sign"] = $sign;
                 $params["attach"] = $order["attach"];
