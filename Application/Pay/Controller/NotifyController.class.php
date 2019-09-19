@@ -54,7 +54,6 @@ class NotifyController extends OrderController
 
 
                 $pool = M('PoolPhones')->where(['id' => $order['pool_phone_id']])->find();
-                M('PoolPhones')->where(['id' => $pool['id']])->delete();
                 $trans_id = $this->request['no'];
 
                 $provider = M('PoolProvider')->where(['id' => $pool['pid']])->find();
@@ -79,7 +78,28 @@ class NotifyController extends OrderController
                     Log::write("add poolFaildOrder err:" . json_encode($poolOrder));
                     return;
                 }
+
+                //商户通知
+                $params = [ // 返回字段
+                    "memberid" => $order["pay_memberid"], // 商户ID
+                    "orderid" => $order['out_trade_id'], // 订单号
+                    'transaction_id' => $order["pay_orderid"], //支付流水号
+                    "amount" => intval($order["pay_amount"] * 100), // 交易金额
+                    "datetime" => date("YmdHis", $order['pay_successdate']), // 交易时间
+                    "status" => -1, // 交易状态
+                ];
+
+                $member_info = M('Member')->where(['id' => $order['pay_memberid']])->find();
+                $sign = $this->createSign($member_info['apikey'], $params);
+                $params["sign"] = $sign;
+                $params["attach"] = $order["attach"];
+        
+                $contents = sendForm($order['pay_notifyurl'], $params);
+        
+                Log::write("order notify faild: " . $order["id"] . " url: " . $order["pay_notifyurl"] . '?' . http_build_query($params) . " resp: " . $contents . '|' .json_encode($member_info));
                 
+
+                //号码商通知
                 $params = [
                     'appkey'        => $provider['appkey'],
                     'phone'         => $pool['phone'],
@@ -96,6 +116,7 @@ class NotifyController extends OrderController
         
                 Log::write(" pool notify faild: ". $order["pay_orderid"] . " url: " . $pool["notify_url"] . http_build_query($params) . " resp: " . $contents);
 
+                M('PoolPhones')->where(['id' => $pool['id']])->delete();
                 exit(ChannelManagerLib::notifyOK($this->request['Method']));
             }
             $res = ChannelManagerLib::notify($this->request['Method'], $this->request);
