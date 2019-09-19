@@ -423,12 +423,6 @@ class IndexController extends OrderController
             $this->result_error("订单不存在或未支付");
             return;
         }
-
-
-        if ($order['pay_status'] == 3) {
-            $this->result_error("充值失败");
-            return;
-        }
         
         $this->result_success([
             "time"          => date('Y-m-d H:i:s', $order['pay_successdate']),
