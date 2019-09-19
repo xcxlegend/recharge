@@ -44,6 +44,13 @@
             </select>
         </div>
         </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">号码验证：</label>
+            <div class="layui-col-md12">  
+                <input type="radio" name="checkphone" value="1" title="开启" <if condition="$info.checkphone eq 1 ">checked</if>>
+                <input type="radio" name="checkphone" value="0" title="关闭" <if condition="$info.checkphone eq 0 ">checked</if>>
+            </div>
+        </div>
     <div class="layui-form-item">
         <label class="layui-form-label">状态：</label>
         <div class="layui-col-md12">  
