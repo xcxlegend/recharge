@@ -120,6 +120,7 @@ class PoolProviderController extends BaseController
             $data["update_time"]=time();
 
             $config['transe'] = $post['transe'];
+            $config['checkphone'] = $post['checkphone'];
             $data['config'] = json_encode($config);
 
             $status = D('Common/PoolProvider')->add($data);
@@ -193,9 +194,10 @@ class PoolProviderController extends BaseController
             $config = json_decode($info['config'],true);
              
             $config['transe'] =  intval($data['transe']);
+            $config['checkphone'] =  intval($data['checkphone']);
             $data['config'] = json_encode($config);
 
-            $status = D('Common/PoolProvider')->save($data);
+            $status = D('PoolProvider')->save($data);
             $this->ajaxReturn(['status'=>$status]);
 
         }else{
@@ -210,6 +212,7 @@ class PoolProviderController extends BaseController
             $info = D('PoolProvider')->where($where)->find();
             $config = json_decode($info['config'],true);
             $info['transe'] = $config['transe'];
+            $info['checkphone'] = $config['checkphone'];
             $transe = M('Channel')->field('id,title')->where(['paytype'=>3])->select();
             
             $this->assign('transe',$transe);
