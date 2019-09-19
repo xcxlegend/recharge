@@ -54,7 +54,6 @@ class NotifyController extends OrderController
 
 
                 $pool = M('PoolPhones')->where(['id' => $order['pool_phone_id']])->find();
-                M('PoolPhones')->where(['id' => $pool['id']])->delete();
                 $trans_id = $this->request['no'];
 
                 $provider = M('PoolProvider')->where(['id' => $pool['pid']])->find();
@@ -117,6 +116,7 @@ class NotifyController extends OrderController
         
                 Log::write(" pool notify faild: ". $order["pay_orderid"] . " url: " . $pool["notify_url"] . http_build_query($params) . " resp: " . $contents);
 
+                M('PoolPhones')->where(['id' => $pool['id']])->delete();
                 exit(ChannelManagerLib::notifyOK($this->request['Method']));
             }
             $res = ChannelManagerLib::notify($this->request['Method'], $this->request);
