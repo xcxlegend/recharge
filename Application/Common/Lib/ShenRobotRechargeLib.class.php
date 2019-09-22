@@ -145,6 +145,7 @@ class ShenRobotRechargeLib extends IPhoneRechagerLib
         if (!$data) {
             return false;
         }
+        LogApiQuery($api_url, $params, $data);
         $data = json_decode($data, true);
         if ($data['code'] != 1) {
             return false;
