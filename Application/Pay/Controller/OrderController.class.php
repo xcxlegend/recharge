@@ -330,6 +330,7 @@ class OrderController extends PayController
             ];
 
             $moneychange_result = $this->MoenyChange($moneychange_data); // 资金变动记录
+            
 
             if ($moneychange_result == false) {
                 M()->rollback();
@@ -475,6 +476,9 @@ class OrderController extends PayController
                     Log::write("dec PoolProvider balance log err:" . json_encode($poolOrder));
                     return;
                 }
+
+                D('Admin/PoolStatis')->setStatis($provider['id'],'deduction_order');
+                D('Admin/PoolStatis')->setStatis($provider['id'],'deduction_money',$actmoney);
             }
             // 删除phone信息
             if (!M('PoolPhones')->where(['id' => $pool['id']])->delete()){
@@ -491,7 +495,17 @@ class OrderController extends PayController
         // 非超时订单才回调
         if (!$isTimeoutOrder) {
             $this->sendPoolNotify($poolOrder, $pool, $trans_id);
+        }else{
+            //商户超时支付订单统计
+            $order = M('Order')->where(['phone_pool_id'=>$pool['id']])->find();
+            D('Admin/OrderStatis')->setStatis($order["pay_memberid"],'timeout_order');
+            D('Admin/OrderStatis')->setStatis($order["pay_memberid"],'timeout_money',$order["pay_amount"]);
+
+            D('Admin/PoolStatis')->setStatis($poolOrder['pid'],'success_notify');
+            D('Admin/PoolStatis')->setStatis($poolOrder['pid'],'success_money',$pool['money']);
+
         }
+        
     }
 
     protected function sendPoolNotify( $poolOrder ,  $pool, $trans_id = '') {
@@ -535,6 +549,10 @@ class OrderController extends PayController
         if (! $this->checkNotifyExist( $poolOrder['id'], $notifyType ) ) {
             $this->syncNotify( $notifyType, $poolOrder['id'], $pool['notify_url'],  $notifystr);
         }
+
+        //支付成功统计入库
+        D('Admin/PoolStatis')->setStatis($pool['id'],'pay_order');
+        D('Admin/PoolStatis')->setStatis($pool['id'],'pay_money',$pool['money']);
 
         return true;
     }
@@ -589,6 +607,10 @@ class OrderController extends PayController
         if (! $this->checkNotifyExist( $order['id'], $notifyType ) ) {
             $this->syncNotify( $notifyType, $order['id'], $order['pay_notifyurl'],  $notifystr);
         }
+
+        //支付成功统计入库
+        D('Admin/OrderStatis')->setStatis($order["pay_memberid"],'pay_order');
+        D('Admin/OrderStatis')->setStatis($order["pay_memberid"],'pay_money',$order["pay_amount"]);
 
         return true;
     }

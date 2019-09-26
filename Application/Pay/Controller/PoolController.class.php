@@ -65,6 +65,8 @@ out_trade_id
             return;
         }
 
+        D('Admin/PoolStatis')->setStatis($provider['id'],'do_order');
+
         //手机号码检测验证
         $providerconfig = json_decode($provider['config'],true);
         if ($providerconfig['checkphone']) {
@@ -139,6 +141,10 @@ out_trade_id
             // 如果没有直接转发则进入超时
             $this->setTimeout($data);
         }
+
+        D('Admin/PoolStatis')->setStatis($provider['id'],'order');
+        D('Admin/PoolStatis')->setStatis($provider['id'],'order_money',$data['money']);
+
         $this->result_success(
             [
                 'order_id' => $data['order_id'],
