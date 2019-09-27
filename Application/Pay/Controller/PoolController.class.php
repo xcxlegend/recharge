@@ -119,14 +119,14 @@ out_trade_id
         // 创建失败回调的参数
         $this->createData($data, $provider);
         $lock = false;
-        if ($this->request['channel'] == 2) {
-            $notify_url = $this->_site . 'Pay_Notify_Phone_Method_BigPay';
-            $Pay = new BigPayLib($notify_url);
-            if ($Pay->phoneOrder($data)){
-                $data['lock'] = 1;
-                $lock = true;
-            }
-        } // 联通
+        // if ($this->request['channel'] == 2) {
+        //     $notify_url = $this->_site . 'Pay_Notify_Phone_Method_BigPay';
+        //     $Pay = new BigPayLib($notify_url);
+        //     if ($Pay->phoneOrder($data)){
+        //         $data['lock'] = 1;
+        //         $lock = true;
+        //     }
+        // } // 联通
 
         $result = M('PoolPhones')->add($data);
         if (!$result){
