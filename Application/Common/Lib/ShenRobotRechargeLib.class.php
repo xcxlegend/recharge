@@ -101,9 +101,10 @@ class ShenRobotRechargeLib extends IPhoneRechagerLib
             return false;
         }
         $data = json_decode($data, true);
+        $message = $data['msg'];
          if ($data['code'] != 200) {
             Log::write(json_encode($data), Log::WARN);
-            throw new Exception( '[RECHARGER] ' . $data['msg']);
+            throw new Exception( '[RECHARGER] ' . $message);
             return false;
         }
 
