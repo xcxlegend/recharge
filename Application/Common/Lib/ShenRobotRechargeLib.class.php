@@ -19,7 +19,7 @@ class ShenRobotRechargeLib extends IPhoneRechagerLib
     const API_ORDER = '/api/recharge';
     const API_QUERY = '/api/query';
 
-    const SECRET = 'secret=1db533b8a718d50468ada8ad2a961e73';
+    const SECRET = 'secret=helloworld';
 
     const Channels = [
         '1' => '1',
@@ -28,9 +28,9 @@ class ShenRobotRechargeLib extends IPhoneRechagerLib
     ];
 
     const Sences = [
-        "wx_scan_pay"   => "hf_wx_scan_pay",
+        "wx_scan_pay"   => "wxpay",
         "wx_wap_pay"    => "hf_wx_wap_pay",
-        "ali_scan_pay"  => "hf_ali_scan_pay",
+        "ali_scan_pay"  => "alipay",
         "ali_wap_pay"   => "hf_ali_wap_pay",
     ];
 
@@ -101,9 +101,9 @@ class ShenRobotRechargeLib extends IPhoneRechagerLib
             return false;
         }
         $data = json_decode($data, true);
-         if ($data['code'] != 1) {
+         if ($data['code'] != 200) {
             Log::write(json_encode($data), Log::WARN);
-            throw new Exception( '[RECHARGER] ' . $data['message']);
+            throw new Exception( '[RECHARGER] ' . $data['msg']);
             return false;
         }
 
@@ -117,7 +117,7 @@ class ShenRobotRechargeLib extends IPhoneRechagerLib
         }
          */
 
-        return new ChannelOrder( $data['data']['no'], $data['data']['wap_url'], $data['data']['code_url'], $pool['id'], $pool['pid']);
+        return new ChannelOrder( $data['data']['order_no'], $data['data']['wap_url'], $data['data']['pay_url'], $pool['id'], $pool['pid']);
 
     }
 
