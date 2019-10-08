@@ -182,7 +182,7 @@ sign
         ];
 
         if ( $this->sign($params) !== $request['sign']) {
-            Log::write('签名错误:'.json_encode($params), Log::WARN);
+            Log::write('sign error:'.json_encode($params), Log::WARN);
             return false;
         }
 
