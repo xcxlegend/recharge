@@ -182,6 +182,7 @@ sign
         ];
 
         if ( $this->sign($params) !== $request['sign']) {
+            Log::write('签名错误:'.json_encode($params), Log::WARN);
             return false;
         }
 
@@ -189,7 +190,7 @@ sign
         if ($request['status'] != 'Success') {
             return false;
         }
-        Log::write(json_encode($params), Log::WARN);
+        
 
         return new ChannelNotifyData($request['merchant_order_no'], $request['no'], $request['success_url']); //[$request['merchant_order_no'], $request['no']];
     }
