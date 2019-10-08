@@ -256,7 +256,7 @@ class PoolProviderController extends BaseController
 
              $info = json_decode($info['config'],true);
 
-             $sp_list = array('1'=>'移动','2'=>'电信','3'=>'联通');
+             $sp_list = array('1'=>'移动','2'=>'联通','3'=>'电信');
              $this->assign('sp_list',$sp_list);
              $this->assign('info',$info['rate']);
              $this->assign('id',$id);
@@ -297,7 +297,7 @@ class PoolProviderController extends BaseController
             $where['a.status'] = $param['status'];
         }
 
-        $sp_list = array('1'=>'移动','2'=>'电信','3'=>'联通');
+        $sp_list = array('1'=>'移动','2'=>'联通','3'=>'电信');
 
         
 

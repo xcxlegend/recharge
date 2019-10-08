@@ -353,7 +353,7 @@ class PayModel
         }
         if (!$isTimeoutOrder) {
             $this->sendPoolNotify($poolOrder, $pool, $trans_id);
-        }
+        }  
     }
 
     protected function sendPoolNotify( $poolOrder ,  $pool, $trans_id = '') {

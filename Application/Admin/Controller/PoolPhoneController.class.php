@@ -70,7 +70,7 @@ class PoolPhoneController extends BaseController
         }
 
         
-        $sp_list = array('1'=>'移动','2'=>'电信','3'=>'联通');
+        $sp_list = array('1'=>'移动','2'=>'联通','3'=>'电信');
         $this->assign("sp_list", $sp_list);
         $this->assign("list", $list);
         $this->assign("param", $param);
@@ -107,7 +107,7 @@ class PoolPhoneController extends BaseController
                 ->order('a.id DESC')
                 ->select();
 
-        $sp_list = array('1'=>'移动','2'=>'电信','3'=>'联通');
+        $sp_list = array('1'=>'移动','2'=>'联通','3'=>'电信');
         $this->assign("sp_list", $sp_list);
         $this->assign("list", $list);
         $this->assign("param", $param);

@@ -65,6 +65,8 @@ out_trade_id
             return;
         }
 
+        D('Admin/PoolStatis')->setStatis($provider['id'],'do_order');
+
         //手机号码检测验证
         $providerconfig = json_decode($provider['config'],true);
         if ($providerconfig['checkphone']) {
@@ -117,14 +119,14 @@ out_trade_id
         // 创建失败回调的参数
         $this->createData($data, $provider);
         $lock = false;
-        if ($this->request['channel'] == 2) {
-            $notify_url = $this->_site . 'Pay_Notify_Phone_Method_BigPay';
-            $Pay = new BigPayLib($notify_url);
-            if ($Pay->phoneOrder($data)){
-                $data['lock'] = 1;
-                $lock = true;
-            }
-        } // 联通
+        // if ($this->request['channel'] == 2) {
+        //     $notify_url = $this->_site . 'Pay_Notify_Phone_Method_BigPay';
+        //     $Pay = new BigPayLib($notify_url);
+        //     if ($Pay->phoneOrder($data)){
+        //         $data['lock'] = 1;
+        //         $lock = true;
+        //     }
+        // } // 联通
 
         $result = M('PoolPhones')->add($data);
         if (!$result){
@@ -139,6 +141,10 @@ out_trade_id
             // 如果没有直接转发则进入超时
             $this->setTimeout($data);
         }
+
+        D('Admin/PoolStatis')->setStatis($provider['id'],'order');
+        D('Admin/PoolStatis')->setStatis($provider['id'],'order_money',$data['money']);
+
         $this->result_success(
             [
                 'order_id' => $data['order_id'],

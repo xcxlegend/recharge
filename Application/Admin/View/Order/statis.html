@@ -1,0 +1,150 @@
+<include file="Public/header" />
+<div class="row">
+    <div class="col-md-12">
+        <div class="ibox float-e-margins">
+            <div class="ibox-title">
+                <h5>订单数据报表</h5>
+            </div>
+
+            <div class="ibox-content">
+                <form class="layui-form" action="" method="get" autocomplete="off" id="sform">
+                    <input type="hidden" name="p" value="1">
+                    <div class="layui-form-item">
+                        <div class="layui-inline">
+                            <div class="layui-input-inline" >
+                                <input type="text" name="member_id" autocomplete="off" placeholder="商户ID"
+                                    class="layui-input" value="<{$param.member_id}>">
+                            </div>
+
+                            <div class="layui-input-inline" style="width:300px">
+                                <input type="text" class="layui-input" name="day" id="day"
+                                    placeholder="创建起始时间" value="<{$param.day}>">
+                            </div>
+
+
+
+                            <div class="layui-input-inline">
+                                <button onclick="$('#export').val(0);$('#sform').submit();" class="layui-btn"><span
+                                        class="glyphicon glyphicon-search"></span> 搜索
+                                </button>
+                                <input type="hidden" id="export" name="export" value="0">
+                            </div>
+                        </div>
+                    </div>
+                </form>
+
+                <blockquote class="layui-elem-quote" style="font-size:14px;padding;8px;">
+                    下单请求数：<span class="label label-info">
+                        <{$count.do_order.do_order}>
+                    </span>
+                    创建订单数：<span class="label label-info">
+                        <{$count.order.order_num}>
+                    </span>
+                    创建订单成功率：<span class="label label-info">
+                        <php>
+                            echo(round($count['order']['order_num']/$count['do_order']['do_order'] * 100,2));
+                        </php>%
+                    </span>
+                    创建订单总额：<span class="label label-info">
+                        <{$count.order_money.order_money|format_money}>元
+                    </span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                </blockquote>
+
+                <blockquote class="layui-elem-quote" style="font-size:14px;padding;8px;">
+                    支付成功数：<span class="label label-info">
+                        <{$count.pay_order.pay_order}>
+                    </span>
+                    支付成功总额：<span class="label label-info">
+                        <{$count.pay_money.pay_money|format_money}>元
+                    </span>
+                    超时支付订单：<span class="label label-info">
+                        <{$count.timeout_order.timeout_order}>
+                    </span>
+                    超时订单总额：<span class="label label-info">
+                        <{$count.timeout_money.timeout_money|format_money}>元
+                    </span>
+                </blockquote>
+
+
+
+
+                <div class="list item">
+                    <table class="layui-table" lay-data="{width:'100%'}">
+                        <thead>
+                            <tr>
+                                <th lay-data="{field:'pay_orderid', width:120}">时间</th>
+                                <th lay-data="{field:'pay_orderid14', width:100}">商户</th>
+                                <th lay-data="{field:'pay_orderid1', width:120}">下单请求数</th>
+                                <th lay-data="{field:'pay_orderid2', width:100}">创建订单数</th>
+                                <th lay-data="{field:'pay_orderid3', width:130}">创建订单成功率</th>
+                                <th lay-data="{field:'pay_orderid15', width:120}">创建订单总额</th>
+                                <th lay-data="{field:'pay_orderid6', width:100}">支付成功数</th>
+                                <th lay-data="{field:'pay_orderid7', width:140}">支付成功总额</th>
+                                <th lay-data="{field:'pay_orderid8', width:150}">超时支付订单</th>
+                                <th lay-data="{field:'pay_orderid9', width:150}">超时订单总额</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <volist name="list" id="v">
+                                <tr>
+                                    <td>
+                                        <{$v.day|date='Y-m-d',###}>
+                                    </td>
+                                    <td>
+                                        <{$v.username}>
+                                    </td>
+                                    <td>
+                                        <{$v.do_order}>
+                                    </td>
+                                    <td>
+                                        <{$v.order}>
+                                    </td>
+                                    <td>
+                                        <{$v.order}>
+                                    </td>
+                                    <td>
+                                        <{$v.order_money}>
+                                    </td>
+                                    <td>
+                                        <{$v.pay_order}>
+                                    </td>
+                                    <td>
+                                        <{$v.pay_money|format_money}>
+                                    </td>
+                                    <td>
+                                        <{$v.timeout_order}>
+                                    </td>
+                                    <td>
+                                        <{$v.timeout_money|format_money}>
+                                    </td>
+                                </tr>
+                            </volist>
+                        </tbody>
+                    </table>
+                    <{$page}>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<include file="Public/footer" />
+<script>
+    layui.use(['laydate', 'laypage', 'layer', 'table', 'form'], function () {
+        var laydate = layui.laydate //日期
+            , laypage = layui.laypage //分页
+            , layer = layui.layer //弹层
+            , form = layui.form //表单
+            , table = layui.table; //表格
+        //日期时间范围
+        laydate.render({
+            elem: '#day'
+            , type: 'date'
+            , theme: 'molv'
+            , range: '|'
+        });
+    });
+
+</script>
+</body>
+
+</html>

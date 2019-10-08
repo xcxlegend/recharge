@@ -31,6 +31,9 @@ class IndexController extends OrderController
 
     public function index() {
 
+        //请口请求入库
+        D('Admin/OrderStatis')->setStatis(I('request.pay_memberid'),'do_order');
+
         if (!$this->check()) {
             return;
         }
@@ -74,6 +77,9 @@ class IndexController extends OrderController
                 if (!$this->orderadd($order, $this->product, $this->channel)) {
                     throw new Exception("订单保存失败");
                 }
+
+                D('Admin/OrderStatis')->setStatis($this->member['id'],'order');
+                D('Admin/OrderStatis')->setStatis($this->member['id'],'order_money',$order['pay_amount']);
 
                 $resp = [
                     'orderId' => $pay_orderid,

@@ -138,48 +138,48 @@ class OrderController extends BaseController
 
         
 
-        //交易总额
-        $money['total'] = M('Order')->field('sum(`money`) as money')->find();
-        //订单总量
-        $money['total']['count'] = M('Order')->count();
+        // //交易总额
+        // $money['total'] = M('Order')->field('sum(`money`) as money')->find();
+        // //订单总量
+        // $money['total']['count'] = M('Order')->count();
 
-        //上月
-        $smonth = date('Y-m-01 00:00:00',strtotime('-1 month'));
-        $emonth = date("Y-m-d 23:59:59", strtotime(-date('d').'day'));
-        $monthWhere['pay_applydate'] = ['between', [strtotime($smonth), strtotime($emonth)]];
-        $money['month'] = M('Order')->field('sum(`money`) as money')->where($monthWhere)->find();
+        // //上月
+        // $smonth = date('Y-m-01 00:00:00',strtotime('-1 month'));
+        // $emonth = date("Y-m-d 23:59:59", strtotime(-date('d').'day'));
+        // $monthWhere['pay_applydate'] = ['between', [strtotime($smonth), strtotime($emonth)]];
+        // $money['month'] = M('Order')->field('sum(`money`) as money')->where($monthWhere)->find();
 
-        //上周
-        $sWeek =  date("Y-m-d H:i:s",mktime(0, 0 , 0,date("m"),date("d")-date("w")+1-7,date("Y")));
-        $eweek =  date("Y-m-d H:i:s",mktime(23,59,59,date("m"),date("d")-date("w")+7-7,date("Y")));
-        $weekWhere['pay_applydate'] = ['between', [strtotime($sWeek), strtotime($eweek)]];
-        $money['week'] = M('Order')->field('sum(`money`) money')->where($weekWhere)->find();
+        // //上周
+        // $sWeek =  date("Y-m-d H:i:s",mktime(0, 0 , 0,date("m"),date("d")-date("w")+1-7,date("Y")));
+        // $eweek =  date("Y-m-d H:i:s",mktime(23,59,59,date("m"),date("d")-date("w")+7-7,date("Y")));
+        // $weekWhere['pay_applydate'] = ['between', [strtotime($sWeek), strtotime($eweek)]];
+        // $money['week'] = M('Order')->field('sum(`money`) money')->where($weekWhere)->find();
 
-        //今日
-        $stoday = date('Y-m-d 00:00:00');
-        $etoday = date("Y-m-d 23:59:59");
-        $todayWhere['pay_applydate'] = ['between', [strtotime($stoday), strtotime($etoday)]];
-        $money['today'] = M('Order')->field('sum(`money`) as money')->where($todayWhere)->find();
-        //今日订单量
-        $money['today']['count'] = M('Order')->where($todayWhere)->count();
+        // //今日
+        // $stoday = date('Y-m-d 00:00:00');
+        // $etoday = date("Y-m-d 23:59:59");
+        // $todayWhere['pay_applydate'] = ['between', [strtotime($stoday), strtotime($etoday)]];
+        // $money['today'] = M('Order')->field('sum(`money`) as money')->where($todayWhere)->find();
+        // //今日订单量
+        // $money['today']['count'] = M('Order')->where($todayWhere)->count();
 
-        //成功总额
-        $totalWhere['pay_status'] =array('gt',0);
-        $money['success_total'] = M('Order')->field('sum(`money`) as money')->where($totalWhere)->find();
-        //成功订单总量
-        $money['success_total']['count'] = M('Order')->where($totalWhere)->count();
+        // //成功总额
+        // $totalWhere['pay_status'] =array('gt',0);
+        // $money['success_total'] = M('Order')->field('sum(`money`) as money')->where($totalWhere)->find();
+        // //成功订单总量
+        // $money['success_total']['count'] = M('Order')->where($totalWhere)->count();
 
-        //今日成功总额
-        $todayWhere['pay_status'] =array('gt',0);
-        $money['success_today'] = M('Order')->field('sum(`money`) as money')->where($todayWhere)->find();
-        //今日成功总量
-        $money['success_today']['count'] = M('Order')->where($todayWhere)->count();
+        // //今日成功总额
+        // $todayWhere['pay_status'] =array('gt',0);
+        // $money['success_today'] = M('Order')->field('sum(`money`) as money')->where($todayWhere)->find();
+        // //今日成功总量
+        // $money['success_today']['count'] = M('Order')->where($todayWhere)->count();
 
         
 
         $this->assign('paylist', $paylist);
         $this->assign('param', $param);
-        $this->assign('count', $money);
+        // $this->assign('count', $money);
         $this->assign('sp_list', $sp_list);
         $this->assign('list', $data['list']);
         $this->assign('page', $data['page']);
@@ -1308,6 +1308,42 @@ class OrderController extends BaseController
         $this->assign('page', $page->show());
         $this->assign("isrootadmin", is_rootAdministrator());
         C('TOKEN_ON', false);
+        $this->display();
+    }
+
+
+    public function statis()
+    {
+        $param = I("get.");
+        if(!empty($param['member_id'])){
+            $where['member_id'] = $param['member_id'];
+            $where1['a.member_id'] = $param['member_id'];
+        }
+        if(!empty($param['day'])){
+            list($stime, $etime)  = explode('|', $param['day']);
+            $where['day'] = ['between', [strtotime($stime), strtotime($etime) ? strtotime($etime) : time()]];
+            $where1['a.day'] = ['between', [strtotime($stime), strtotime($etime) ? strtotime($etime) : time()]];
+        }
+        $count['do_order'] = M('OrderStatis')->field('sum(`do_order`) as do_order')->where($where)->find();
+        $count['order'] = M('OrderStatis')->field('sum(`order`) as order_num')->where($where)->find();
+        $count['order_money'] = M('OrderStatis')->field('sum(`order_money`) as order_money')->where($where)->find();
+        
+        $count['pay_order'] = M('OrderStatis')->field('sum(`pay_order`) as pay_order')->where($where)->find();
+        $count['pay_money'] = M('OrderStatis')->field('sum(`pay_money`) as pay_money')->where($where)->find();
+        $count['timeout_order'] = M('OrderStatis')->field('sum(`timeout_order`) as timeout_order')->where($where)->find();
+        $count['timeout_money'] = M('OrderStatis')->field('sum(`timeout_money`) as timeout_money')->where($where)->find();
+
+        $join = 'LEFT JOIN pay_member b ON a.member_id=b.id';
+        $field = 'a.*,b.username';
+        $countnum = M('OrderStatis')->alias('a')->join($join)->where($where1)->count();
+        $page = new \Think\Page($countnum, 15);
+
+        $list = M('OrderStatis')->alias('a')->join($join)->field($field)->where($where1)->limit($page->firstRow, $page->listRows)->order('id DESC')->select();
+        
+        $this->assign('count', $count);
+        $this->assign('param', $param);
+        $this->assign('list', $list);
+        $this->assign('page', $page->show());
         $this->display();
     }
 }

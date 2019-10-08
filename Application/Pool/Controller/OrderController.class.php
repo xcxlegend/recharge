@@ -54,7 +54,7 @@ class OrderController extends PoolController
             $where['a.status'] = $param['status'];
         }
 
-        $sp_list = array('1'=>'移动','2'=>'电信','3'=>'联通');
+        $sp_list = array('1'=>'移动','2'=>'联通','3'=>'电信');
 
         if(!empty($param['export'])){
             set_time_limit(0);

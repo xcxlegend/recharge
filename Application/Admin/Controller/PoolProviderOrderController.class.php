@@ -50,7 +50,7 @@ class PoolProviderOrderController extends BaseController
             $where['a.status'] = $param['status'];
         }
 
-        $sp_list = array('1'=>'移动','2'=>'电信','3'=>'联通');
+        $sp_list = array('1'=>'移动','2'=>'联通','3'=>'电信');
 
         if(!empty($param['export'])){
             set_time_limit(0);
@@ -127,33 +127,33 @@ class PoolProviderOrderController extends BaseController
         
 
         //交易总额
-        $money['total'] = D('PoolProviderSuccess')->field('sum(`money`) as money')->find();
+        // $money['total'] = D('PoolProviderSuccess')->field('sum(`money`) as money')->find();
 
-        //上月
-        $monthWhere['month'] = date('m',strtotime('last month'));
-        $money['month'] = D('PoolProviderSuccess')->field('sum(`money`) as money')->where($monthWhere)->find();
+        // //上月
+        // $monthWhere['month'] = date('m',strtotime('last month'));
+        // $money['month'] = D('PoolProviderSuccess')->field('sum(`money`) as money')->where($monthWhere)->find();
 
-        //上周
-        $sWeek =  date("Y-m-d H:i:s",mktime(0, 0 , 0,date("m"),date("d")-date("w")+1-7,date("Y")));
-        $eweek =  date("Y-m-d H:i:s",mktime(23,59,59,date("m"),date("d")-date("w")+7-7,date("Y")));
-        $weekWhere['time'] = ['between', [strtotime($sWeek), strtotime($eweek)]];
-        $money['week'] = D('PoolProviderSuccess')->field('sum(`money`) money')->where($weekWhere)->find();
-        //今日
-        $todayWhere['day'] = date("d");
-        $money['today'] = D('PoolProviderSuccess')->field('sum(`money`) as money')->where($todayWhere)->find();
+        // //上周
+        // $sWeek =  date("Y-m-d H:i:s",mktime(0, 0 , 0,date("m"),date("d")-date("w")+1-7,date("Y")));
+        // $eweek =  date("Y-m-d H:i:s",mktime(23,59,59,date("m"),date("d")-date("w")+7-7,date("Y")));
+        // $weekWhere['time'] = ['between', [strtotime($sWeek), strtotime($eweek)]];
+        // $money['week'] = D('PoolProviderSuccess')->field('sum(`money`) money')->where($weekWhere)->find();
+        // //今日
+        // $todayWhere['day'] = date("d");
+        // $money['today'] = D('PoolProviderSuccess')->field('sum(`money`) as money')->where($todayWhere)->find();
 
 
-        //订单总量
-        $money['total']['count'] = D('PoolProviderSuccess')->count();
+        // //订单总量
+        // $money['total']['count'] = D('PoolProviderSuccess')->count();
 
-        //今日订单量
-        $money['today']['count'] = D('PoolProviderSuccess')->where($todayWhere)->count();
+        // //今日订单量
+        // $money['today']['count'] = D('PoolProviderSuccess')->where($todayWhere)->count();
 
 
         
 
         $this->assign('param', $param);
-        $this->assign('count', $money);
+        // $this->assign('count', $money);
         $this->assign('sp_list', $sp_list);
         $this->assign('list', $data['list']);
         $this->assign('page', $data['page']);
@@ -186,6 +186,10 @@ class PoolProviderOrderController extends BaseController
             $this->ajaxReturn(['info'=>$e->getMessage(), 'status' => false]);
             return;
         }
+        $order = M('PoolRec')->where(['id' => $id])->find();
+
+        D('Admin/PoolStatis')->setStatis($order['pool_id'],'refund_order');
+        D('Admin/PoolStatis')->setStatis($order['pool_id'],'refund_money',$order['money']);
 
         $this->ajaxReturn(['info'=>'退单成功', 'status' => true]);
     }
@@ -224,7 +228,7 @@ class PoolProviderOrderController extends BaseController
             $where['status'] = $param['status'];
         }
 
-        $sp_list = array('1'=>'移动','2'=>'电信','3'=>'联通');
+        $sp_list = array('1'=>'移动','2'=>'联通','3'=>'电信');
 
         if(!empty($param['export'])){
             set_time_limit(0);
@@ -340,7 +344,7 @@ class PoolProviderOrderController extends BaseController
              $where['a.status'] = $param['status'];
          }
  
-         $sp_list = array('1'=>'移动','2'=>'电信','3'=>'联通');
+         $sp_list = array('1'=>'移动','2'=>'联通','3'=>'电信');
  
          if(!empty($param['export'])){
              set_time_limit(0);
@@ -418,6 +422,49 @@ class PoolProviderOrderController extends BaseController
          $this->assign('page', $data['page']);
          $this->display();
      }
+
+     //失败列表
+    public function statis()
+    {
+        $param = I("get.");
+        if(!empty($param['pid'])){
+            $where['pool_id'] = $param['pid'];
+            $where1['a.pool_id'] = $param['pid'];
+        }
+        if(!empty($param['day'])){
+            list($stime, $etime)  = explode('|', $param['day']);
+            $where['day'] = ['between', [strtotime($stime), strtotime($etime) ? strtotime($etime) : time()]];
+            $where1['a.day'] = ['between', [strtotime($stime), strtotime($etime) ? strtotime($etime) : time()]];
+        }
+        $count['do_order'] = M('PoolStatis')->field('sum(`do_order`) as do_order')->where($where)->find();
+        $count['order'] = M('PoolStatis')->field('sum(`order`) as order_num')->where($where)->find();
+        $count['order_money'] = M('PoolStatis')->field('sum(`order_money`) as order_money')->where($where)->find();
+        
+        $count['match'] = M('PoolStatis')->field('sum(`match`) as match_num')->where($where)->find();
+        $count['match_money'] = M('PoolStatis')->field('sum(`match_money`) as match_money')->where($where)->find();
+        
+        $count['pay_order'] = M('PoolStatis')->field('sum(`pay_order`) as pay_order')->where($where)->find();
+        $count['pay_money'] = M('PoolStatis')->field('sum(`pay_money`) as pay_money')->where($where)->find();
+        $count['deduction_order'] = M('PoolStatis')->field('sum(`deduction_order`) as deduction_order')->where($where)->find();
+        $count['deduction_money'] = M('PoolStatis')->field('sum(`deduction_money`) as deduction_money')->where($where)->find();
+        $count['refund_order'] = M('PoolStatis')->field('sum(`refund_order`) as refund_order')->where($where)->find();
+        $count['refund_money'] = M('PoolStatis')->field('sum(`refund_money`) as refund_money')->where($where)->find();
+        $count['success_notify'] = M('PoolStatis')->field('sum(`success_notify`) as success_notify')->where($where)->find();
+        $count['success_money'] = M('PoolStatis')->field('sum(`success_money`) as success_money')->where($where)->find();
+
+        $join = 'LEFT JOIN pay_pool_provider b ON a.pool_id=b.id';
+        $field = 'a.*,b.name';
+        $countnum = M('PoolStatis')->alias('a')->join($join)->where($where1)->count();
+        $page = new \Think\Page($countnum, 15);
+
+        $list = M('PoolStatis')->alias('a')->join($join)->field($field)->where($where1)->limit($page->firstRow, $page->listRows)->order('id DESC')->select();
+        
+        $this->assign('count', $count);
+        $this->assign('param', $param);
+        $this->assign('list', $list);
+        $this->assign('page', $page->show());
+        $this->display();
+    }
 
 }
 ?>
