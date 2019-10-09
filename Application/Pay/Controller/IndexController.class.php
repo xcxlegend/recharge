@@ -32,7 +32,7 @@ class IndexController extends OrderController
     public function index() {
 
         //请口请求入库
-        D('Admin/OrderStatis')->setStatis($this->member['id'],'do_order');
+        D('Admin/OrderStatis')->setStatis(intval($request["pay_memberid"] - 10000),'do_order');
 
         if (!$this->check()) {
             return;
