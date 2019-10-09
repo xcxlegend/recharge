@@ -142,7 +142,7 @@ out_trade_id
             $this->setTimeout($data);
         }
 
-        D('Admin/PoolStatis')->setStatis($provider['id'],'order');
+        D('Admin/PoolStatis')->setStatis($provider['id'],'order_num');
         D('Admin/PoolStatis')->setStatis($provider['id'],'order_money',$data['money']);
 
         $this->result_success(

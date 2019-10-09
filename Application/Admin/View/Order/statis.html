@@ -97,10 +97,12 @@
                                         <{$v.do_order}>
                                     </td>
                                     <td>
-                                        <{$v.order}>
+                                        <{$v.order_num}>
                                     </td>
                                     <td>
-                                        <{$v.order}>
+                                            <php>
+                                                echo(round($v['order_num']/$v['do_order'] * 100,2));
+                                            </php>%
                                     </td>
                                     <td>
                                         <{$v.order_money}>
