@@ -28,10 +28,10 @@ class ShenRobotRechargeLib extends IPhoneRechagerLib
     ];
 
     const Sences = [
-        "wx_scan_pay"   => "wxpay",
-        "wx_wap_pay"    => "hf_wx_wap_pay",
-        "ali_scan_pay"  => "alipay",
-        "ali_wap_pay"   => "hf_ali_wap_pay",
+        "wx_scan_pay"   => "wxpay",  //微信扫码
+        "wx_wap_pay"    => "wapweixin", //微信H5
+        "ali_scan_pay"  => "alipay",  //支付宝扫码
+        "ali_wap_pay"   => "wapalipay",  //支付宝H5
     ];
 
     public function order(array $params, $gateway, $notify, $pay_orderid)
