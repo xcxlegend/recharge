@@ -77,7 +77,7 @@ class IndexController extends OrderController
                     throw new Exception("订单保存失败");
                 }
 
-                D('Admin/OrderStatis')->setStatis($this->member['id'],'order',1);
+                D('Admin/OrderStatis')->setStatis($this->member['id'],'order_num');
                 D('Admin/OrderStatis')->setStatis($this->member['id'],'order_money',$order['pay_amount']);
 
                 $resp = [
