@@ -105,15 +105,9 @@ class PoolDevLib implements IPoolLib
         $this->cache->Client()->zAdd(self::CACHE_KEY_POOL_TIMEOUT, time() + $timeout, $order['id']);
         // $pipe->exec();
 
-        $result = D('Admin/PoolStatis')->setStatis($order['pid'],'match',1);
-        
-        if(!$result){
-            throw new Exception(D('Admin/PoolStatis')->getLastSql());
-        }
-        $result = D('Admin/PoolStatis')->setStatis($order['pid'],'match_money',$order['money']);
-        if(!$result){
-            throw new Exception("匹配金额失败");
-        }
+        D('Admin/PoolStatis')->setStatis($order['pid'],'match');
+        D('Admin/PoolStatis')->setStatis($order['pid'],'match_money',$order['money']);
+
         return true;
     }
 
