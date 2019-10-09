@@ -29,6 +29,9 @@ class PoolDevLib implements IPoolLib
 
     public function query(&$params)
     {
+        //请口请求入库
+        D('Admin/OrderStatis')->setStatis(intval($request["pay_memberid"] - 10000),'do_order');
+        
         $money = $params['pay_amount'] / 100;
         $query = [
             'balance' => ['egt', $money],
