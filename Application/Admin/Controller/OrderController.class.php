@@ -1325,7 +1325,7 @@ class OrderController extends BaseController
             $where1['a.day'] = ['between', [strtotime($stime), strtotime($etime) ? strtotime($etime) : time()]];
         }
         $count['do_order'] = M('OrderStatis')->field('sum(`do_order`) as do_order')->where($where)->find();
-        $count['order'] = M('OrderStatis')->field('sum(`order`) as order_num')->where($where)->find();
+        $count['order_num'] = M('OrderStatis')->field('sum(`order_num`) as order_num')->where($where)->find();
         $count['order_money'] = M('OrderStatis')->field('sum(`order_money`) as order_money')->where($where)->find();
         
         $count['pay_order'] = M('OrderStatis')->field('sum(`pay_order`) as pay_order')->where($where)->find();

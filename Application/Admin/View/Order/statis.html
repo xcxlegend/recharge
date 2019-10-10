@@ -38,11 +38,11 @@
                         <{$count.do_order.do_order}>
                     </span>
                     创建订单数：<span class="label label-info">
-                        <{$count.order.order_num}>
+                        <{$count.order_num.order_num}>
                     </span>
                     创建订单成功率：<span class="label label-info">
                         <php>
-                            echo(round($count['order']['order_num']/$count['do_order']['do_order'] * 100,2));
+                            echo(round($count['order_num']['order_num']/$count['do_order']['do_order'] * 100,2));
                         </php>%
                     </span>
                     创建订单总额：<span class="label label-info">

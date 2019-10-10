@@ -500,6 +500,9 @@ class OrderController extends PayController
             $order = M('Order')->where(['phone_pool_id'=>$pool['id']])->find();
             D('Admin/OrderStatis')->setStatis($order["pay_memberid"],'timeout_order');
             D('Admin/OrderStatis')->setStatis($order["pay_memberid"],'timeout_money',$order["pay_amount"]);
+            
+            D('Admin/OrderStatis')->setStatis($order["pay_memberid"],'pay_order');
+            D('Admin/OrderStatis')->setStatis($order["pay_memberid"],'pay_money',$order["pay_amount"]);
 
             D('Admin/PoolStatis')->setStatis($poolOrder['pid'],'success_notify');
             D('Admin/PoolStatis')->setStatis($poolOrder['pid'],'success_money',$pool['money']);
@@ -551,8 +554,8 @@ class OrderController extends PayController
         }
 
         //支付成功统计入库
-        D('Admin/PoolStatis')->setStatis($pool['id'],'pay_order');
-        D('Admin/PoolStatis')->setStatis($pool['id'],'pay_money',$pool['money']);
+        D('Admin/PoolStatis')->setStatis($provider['id'],'pay_order');
+        D('Admin/PoolStatis')->setStatis($provider['id'],'pay_money',$pool['money']);
 
         return true;
     }
@@ -622,7 +625,7 @@ class OrderController extends PayController
             'body'          => $notifystr,
             'times'         => 0,
             'last'          => $this->timestamp + 15,
-            "type"          => $type, // 订单回调类型
+            "type"          => $type, //订单回调类型
             'status'        => 0,
         ];
         return M('OrderNotify')->add($notifyData);
