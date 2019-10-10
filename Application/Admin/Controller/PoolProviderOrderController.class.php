@@ -437,10 +437,10 @@ class PoolProviderOrderController extends BaseController
             $where1['a.day'] = ['between', [strtotime($stime), strtotime($etime) ? strtotime($etime) : time()]];
         }
         $count['do_order'] = M('PoolStatis')->field('sum(`do_order`) as do_order')->where($where)->find();
-        $count['order'] = M('PoolStatis')->field('sum(`order`) as order_num')->where($where)->find();
+        $count['order_num'] = M('PoolStatis')->field('sum(`order_num`) as order_num')->where($where)->find();
         $count['order_money'] = M('PoolStatis')->field('sum(`order_money`) as order_money')->where($where)->find();
         
-        $count['match'] = M('PoolStatis')->field('sum(`match`) as match_num')->where($where)->find();
+        $count['match_num'] = M('PoolStatis')->field('sum(`match_num`) as match_num')->where($where)->find();
         $count['match_money'] = M('PoolStatis')->field('sum(`match_money`) as match_money')->where($where)->find();
         
         $count['pay_order'] = M('PoolStatis')->field('sum(`pay_order`) as pay_order')->where($where)->find();
