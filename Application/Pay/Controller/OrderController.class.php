@@ -533,7 +533,7 @@ class OrderController extends PayController
 
         $contents = sendForm($pool['notify_url'], $params);
 
-        Log::write(" pool notify: ". $poolOrder["id"] . " url: " . $pool["notify_url"] . http_build_query($params) . " resp: " . $contents);
+        Log::write(" pool notify: ". $poolOrder["id"] . " url: " . $pool["notify_url"] . '?' . http_build_query($params) . " resp: " . $contents);
         if (strstr(strtolower($contents), "ok") != false) {
             M('PoolRec')->where(['id' => $poolOrder['id']])->setField("status", 1);
             return true;
