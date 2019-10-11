@@ -549,13 +549,13 @@ class OrderController extends PayController
         $notifystr = rtrim($notifystr, '&');
         $notifyType = 1;
 
-        if (! $this->checkNotifyExist( $poolOrder['id'], $notifyType ) ) {
-            $this->syncNotify( $notifyType, $poolOrder['id'], $pool['notify_url'],  $notifystr);
-        }
-
         //支付成功统计入库
         D('Admin/PoolStatis')->setStatis($provider['id'],'pay_order');
         D('Admin/PoolStatis')->setStatis($provider['id'],'pay_money',$pool['money']);
+
+        if (! $this->checkNotifyExist( $poolOrder['id'], $notifyType ) ) {
+            $this->syncNotify( $notifyType, $poolOrder['id'], $pool['notify_url'],  $notifystr);
+        }
 
         return true;
     }
@@ -607,13 +607,13 @@ class OrderController extends PayController
 
         $notifyType = 0;
 
-        if (! $this->checkNotifyExist( $order['id'], $notifyType ) ) {
-            $this->syncNotify( $notifyType, $order['id'], $order['pay_notifyurl'],  $notifystr);
-        }
-
         //支付成功统计入库
         D('Admin/OrderStatis')->setStatis($order["pay_memberid"],'pay_order');
         D('Admin/OrderStatis')->setStatis($order["pay_memberid"],'pay_money',$order["pay_amount"]);
+
+        if (! $this->checkNotifyExist( $order['id'], $notifyType ) ) {
+            $this->syncNotify( $notifyType, $order['id'], $order['pay_notifyurl'],  $notifystr);
+        }
 
         return true;
     }
