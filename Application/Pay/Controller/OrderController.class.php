@@ -518,10 +518,14 @@ class OrderController extends PayController
             log::write("pool provider not exist:" . json_encode($poolOrder));
             return;
         }
-       
+        
         if (!$pool){
             $pool = json_decode($poolOrder['data'], true);
         }
+        //支付成功统计入库
+        D('Admin/PoolStatis')->setStatis($provider['id'],'pay_order');
+        D('Admin/PoolStatis')->setStatis($provider['id'],'pay_money',$pool['money']);
+       
         $params = [
             'appkey'        => $provider['appkey'],
             'phone'         => $pool['phone'],
@@ -549,10 +553,6 @@ class OrderController extends PayController
         $notifystr = rtrim($notifystr, '&');
         $notifyType = 1;
 
-        //支付成功统计入库
-        D('Admin/PoolStatis')->setStatis($provider['id'],'pay_order');
-        D('Admin/PoolStatis')->setStatis($provider['id'],'pay_money',$pool['money']);
-
         if (! $this->checkNotifyExist( $poolOrder['id'], $notifyType ) ) {
             $this->syncNotify( $notifyType, $poolOrder['id'], $pool['notify_url'],  $notifystr);
         }
@@ -573,6 +573,10 @@ class OrderController extends PayController
 
     protected function sendOrderNotify( $order, &$member_info )
     {
+        //支付成功统计入库
+        D('Admin/OrderStatis')->setStatis($order["pay_memberid"],'pay_order');
+        D('Admin/OrderStatis')->setStatis($order["pay_memberid"],'pay_money',$order["pay_amount"]);
+        
         $params = [ // 返回字段
             "memberid" => $order["pay_memberid"], // 商户ID
             "orderid" => $order['out_trade_id'], // 订单号
@@ -606,10 +610,6 @@ class OrderController extends PayController
 
 
         $notifyType = 0;
-
-        //支付成功统计入库
-        D('Admin/OrderStatis')->setStatis($order["pay_memberid"],'pay_order');
-        D('Admin/OrderStatis')->setStatis($order["pay_memberid"],'pay_money',$order["pay_amount"]);
 
         if (! $this->checkNotifyExist( $order['id'], $notifyType ) ) {
             $this->syncNotify( $notifyType, $order['id'], $order['pay_notifyurl'],  $notifystr);
