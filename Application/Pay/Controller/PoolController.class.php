@@ -70,6 +70,20 @@ out_trade_id
         //手机号码检测验证
         $providerconfig = json_decode($provider['config'],true);
         if ($providerconfig['checkphone']) {
+            if ($this->request['channel']==1){
+                $check['phone'] = $this->request['phone'];
+                $checkPhone = sendJson('http://47.111.146.122:5561/api/detect',$check);
+                Log::write("checkphone notice: ".json_encode($check)."===={$checkPhone}");
+                $checkPhone = json_decode($checkPhone,true);
+                if(!$checkPhone['status']){
+                    $this->result_error("检测电话失败!", true);
+                    return;
+                }
+            }
+        }
+
+        $providerconfig = json_decode($provider['config'],true);
+        if ($providerconfig['checkphone']) {
             $check['phone'] = $this->request['phone'];
             $check['type'] = $this->request['channel'];
             $checkPhone = sendJson('http://47.111.146.122:5561/api/detect',$check);
