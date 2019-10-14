@@ -82,18 +82,6 @@ out_trade_id
             }
         }
 
-        $providerconfig = json_decode($provider['config'],true);
-        if ($providerconfig['checkphone']) {
-            $check['phone'] = $this->request['phone'];
-            $check['type'] = $this->request['channel'];
-            $checkPhone = sendJson('http://47.111.146.122:5561/api/detect',$check);
-            Log::write("checkphone notice: ".json_encode($check)."===={$checkPhone}");
-            $checkPhone = json_decode($checkPhone,true);
-            if(!$checkPhone['status']){
-                $this->result_error("检测电话失败!", true);
-                return;
-            }
-        }
 
         $signArray = [
             "appkey"        => $this->request['appkey'],
