@@ -487,7 +487,7 @@ class OrderController extends BaseController
             } else {
                 $this->ajaxReturn(['status' => 0, 'msg' => "查询成功, 设置订单失败"]);
             }
-            // 查询成功
+            //查询成功
         } else {
             $this->ajaxReturn(['status' => 0, 'msg' => '当前订单查询到未支付']);
         }

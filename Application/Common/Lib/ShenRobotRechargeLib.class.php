@@ -136,22 +136,22 @@ class ShenRobotRechargeLib extends IPhoneRechagerLib
             "sign":"fe9d818131fb9d4f695032302e4a025d"
         */
         $params = [
-            'no'          => $order['trade_id'],
+            'order_no'          => $order['trade_id'],
             'type'        => $pool['channel'],
-            'sign_type'   => '1',
+            //'sign_type'   => '1',
         ];
 
-        $params['sign'] = $this->sign($params);
+        //$params['sign'] = $this->sign($params);
         $data = sendJson( $api_url, $params );
         if (!$data) {
             return false;
         }
         LogApiQuery($api_url, $params, $data);
         $data = json_decode($data, true);
-        if ($data['code'] != 1) {
+        if ($data['code'] != 200) {
             return false;
         }
-        return $data['data']['status'] == 1;
+        return $data['data']['status'] == 200;
     }
 
     public function notify(array $request)
