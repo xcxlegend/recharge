@@ -9,12 +9,11 @@
 namespace Common\Lib;
 
 
-class TestRechargeLib extends IPhoneRechagerLib
+class TestRechargeLib
 {
 
     public function order(array $params, $gateway, $notify, $pay_orderid)
     {
-        $this->poolQuery(new PoolDevLib(), $params);
         $pool = $params['pool'] ?: [];
         $url = 'http://testurl';
         $orderNo = createUUID("CR");

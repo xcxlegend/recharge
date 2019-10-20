@@ -4,7 +4,7 @@ use Common\Lib\ChannelOrder;
 use Common\Lib\JsonLogLib;
 use Think\Exception;
 use \Think\Log;
-use Common\Lib\ChannelManagerLib;
+use Common\Lib\IPhoneRechagerLib;
 use Common\Lib\PoolDevLib;
 use Common\Model\RedisCacheModel;
 /**
@@ -40,62 +40,49 @@ class IndexController extends OrderController
         list($msec, $sec) = explode(' ', microtime());
         $pay_orderid = 'MP' . date('YmdHis',$sec) . intval($msec * 10000);
 
-//        $poolLib = new PoolDevLib();
+    
+        $IPhoneRechage = new IPhoneRechagerLib();
+        $poolPhone = $IPhoneRechage->poolQuery(new PoolDevLib(), $params);
 
-//        $phoneRecharger = 'PhoneRechargeDev';
-
-        if (!$this->checkChannel()) {
-            return;
-        }
-        $notify_url = $this->_site . 'Pay_Notify_Index_Method_' . $this->channel['code'];
-        $manager = new ChannelManagerLib( $this->channel );
         try{
-            $c_order = $manager->order( I('request.'), $notify_url, $pay_orderid);
+            $order = [
+                'pay_memberid' => $this->member['id'],
+                'pay_orderid' => $pay_orderid,
+                'pay_amount' => round($this->request['pay_amount'] / 100, 2),
+                'pay_applydate' => time(),
+                'pay_code' => $this->request['pay_bankcode'],
+                'pay_notifyurl' => $this->request['pay_notifyurl'],
+                'pay_callbackurl' => $this->request['pay_returnurl'] ?: '',
+                'pay_status' => 0,
+                'out_trade_id' => $this->request['pay_orderid'],
+                'memberid' =>2,//支付渠道
+                'attach' => $this->request['pay_attach'],
+                'pay_productname' => $this->request['pay_productname'],
+                'pay_url' => $poolPhone['pay_url'],
+                'pool_phone_id' => $poolPhone['pid'],
+                'channel_id' => $this->channel['id'],
+                'trade_id' => $poolPhone['pay_no']
+            ];
 
-            if ($c_order instanceof ChannelOrder) {
-
-                $order = [
-                    'pay_memberid' => $this->member['id'],
-                    'pay_orderid' => $pay_orderid,
-                    'pay_amount' => round($this->request['pay_amount'] / 100, 2),
-                    'pay_applydate' => time(),
-                    'pay_code' => $this->request['pay_bankcode'],
-                    'pay_notifyurl' => $this->request['pay_notifyurl'],
-                    'pay_callbackurl' => $this->request['pay_returnurl'] ?: '',
-                    'pay_status' => 0,
-                    'out_trade_id' => $this->request['pay_orderid'],
-                    'memberid' => $c_order->poolPid,
-                    'attach' => $this->request['pay_attach'],
-                    'pay_productname' => $this->request['pay_productname'],
-                    'pay_url' => $c_order->wapUrl ?: $c_order->qrUrl ?: '',
-                    'pool_phone_id' => $c_order->poolId,
-                    'channel_id' => $this->channel['id'],
-                    'trade_id' => $c_order->tradeID
-                ];
-
-                if (!$this->orderadd($order, $this->product, $this->channel)) {
-                    throw new Exception("订单保存失败");
-                }
-
-                D('Admin/OrderStatis')->setStatis($this->member['id'],'order_num');
-                D('Admin/OrderStatis')->setStatis($this->member['id'],'order_money',$order['pay_amount']);
-
-                $resp = [
-                    'orderId' => $pay_orderid,
-                    'orderNo' => $this->request['pay_orderid'],
-                    'url'     => $c_order->wapUrl,
-                    'qr_url'  => $c_order->qrUrl,
-                ];
-                $this->result_success($resp, "创建订单成功");
-                return true;
+            if (!$this->orderadd($order, $this->product, $this->channel)) {
+                throw new Exception("订单保存失败");
             }
-            throw new Exception("支付Lib返回信息错误");
+
+            D('Admin/OrderStatis')->setStatis($this->member['id'],'order_num');
+            D('Admin/OrderStatis')->setStatis($this->member['id'],'order_money',$order['pay_amount']);
+
+            $resp = [
+                'orderId' => $pay_orderid,
+                'orderNo' => $this->request['pay_orderid'],
+                'url'     => $poolPhone['pay_url'],
+                'qr_url'  => $poolPhone['pay_url'],
+            ];
+            $this->result_success($resp, "创建订单成功");
+            return true;
+
         } catch(Exception $e){
             Log::write($e->getMessage());
-            $manager->reset();
-//            $c_order->reset();
             $this->result_error($e->getMessage());
-//            $this->result_error('订单生成失败');
             return;
         }
     }

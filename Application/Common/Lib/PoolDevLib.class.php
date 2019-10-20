@@ -33,6 +33,7 @@ class PoolDevLib implements IPoolLib
         D('Admin/OrderStatis')->setStatis(intval($params["pay_memberid"] - 10000),'do_order');
 
         $money = $params['pay_amount'] / 100;
+        $pay_code = $params['pay_bankcode']
         $query = [
             'balance' => ['egt', $money],
         ];
@@ -49,6 +50,7 @@ class PoolDevLib implements IPoolLib
             $count = M('PoolPhones')->where([
                 'pid' => ['in', $ids],
                 'lock' => 0,
+                'pay_code'=>$pay_code,
                 'money' => $money,
             ])->count();
             if (!$count) {
@@ -58,6 +60,7 @@ class PoolDevLib implements IPoolLib
             $startId = M('PoolPhones')->where([
                 'pid' => ['in', $ids],
                 'lock' => 0,
+                'pay_code'=>$pay_code,
                 'money' => $money,
             ])->limit(1)->getField('id');
             $id = $startId + mt_rand(0, $count - 1);
@@ -65,6 +68,7 @@ class PoolDevLib implements IPoolLib
                 [
                     'pid' => ['in', $ids],
                     'lock' => 0,
+                    'pay_code'=>$pay_code,
                     'money' => $money,
                     'id' => ['egt', $id]
                 ]
@@ -108,7 +112,7 @@ class PoolDevLib implements IPoolLib
         D('Admin/PoolStatis')->setStatis($order['pid'],'match_num');
         D('Admin/PoolStatis')->setStatis($order['pid'],'match_money',$order['money']);
 
-        return true;
+        return $order;
     }
 
     public function reset()
