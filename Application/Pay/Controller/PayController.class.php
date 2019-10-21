@@ -11,8 +11,9 @@ use Common\Lib\JsonLogLib;
 use Common\Model\RedisCacheModel;
 use Think\Controller;
 use Think\Log;
+use Common\Lib\IPhoneRechagerLib;
 
-class PayController
+class PayController extends IPhoneRechagerLib
 {
 
     protected $_site;
