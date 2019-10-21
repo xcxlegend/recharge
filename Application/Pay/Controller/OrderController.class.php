@@ -52,8 +52,8 @@ class OrderController extends PayController
             //$product = D('Common/Product')->getByCode($order['pay_code']);
         //}
         //if (!$product) {
-            $this->result_error("支付方式错误");
-            return;
+            //$this->result_error("支付方式错误");
+            //return;
         //}
 
         // 通道名称
