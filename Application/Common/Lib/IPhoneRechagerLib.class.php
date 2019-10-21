@@ -10,7 +10,7 @@ namespace Common\Lib;
 
 
 // 手机充值网厅接口
-abstract class IPhoneRechagerLib implements IChannelLib
+class IPhoneRechagerLib extends IChannelLib
 {
 
     protected $poolMgr;

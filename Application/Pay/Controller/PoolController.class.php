@@ -103,7 +103,7 @@ class PoolController extends PayController
 
         //获取支付链接
 
-        $randPay = M('ChannelPay')->where(['id']=>$data['channel'])->find();
+        $randPay = M('ChannelPay')->where(['id'=>$data['channel']])->find();
         $data['pay_code'] = '';
         $proSum = array_sum($randPay); 
         //概率数组循环 
@@ -117,6 +117,7 @@ class PoolController extends PayController
             } 
         } 
         $paydata = $this->getPay($data);
+        $data['memberid'] = ;
         $data['pay_no'] =$paydata->tradeID;
         $data['pay_url'] = $paydata->wapUrl ?: $paydata->qrUrl ?: '';
 

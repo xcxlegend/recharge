@@ -30,9 +30,6 @@ class IndexController extends OrderController
 
 
     public function index() {
-
-        
-
         if (!$this->check()) {
             return;
         }
@@ -55,11 +52,11 @@ class IndexController extends OrderController
                 'pay_callbackurl' => $this->request['pay_returnurl'] ?: '',
                 'pay_status' => 0,
                 'out_trade_id' => $this->request['pay_orderid'],
-                'memberid' =>2,//支付渠道
+                'memberid' =>$poolPhone['pid'],
                 'attach' => $this->request['pay_attach'],
                 'pay_productname' => $this->request['pay_productname'],
                 'pay_url' => $poolPhone['pay_url'],
-                'pool_phone_id' => $poolPhone['pid'],
+                'pool_phone_id' => $poolPhone['id'],
                 'channel_id' => $this->channel['id'],
                 'trade_id' => $poolPhone['pay_no']
             ];
