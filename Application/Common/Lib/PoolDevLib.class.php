@@ -33,12 +33,12 @@ class PoolDevLib implements IPoolLib
         D('Admin/OrderStatis')->setStatis(intval($params["pay_memberid"] - 10000),'do_order');
 
         $money = $params['pay_amount'] / 100;
-        $pay_code = $params['pay_bankcode']
-        $where = [
+        $pay_code = $params['pay_bankcode'];
+        $query = [
             'balance' => ['egt', $money],
         ];
 
-        $ids = M('PoolProvider')->where($where)->getField("id", true);
+        $ids = M('PoolProvider')->where($query)->getField("id", true);
         if (!$ids) {
             throw new Exception("号码查询失败");
             return false;
