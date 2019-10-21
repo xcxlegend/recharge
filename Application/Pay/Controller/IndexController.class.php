@@ -35,7 +35,9 @@ class IndexController extends OrderController
 
         list($msec, $sec) = explode(' ', microtime());
         $pay_orderid = 'MP' . date('YmdHis',$sec) . intval($msec * 10000);
-
+        if (!$this->checkChannel()) {
+            return;
+        }
     
         print_r(I('request.'));
 

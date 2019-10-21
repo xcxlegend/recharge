@@ -45,16 +45,16 @@ class OrderController extends PayController
 //            return;
 //        }
 
-        if (!$product) {
+        //if (!$product) {
 //            $product = $this->cache->getOrSet("Product:pay_code:" . $order['pay_code'], function () use (&$order) {
 //                M('Product')->where(['code' => $order['pay_code']])->find();
 //            });
-            $product = D('Common/Product')->getByCode($order['pay_code']);
-        }
-        if (!$product) {
+            //$product = D('Common/Product')->getByCode($order['pay_code']);
+        //}
+        //if (!$product) {
             $this->result_error("支付方式错误");
             return;
-        }
+        //}
 
         // 通道名称
 //        $PayName = $parameter["code"];
