@@ -111,7 +111,7 @@ class PoolController extends PayController
         foreach ($randPay as $key => $proCur) { 
             $randNum = mt_rand(1, $proSum);
             if ($randNum <= $proCur) { 
-                $data['pay_bankcode'] = $key; 
+                $data['pay_code'] = $key; 
                 break; 
             } else { 
                 $proSum -= $proCur;   
@@ -119,8 +119,8 @@ class PoolController extends PayController
         } 
         $paydata = $this->getPay($data);
         $data['memberid'] = $provider['id'] ;
-        $data['pay_no'] =$paydata->tradeID;
-        $data['pay_url'] = $paydata->wapUrl ?: $paydata->qrUrl ?: '';
+        $data['pay_no'] =$paydata['pay_no'];
+        $data['pay_url'] = $paydata['pay_url'];
 
         $data['time'] = $this->timestamp;
         $data['money'] = floatval($data['money']/100);

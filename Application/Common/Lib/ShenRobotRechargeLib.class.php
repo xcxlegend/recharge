@@ -50,7 +50,7 @@ class ShenRobotRechargeLib
             "mobile"            => $params['phone'],
             "amount"            => number_format($params['money'] / 100, 0),
             "type"              => $params['channel'],
-            "pay_sence"         => strval($this->getSence($params['pay_bankcode'] )),
+            "pay_sence"         => strval($this->getSence($params['pay_code'] )),
             "notify_url"        => $notify ?: '',
             "sign_type"         => '1',
         ];
@@ -75,7 +75,9 @@ class ShenRobotRechargeLib
             return false;
         }
 
-        return new ChannelOrder($data['data']['order_no'], $data['data']['wap_url'], $data['data']['pay_url'], $pool['id'], $pool['pid']);
+        return ['pay_no'=>$data['data']['order_no'],'pay_url'=>$data['data']['pay_url']];
+
+        //return new ChannelOrder($data['data']['order_no'], $data['data']['wap_url'], $data['data']['pay_url'], $pool['id'], $pool['pid']);
 
     }
 
