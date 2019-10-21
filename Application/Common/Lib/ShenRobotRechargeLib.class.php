@@ -7,6 +7,7 @@
  */
 
 namespace Common\Lib;
+use Common\Lib\ChannelOrder;
 use Think\Exception;
 use \Think\Log;
 
