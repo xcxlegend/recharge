@@ -140,15 +140,15 @@ sign
             'success_url'       => $request['success_url'],
         ];
 
-        // if ( $this->sign($params) !== $request['sign']) {
-        //     Log::write('sign error:'.json_encode($params), Log::WARN);
-        //     return false;
-        // }
+        if ( $this->sign($params) !== $request['sign']) {
+            Log::write('sign error:'.json_encode($params), Log::WARN);
+            return false;
+        }
 
 
-        // if ($request['status'] != 'Success') {
-        //     return false;
-        // }
+        if ($request['status'] != 'Success') {
+            return false;
+        }
         
 
         return new ChannelNotifyData($request['merchant_order_no'], $request['no'], $request['success_url']); //[$request['merchant_order_no'], $request['no']];
