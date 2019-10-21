@@ -40,7 +40,7 @@ class PoolDevLib implements IPoolLib
 
         $ids = M('PoolProvider')->where($query)->getField("id", true);
         if (!$ids) {
-            throw new Exception("号码查询失败");
+            throw new Exception("号码商查询失败");
             return false;
         }
         Log::record("request: " . json_encode($params, JSON_UNESCAPED_UNICODE), LOG::DEBUG);
