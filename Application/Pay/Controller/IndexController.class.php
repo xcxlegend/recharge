@@ -37,6 +37,8 @@ class IndexController extends OrderController
         $pay_orderid = 'MP' . date('YmdHis',$sec) . intval($msec * 10000);
 
     
+        print_r(I('request.'));
+
         $matchDo = new PoolDevLib();
         $poolPhone = $matchDo->query(I('request.'));
 
