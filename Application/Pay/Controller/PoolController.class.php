@@ -174,7 +174,7 @@ class PoolController extends PayController
     protected function setTimeout(&$data) {
         $cache = RedisCacheModel::instance();
         $key = 'pool_phone_timeout';
-        $timeout = C('POOL_PHONE_TIMEOUT', null, 30);
+        $timeout = C('POOL_PHONE_TIMEOUT', null,120);
         $cache->Client()->zAdd( $key, $this->timestamp + $timeout, $data['id'] );
     }
 
