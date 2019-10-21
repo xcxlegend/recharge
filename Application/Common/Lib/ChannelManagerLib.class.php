@@ -75,10 +75,10 @@ class ChannelManagerLib
     static public function notify( $method, $request ) {
 
         $class = self::create($method);
-        //if  (!$class){
+        if  (!$class){
             throw new Exception("渠道方式接口错误不存在 new");
             return false;
-        //}
+        }
 
         //if ($class instanceof IChannelLib) {
             return $class->notify( $request );
