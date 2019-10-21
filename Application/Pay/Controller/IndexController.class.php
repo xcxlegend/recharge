@@ -45,7 +45,7 @@ class IndexController extends OrderController
         try{
             $order = [
                 'pay_memberid' => $this->member['id'],
-                'pay_orderid' => $pay_orderid,
+                'pay_orderid' => $poolPhone['order_id'],
                 'pay_amount' => round($this->request['pay_amount'] / 100, 2),
                 'pay_applydate' => time(),
                 'pay_code' => $this->request['pay_bankcode'],
