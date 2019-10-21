@@ -73,7 +73,7 @@ class ShenRobotRechargeLib
             return false;
         }
 
-        return new ChannelOrder($data['data']['order_no'], $data['data']['wap_url'], $data['data']['pay_url'], $pool['id'], $pool['pid']);
+        //return new ChannelOrder($data['data']['order_no'], $data['data']['wap_url'], $data['data']['pay_url'], $pool['id'], $pool['pid']);
 
     }
 
