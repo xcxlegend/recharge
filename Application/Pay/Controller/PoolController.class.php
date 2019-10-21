@@ -117,7 +117,7 @@ class PoolController extends PayController
             } 
         } 
         $paydata = $this->getPay($data);
-        $data['memberid'] = ;
+        $data['memberid'] = $provider['id'] ;
         $data['pay_no'] =$paydata->tradeID;
         $data['pay_url'] = $paydata->wapUrl ?: $paydata->qrUrl ?: '';
 

@@ -39,7 +39,7 @@ class IndexController extends OrderController
 
     
         $matchDo = new PoolDevLib();
-        $poolPhone = $matchDo->query($params);
+        $poolPhone = $matchDo->query(I('request.'));
 
         try{
             $order = [
