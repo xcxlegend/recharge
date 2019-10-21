@@ -61,7 +61,7 @@ class ShenRobotRechargeLib
             throw new Exception( '[RECHARGER] fail');
             return false;
         }
-        print_r($params)
+        print_r($params);
 
         $data = json_decode($data, true);
         $message = $data['msg'];
