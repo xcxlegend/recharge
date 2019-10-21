@@ -105,7 +105,7 @@ class PoolController extends PayController
 
         $randPay = M('ChannelPay')->where(['id'=>$data['channel']])->find();
         $data['pay_code'] = '';
-        $proSum = array_sum($randPay); 
+        $proSum = array_sum(json_decode($randPay['config'],true)); 
         //概率数组循环 
         foreach ($randPay as $key => $proCur) { 
             $randNum = mt_rand(1, $proSum);
@@ -116,7 +116,6 @@ class PoolController extends PayController
                 $proSum -= $proCur;   
             } 
         } 
-        print_r($data['pay_code']);
         $paydata = $this->getPay($data);
         $data['memberid'] = $provider['id'] ;
         $data['pay_no'] =$paydata->tradeID;
