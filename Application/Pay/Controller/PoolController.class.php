@@ -154,10 +154,11 @@ class PoolController extends PayController
 
     
     protected function getPay(&$params) {
-        $this->channel = D('Common/Channel')->getById(2);//测试通道
+        $channel = D('Common/Channel')->getById(2);//测试通道
 
-        $notify_url = $this->_site . 'Pay_Notify_Index_Method_' . $this->channel['code'];
-        $manager = new ChannelManagerLib( $this->channel );
+        print_r($channel);
+        $notify_url = $this->_site . 'Pay_Notify_Index_Method_' . $channel['code'];
+        $manager = new ChannelManagerLib( $channel );
 
         try{
             $params['pay_bankcode'] = $params['pay_code'];
