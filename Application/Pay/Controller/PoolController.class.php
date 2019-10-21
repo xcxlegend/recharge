@@ -116,6 +116,7 @@ class PoolController extends PayController
                 $proSum -= $proCur;   
             } 
         } 
+        print_r($data['pay_code']);
         $paydata = $this->getPay($data);
         $data['memberid'] = $provider['id'] ;
         $data['pay_no'] =$paydata->tradeID;
