@@ -45,7 +45,7 @@ class ChannelManagerLib
             return false;
         }
 
-        //if ($this->IPhoneRechagerImpl instanceof IChannelLib) {
+        if ($this->IPhoneRechagerImpl instanceof IChannelLib) {
 
 //            if ($pool){
 //                if (!$pool->query($params)){
@@ -58,7 +58,7 @@ class ChannelManagerLib
                 throw new Exception("渠道接口返回数据错误");
             }
             return $order;
-        //}
+        }
 
         throw new Exception("渠道方式接口错误不存在");
         return false;

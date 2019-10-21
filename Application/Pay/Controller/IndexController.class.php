@@ -1,6 +1,5 @@
 <?php
 namespace Pay\Controller;
-use Common\Lib\ChannelOrder;
 use Common\Lib\JsonLogLib;
 use Think\Exception;
 use \Think\Log;
