@@ -75,17 +75,17 @@ class ChannelManagerLib
     static public function notify( $method, $request ) {
 
         $class = self::create($method);
-        if  (!$class){
+        //if  (!$class){
             throw new Exception("渠道方式接口错误不存在");
             return false;
-        }
+        //}
 
-        if ($class instanceof IChannelLib) {
+        //if ($class instanceof IChannelLib) {
             return $class->notify( $request );
-        }
+        //}
 
-        throw new Exception("渠道方式接口错误不存在");
-        return false;
+        // throw new Exception("渠道方式接口错误不存在");
+        // return false;
     }
 
     static public function notifyOK( $method ) {
@@ -105,15 +105,13 @@ class ChannelManagerLib
         $gateway = $this->channel['gateway'];
         $class = self::create($method);
         if  (!$class){
+            throw new Exception("渠道方式接口错误不存在");
             return false;
         }
 
-        if ($class instanceof IChannelLib) {
+        //if ($class instanceof IChannelLib) {
             return $class->query( $gateway, $order, $pool );
-        }
-
-        throw new Exception("渠道方式接口错误不存在");
-        return false;
+        //}
     }
 
 

@@ -38,8 +38,6 @@ class IndexController extends OrderController
         if (!$this->checkChannel()) {
             return;
         }
-    
-        print_r(I('request.'));
 
         $matchDo = new PoolDevLib();
         $poolPhone = $matchDo->query(I('request.'));
