@@ -104,13 +104,14 @@ class PoolController extends PayController
         //获取支付链接
 
         $randPay = M('ChannelPay')->where(['id'=>$data['channel']])->find();
+        $randPay = json_decode($randPay['config'],true);
         $data['pay_code'] = '';
-        $proSum = array_sum(json_decode($randPay['config'],true)); 
+        $proSum = array_sum($randPay); 
         //概率数组循环 
         foreach ($randPay as $key => $proCur) { 
             $randNum = mt_rand(1, $proSum);
             if ($randNum <= $proCur) { 
-                $data['pay_code'] = $key; 
+                $data['pay_bankcode'] = $key; 
                 break; 
             } else { 
                 $proSum -= $proCur;   
@@ -160,7 +161,6 @@ class PoolController extends PayController
         $manager = new ChannelManagerLib( $channel );
 
         try{
-            $params['pay_bankcode'] = $params['pay_code'];
             return  $manager->order($params, $notify_url, $params['order_id']);
         } catch(Exception $e){
             Log::write($e->getMessage());
