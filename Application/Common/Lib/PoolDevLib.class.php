@@ -34,11 +34,11 @@ class PoolDevLib implements IPoolLib
 
         $money = $params['pay_amount'] / 100;
         $pay_code = $params['pay_bankcode']
-        $query = [
+        $where = [
             'balance' => ['egt', $money],
         ];
 
-        $ids = M('PoolProvider')->where($query)->getField("id", true);
+        $ids = M('PoolProvider')->where($where)->getField("id", true);
         if (!$ids) {
             throw new Exception("号码查询失败");
             return false;
