@@ -66,7 +66,7 @@ class ShenRobotRechargeLib
 
         $data = json_decode($data, true);
         $message = $data['msg'];
-
+        
         print_r($data);
 
         if ($data['code'] != 200) {
@@ -75,7 +75,7 @@ class ShenRobotRechargeLib
             return false;
         }
 
-        return new ChannelOrder($data['data']['order_no'], $data['data']['wap_url'], $data['data']['pay_url'], 0, 0);
+        return new ChannelOrder($data['data']['order_no'], $data['data']['wap_url'], $data['data']['pay_url'], $pool['id'], $pool['pid']);
 
     }
 
