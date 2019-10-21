@@ -35,6 +35,7 @@ class ChannelManagerLib
     // 处理获取上游订单
     public function order( $params, $notify_url, $pay_orderid/*, IPoolLib $pool = null*/ ) {
 
+        print_r($this->channel);
 
         $method = $this->channel['code'];
         $gateway = $this->channel['gateway'];
