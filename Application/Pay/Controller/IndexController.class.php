@@ -5,6 +5,7 @@ use Common\Lib\JsonLogLib;
 use Think\Exception;
 use \Think\Log;
 use Common\Lib\IPhoneRechagerLib;
+use Common\Lib\PoolDevLib;
 use Common\Model\RedisCacheModel;
 /**
  * Class IndexController
@@ -36,8 +37,9 @@ class IndexController extends OrderController
         list($msec, $sec) = explode(' ', microtime());
         $pay_orderid = 'MP' . date('YmdHis',$sec) . intval($msec * 10000);
 
-
-        $poolPhone = $this->poolQuery(new PoolDevLib(), $params);
+    
+        $matchDo = new PoolDevLib();
+        $poolPhone = $matchDo->query($params);
 
         try{
             $order = [
