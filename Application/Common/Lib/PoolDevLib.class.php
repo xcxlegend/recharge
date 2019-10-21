@@ -50,7 +50,7 @@ class PoolDevLib implements IPoolLib
             $count = M('PoolPhones')->where([
                 'pid' => ['in', $ids],
                 'lock' => 0,
-                'pay_code'=>$pay_code,
+                //'pay_code'=>$pay_code,
                 'money' => $money,
             ])->count();
             if (!$count) {
@@ -60,7 +60,7 @@ class PoolDevLib implements IPoolLib
             $startId = M('PoolPhones')->where([
                 'pid' => ['in', $ids],
                 'lock' => 0,
-                'pay_code'=>$pay_code,
+                //'pay_code'=>$pay_code,
                 'money' => $money,
             ])->limit(1)->getField('id');
             $id = $startId + mt_rand(0, $count - 1);
@@ -68,7 +68,7 @@ class PoolDevLib implements IPoolLib
                 [
                     'pid' => ['in', $ids],
                     'lock' => 0,
-                    'pay_code'=>$pay_code,
+                    //'pay_code'=>$pay_code,
                     'money' => $money,
                     'id' => ['egt', $id]
                 ]
