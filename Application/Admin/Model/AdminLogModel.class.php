@@ -32,11 +32,14 @@ class AdminLogModel extends BaseModel
             }
             $log['ip']=get_client_ip();
             $log['create_time']=time();
-            if($this->add($log)){
-                return true;
-            }
+            $status =  $this->add($log);
+            print_r($status);
+
+            // if($this->add($log)){
+            //     return true;
+            // }
         }
-        return false;
+        //return false;
     }
 
 }
