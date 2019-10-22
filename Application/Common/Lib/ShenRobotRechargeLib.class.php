@@ -59,7 +59,7 @@ class ShenRobotRechargeLib
         $data = sendJson($api_url, $query);
 
         if (!$data) {
-            throw new Exception( '[RECHARGER] fail');
+            //throw new Exception( '[RECHARGER] fail');
             return false;
         }
         //print_r($params);
@@ -71,7 +71,7 @@ class ShenRobotRechargeLib
 
         if ($data['code'] != 200) {
             Log::write(json_encode($data), Log::WARN);
-            throw new Exception( '[RECHARGER] ' . $message);
+            //throw new Exception( '[RECHARGER] ' . $message);
             return false;
         }
 
