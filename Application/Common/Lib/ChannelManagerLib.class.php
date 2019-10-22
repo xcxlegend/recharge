@@ -54,14 +54,14 @@ class ChannelManagerLib
 //            }
 
             $order = $this->IPhoneRechagerImpl->order($params, $gateway, $notify_url, $pay_orderid );
-            if ( !$order['pay_no'] || !$order['pay_url']) {
-                throw new Exception("渠道接口返回数据错误");
-            }
+            // if ( !$order['pay_no'] || !$order['pay_url']) {
+            //     throw new Exception("渠道接口返回数据错误");
+            // }
             return $order;
         //}
 
-        throw new Exception("渠道方式接口错误不存在");
-        return false;
+        // throw new Exception("渠道方式接口错误不存在");
+        // return false;
     }
 
     public function reset() {

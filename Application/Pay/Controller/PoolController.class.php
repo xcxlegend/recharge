@@ -160,14 +160,14 @@ class PoolController extends PayController
         $notify_url = $this->_site . 'Pay_Notify_Index_Method_' . $channel['code'];
         $manager = new ChannelManagerLib( $channel );
 
-        try{
-            return  $manager->order($params, $notify_url, $params['order_id']);
-        } catch(Exception $e){
-            Log::write($e->getMessage());
+        $result = $manager->order($params, $notify_url, $params['order_id']);
+        if (!$result['pay_no'] || !$result['pay_url']) {
+            Log::write($result['msg']);
             $manager->reset();
-            $this->result_error($e->getMessage());
-            return;
+            $this->result_error($result['msg']);
         }
+
+        return $result;
     }
 
 

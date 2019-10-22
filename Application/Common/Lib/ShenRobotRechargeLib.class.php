@@ -72,7 +72,7 @@ class ShenRobotRechargeLib
         if ($data['code'] != 200) {
             Log::write(json_encode($data), Log::WARN);
             //throw new Exception( '[RECHARGER] ' . $message);
-            return false;
+            return  ['msg'=>$data['msg']];;
         }
 
         return ['pay_no'=>$data['data']['order_no'],'pay_url'=>$data['data']['pay_url']];
