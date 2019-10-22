@@ -42,7 +42,7 @@ class IndexController extends OrderController
         $matchDo = new PoolDevLib();
         $poolPhone = $matchDo->query(I('request.'));
 
-        if($poolPhone)
+        if($poolPhone){
             $order = [
                 'pay_memberid' => $this->member['id'],
                 'pay_orderid' => $poolPhone['order_id'],
