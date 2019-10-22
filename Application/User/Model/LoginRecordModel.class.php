@@ -29,8 +29,7 @@ class LoginRecordModel extends Model
                 $log['data']=json_encode($data);
             }
             $log['loginip']=get_client_ip();
-            $log['logindatetime']=time();
-            $this->add($log);
+            $log['logindatetime']=date("Y-m-d H:i:s");
             if($this->add($log)){
                 return true;
             }
