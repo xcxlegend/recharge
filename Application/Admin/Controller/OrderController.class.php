@@ -130,7 +130,7 @@ class OrderController extends BaseController
 
         $count = M('Order')->where($where)->count();
         $page = new \Think\Page($count, 20);
-        $list = M('Order')->where($where)->limit($page->firstRow, $page->listRows)->select();
+        $list = M('Order')->where($where)->limit($page->firstRow, $page->listRows)->order('id DESC')->select();
         $data = array(
             'list' => $list,
             'page' => $page->show(),
