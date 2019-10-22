@@ -42,7 +42,7 @@ class IndexController extends OrderController
         $matchDo = new PoolDevLib();
         $poolPhone = $matchDo->query(I('request.'));
 
-        try{
+        if($poolPhone)
             $order = [
                 'pay_memberid' => $this->member['id'],
                 'pay_orderid' => $poolPhone['order_id'],
@@ -78,9 +78,9 @@ class IndexController extends OrderController
             $this->result_success($resp, "创建订单成功");
             return true;
 
-        } catch(Exception $e){
-            Log::write($e->getMessage());
-            $this->result_error($e->getMessage());
+        } else {
+            //Log::write($e->getMessage());
+            $this->result_error('发起失败，请重试！');
             return;
         }
     }
