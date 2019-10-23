@@ -5,6 +5,7 @@
 namespace Payment\Controller;
 
 use Think\Controller;
+use \Think\Log;
 
 class DfpayController extends Controller
 {
@@ -27,6 +28,7 @@ class DfpayController extends Controller
      */
     public function add()
     {
+        Log::write('Dfpay notice:'json_encode(I('request.'));
         if (empty($_REQUEST)) {
             $this->showmessage('no data!');
         }

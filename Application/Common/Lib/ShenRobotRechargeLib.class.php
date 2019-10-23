@@ -7,11 +7,12 @@
  */
 
 namespace Common\Lib;
+use Common\Lib\ChannelOrder;
 use Think\Exception;
 use \Think\Log;
 
 
-class ShenRobotRechargeLib extends IPhoneRechagerLib
+class ShenRobotRechargeLib
 {
     const API_URL = "/api/recharge";
 
@@ -42,83 +43,41 @@ class ShenRobotRechargeLib extends IPhoneRechagerLib
 
         $api_url = $gateway . self::API_ORDER;
 
-        $this->poolQuery(new PoolDevLib(), $params);
 
-        $pool = $params['pool'] ?: [];
-        $phone = $pool['phone'];
-      
         $query = [
-            "merchant_order_no" => $pay_orderid, //'22345678901234567890123456789012542',//$pay_orderid,
+            "merchant_order_no" => $pay_orderid,
             "start_time"        => date('YmdHis'),
-            "mobile"            => $phone,
-            "amount"            => number_format($params['pay_amount'] / 100, 0),
-            "type"              => $params['pool']['channel'],
-            "pay_sence"         => strval($this->getSence( $params['pay_bankcode'] )),
+            "mobile"            => $params['phone'],
+            "amount"            => number_format($params['money'] / 100, 0),
+            "type"              => $params['channel'],
+            "pay_sence"         => strval($this->getSence($params['pay_code'] )),
             "notify_url"        => $notify ?: '',
-            // "return_url"        => $params['pay_returnurl'] ?: $notify,//'',
             "sign_type"         => '1',
         ];
 
-        /*
-        "merchant_order_no": "12345678901234567890123456789012345",
-        "notify_url": "http://www.baidu.com",
-        "start_time": "20190630192450",
-        "mobile": "13635279255",
-        "amount": "10.000",
-        "type": "1",
-        "pay_sence": "hf_ali_wap_pay",
-        "sign_type": "1",
-        "sign":
-         */
-
-
-//         $query = json_decode('{
-//         "merchant_order_no": "12345678901234567890123456789012345",
-//         "notify_url": "http://www.baidu.com",
-//         "start_time": "20190630192450",
-//         "mobile": "13635271568",
-//         "amount": "10.000",
-//         "type": "1",
-//         "pay_sence": "hf_ali_wap_pay",
-//         "sign_type": "1",
-//         "sign": "9572d838e0ee5d3ee88856dd6928a2f7"
-// }', true);
-        
-
         $query['sign'] = $this->sign($query);
         $data = sendJson($api_url, $query);
-        // $data = sendForm($api_url, $query);
-        /*
-         "no": "455835544175192664",
-        "wap_url": "https://qr.alipay.com/upx08672yckvwcfa0d0x0010",
-        "code_url": "",
-        "sign": "8fce09f609c71efebcf0bfbb13236834",
-        "status": 1000,
-        "desc": "保存订单成功"
-         */
+
         if (!$data) {
-            throw new Exception( '[RECHARGER] fail');
+            //throw new Exception( '[RECHARGER] fail');
             return false;
         }
+        //print_r($params);
+
         $data = json_decode($data, true);
         $message = $data['msg'];
-         if ($data['code'] != 200) {
+        
+        //print_r($data);
+
+        if ($data['code'] != 200) {
             Log::write(json_encode($data), Log::WARN);
-            throw new Exception( '[RECHARGER] ' . $message);
-            return false;
+            //throw new Exception( '[RECHARGER] ' . $message);
+            return  ['msg'=>$data['msg']];;
         }
 
-        /**
-         "no": "455835544175192664",
-        "wap_url": "https://qr.alipay.com/upx08672yckvwcfa0d0x0010",
-        "code_url": "",
-        "sign": "8fce09f609c71efebcf0bfbb13236834",
-        "status": 1000,
-        "desc": "保存订单成功"
-        }
-         */
+        return ['pay_no'=>$data['data']['order_no'],'pay_url'=>$data['data']['pay_url']];
 
-        return new ChannelOrder( $data['data']['order_no'], $data['data']['wap_url'], $data['data']['pay_url'], $pool['id'], $pool['pid']);
+        //return new ChannelOrder($data['data']['order_no'], $data['data']['wap_url'], $data['data']['pay_url'], $pool['id'], $pool['pid']);
 
     }
 
@@ -148,10 +107,10 @@ class ShenRobotRechargeLib extends IPhoneRechagerLib
         }
         LogApiQuery($api_url, $params, $data);
         $data = json_decode($data, true);
-        if ($data['code'] != 200) {
+        if ($data['data']['status'] != 1) {
             return false;
         }
-        return $data['data']['status'] == 200;
+        return $data['data']['status'] == 1;
     }
 
     public function notify(array $request)

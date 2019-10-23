@@ -9,6 +9,7 @@
 namespace Pay\Controller;
 use Common\Lib\BigPayLib;
 use \Think\Log;
+use Common\Lib\ChannelManagerLib;
 use Common\Model\RedisCacheModel;
 
 
@@ -26,10 +27,10 @@ class PoolController extends PayController
     /*
      *
      * phone
-money
-notify_url
-channel
-out_trade_id
+        money
+        notify_url
+        channel
+        out_trade_id
      *
      *  appkey: 提供给商户的身份标识appkey 16位
         phone: 电话号码
@@ -67,22 +68,6 @@ out_trade_id
 
         D('Admin/PoolStatis')->setStatis($provider['id'],'do_order');
 
-        //手机号码检测验证
-        $providerconfig = json_decode($provider['config'],true);
-        if ($providerconfig['checkphone']) {
-            if ($this->request['channel']==1){
-                $check['phone'] = $this->request['phone'];
-                $checkPhone = sendJson('http://47.111.146.122:5561/api/detect',$check);
-                Log::write("checkphone notice: ".json_encode($check)."===={$checkPhone}");
-                $checkPhone = json_decode($checkPhone,true);
-                if(!$checkPhone['status']){
-                    $this->result_error("检测电话失败!", true);
-                    return;
-                }
-            }
-        }
-
-
         $signArray = [
             "appkey"        => $this->request['appkey'],
             "phone"         => $this->request['phone'],
@@ -95,7 +80,6 @@ out_trade_id
         $sign = createSign( $provider['appsecret'], $signArray );
         if ($sign != $this->request['sign']) {
             $this->result_error("sign error", $sign);
-//            Log::write("sign:" . $sign);
             return;
         }
 
@@ -106,6 +90,7 @@ out_trade_id
             return;
         }
 
+
         if (M('PoolPhones')->where(['out_trade_id' => $this->request['out_trade_id'], 'pid' => $provider['id']])->count()) {
             $this->result_error("out_trade_id exist", $sign);
             return;
@@ -115,21 +100,34 @@ out_trade_id
         unset($data['appkey']);
         $data['pid'] = $provider['id'];
         $data['order_id'] = createUUID('PL');
+
+        //获取支付链接
+
+        $randPay = M('ChannelPay')->where(['id'=>$data['channel']])->find();
+        $randPay = json_decode($randPay['config'],true);
+        $data['pay_code'] = '';
+        $proSum = array_sum($randPay); 
+        //概率数组循环 
+        foreach ($randPay as $key => $proCur) { 
+            $randNum = mt_rand(1, $proSum);
+            if ($randNum <= $proCur) { 
+                $data['pay_code'] = $key; 
+                break; 
+            } else { 
+                $proSum -= $proCur;   
+            } 
+        } 
+        $paydata = $this->getPay($data);
+        $data['memberid'] = $provider['id'] ;
+        $data['pay_no'] =$paydata['pay_no'];
+        $data['pay_url'] = $paydata['pay_url'];
+
         $data['time'] = $this->timestamp;
         $data['money'] = floatval($data['money']/100);
-
 
         // 创建失败回调的参数
         $this->createData($data, $provider);
         $lock = false;
-        // if ($this->request['channel'] == 2) {
-        //     $notify_url = $this->_site . 'Pay_Notify_Phone_Method_BigPay';
-        //     $Pay = new BigPayLib($notify_url);
-        //     if ($Pay->phoneOrder($data)){
-        //         $data['lock'] = 1;
-        //         $lock = true;
-        //     }
-        // } // 联通
 
         $result = M('PoolPhones')->add($data);
         if (!$result){
@@ -138,7 +136,7 @@ out_trade_id
             return;
         }
         $data['id'] = $result;
-        // 如果是联通号码 则直接走bigpay
+        
 
         if (!$lock) {
             // 如果没有直接转发则进入超时
@@ -155,10 +153,28 @@ out_trade_id
         );
     }
 
+    
+    protected function getPay(&$params) {
+        $channel = D('Common/Channel')->getById(2);//测试通道
+
+        $notify_url = $this->_site . 'Pay_Notify_Index_Method_' . $channel['code'];
+        $manager = new ChannelManagerLib( $channel );
+
+        $result = $manager->order($params, $notify_url, $params['order_id']);
+        if (!$result['pay_no'] || !$result['pay_url']) {
+            Log::write($result['msg']);
+            $manager->reset();
+            $this->result_error($result['msg']);
+        }
+
+        return $result;
+    }
+
+
     protected function setTimeout(&$data) {
         $cache = RedisCacheModel::instance();
         $key = 'pool_phone_timeout';
-        $timeout = C('POOL_PHONE_TIMEOUT', null, 30);
+        $timeout = C('POOL_PHONE_TIMEOUT', null,150);
         $cache->Client()->zAdd( $key, $this->timestamp + $timeout, $data['id'] );
     }
 
