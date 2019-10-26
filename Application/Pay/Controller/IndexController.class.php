@@ -24,7 +24,7 @@ class IndexController extends OrderController
     public function __construct()
     {
         $ip = get_client_ip();
-        $white_name = C('POOL_WHITE_NAME');
+        $white_name = C('USER_WHITE_NAME');
         if($white_name['status'] && !in_array($ip,$white_name['ip'])){
             header("HTTP/1.0 404 Not Found");
             exit;

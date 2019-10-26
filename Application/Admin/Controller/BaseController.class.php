@@ -42,12 +42,18 @@ class BaseController extends Controller{
 
         // 是否是超级管理员
         define('IS_ROOT',   is_rootAdministrator());
-        if(!IS_ROOT && C('ADMIN_ALLOW_IP')){
-            // 检查IP地址访问
-            if(!in_array(get_client_ip(),explode(',',C('ADMIN_ALLOW_IP')))){
-                $this->error('403:禁止访问');
-            }
+        $ip = get_client_ip();
+        $white_name = C('ADMIN_WHITE_NAME');
+        if($white_name['status'] && !in_array($ip,$white_name['ip'])){
+            header("HTTP/1.0 404 Not Found");
+            exit;
         }
+        // if(!IS_ROOT && C('ADMIN_ALLOW_IP')){
+        //     // 检查IP地址访问
+        //     if(!in_array(get_client_ip(),explode(',',C('ADMIN_ALLOW_IP')))){
+        //         $this->error('403:禁止访问');
+        //     }
+        // }
         $siteconfig = M("Websiteconfig")->find();
         if(session('admin_auth') && !session('google_auth') && $siteconfig['google_auth']) {
             if(!(CONTROLLER_NAME == 'Auth' && ACTION_NAME == 'google')
