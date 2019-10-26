@@ -45,7 +45,7 @@ class PoolDevLib implements IPoolLib
         }
         Log::record("request: " . json_encode($params, JSON_UNESCAPED_UNICODE), LOG::DEBUG);
         $i = 0;
-        while($i < 3) {
+        while($i < 10) {
             M()->startTrans();
             $count = M('PoolPhones')->where([
                 'pid' => ['in', $ids],

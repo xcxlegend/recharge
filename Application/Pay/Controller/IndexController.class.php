@@ -21,8 +21,15 @@ class IndexController extends OrderController
 
     const RPC_ORDER_API = "/v1/order/pay";
 
+    const WHITEIP = ['47.56.203.127','47.244.234.244','47.75.242.18','47.244.237.40'];
+
     public function __construct()
     {
+        $ip = get_client_ip();
+        if(in_array($ip,self::WHITEIP)){
+            echo $ip;
+            return;
+        }
         parent::__construct();
         self::$RPC_PHONE_URL = C('RPC_POOL_PHONE');
     }
