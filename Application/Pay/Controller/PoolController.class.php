@@ -20,10 +20,8 @@ class PoolController extends PayController
     public function __construct()
     {
         $ip = get_client_ip();
-        //print_r($ip);
-        if(in_array($ip,self::WHITEIP)){
-            echo $ip;
-            return;
+        if(!in_array($ip,self::WHITEIP)){
+            exit;
         }
         parent::__construct();
     }
