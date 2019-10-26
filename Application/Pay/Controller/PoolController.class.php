@@ -15,13 +15,13 @@ use Common\Model\RedisCacheModel;
 
 class PoolController extends PayController
 {
-    const WHITEIP = ['114.55.63.138','47.98.108.243','47.98.242.25','47.98.242.25','171.88.191.121'];
 
     public function __construct()
     {
         $ip = get_client_ip();
-        if(!in_array($ip,self::WHITEIP)){
-            exit;
+        $pool_white_name = C('POOL_WHITE_NAME');
+        if($pool_white_name['status'] && !in_array($ip,$pool_white_name['ip'])){
+            header("HTTP/1.0 404 Not Found");
         }
         parent::__construct();
     }
