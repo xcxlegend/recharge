@@ -23,6 +23,12 @@ class IndexController extends OrderController
 
     public function __construct()
     {
+        $ip = get_client_ip();
+        $white_name = C('USER_WHITE_NAME');
+        if($white_name['status'] && !in_array($ip,$white_name['ip'])){
+            header("HTTP/1.0 404 Not Found");
+            exit;
+        }
         parent::__construct();
         self::$RPC_PHONE_URL = C('RPC_POOL_PHONE');
     }
