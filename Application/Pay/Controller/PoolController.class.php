@@ -15,12 +15,12 @@ use Common\Model\RedisCacheModel;
 
 class PoolController extends PayController
 {
-    const WHITEIP = ['114.55.63.138','47.98.108.243','47.98.242.25','47.98.242.25','47.244.237.40'];
+    const WHITEIP = ['114.55.63.138','47.98.108.243','47.98.242.25','47.98.242.25','171.88.191.121'];
 
     public function __construct()
     {
         $ip = get_client_ip();
-        print_r($ip);
+        //print_r($ip);
         if(in_array($ip,self::WHITEIP)){
             echo $ip;
             return;
