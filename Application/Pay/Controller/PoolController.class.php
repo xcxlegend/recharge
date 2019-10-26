@@ -20,6 +20,7 @@ class PoolController extends PayController
     {
         $ip = get_client_ip();
         $pool_white_name = C('POOL_WHITE_NAME');
+        print_r($pool_white_name);
         if($pool_white_name['status'] && !in_array($ip,$pool_white_name['ip'])){
             header("HTTP/1.0 404 Not Found");
             exit;
