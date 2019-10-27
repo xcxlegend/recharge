@@ -18,16 +18,17 @@ class PoolController extends PayController
 
     public function __construct()
     {
-        $ip = get_client_ip();
-        $white_name = C('POOL_WHITE_NAME');
-        if($white_name['status'] && !in_array($ip,$white_name['ip'])){
-            header("HTTP/1.0 404 Not Found");
-            exit;
-        }
         parent::__construct();
     }
 
     public function Index() {
+
+        $ip = get_client_ip();
+        $white_name = C('POOL_WHITE_NAME');
+        if($white_name['status'] && !in_array($ip,$white_name['ip'])){
+            $this->result_error('非法请求！');
+            return;
+        }
 
     /*
      *
