@@ -24,10 +24,9 @@ class PoolController extends PayController
     public function Index() {
 
         $ip = get_client_ip();
-        $this->result_error($ip);
         $white_name = C('POOL_WHITE_NAME');
         if($white_name['status'] && !in_array($ip,$white_name['ip'])){
-            $this->result_error('error');
+            $this->result_error('no auth');
             return;
         }
 
