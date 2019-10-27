@@ -10,8 +10,8 @@
                    <thead>
                    <tr>
                        <th>#</th>
-                       <th>操作地址</th>
-                       <th>操作数据</th>
+                       <th style="display:none">操作地址</th>
+                       <th style="display:none">操作数据</th>
                        <th>时间</th>
                        <th>地点</th>
                        <th>IP</th>
@@ -21,8 +21,8 @@
                    <volist name="list" id="vo">
                    <tr>
                        <td><{$vo.id}></td>
-                       <td><{$vo.url}></td>
-                       <td><{$vo.data}></td>
+                       <td style="display:none"><{$vo.url}></td>
+                       <td style="display:none"><{$vo.data}></td>
                        <td><{$vo.logindatetime}></td>
                        <td><{$vo.loginaddress}></td>
                        <td><{$vo.loginip}></td>
