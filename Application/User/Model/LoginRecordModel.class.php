@@ -5,6 +5,7 @@ use Think\Model;
 class LoginRecordModel extends Model
 {
 
+    protected $tableName = 'loginrecord';
 
     public function getList($where)
     {
@@ -30,7 +31,10 @@ class LoginRecordModel extends Model
             }
             $log['loginip']=get_client_ip();
             $log['logindatetime']=date("Y-m-d H:i:s");
+            $log['loginaddress']='-';
+            //print_r($log);
             if($this->add($log)){
+                
                 return true;
             }
         }
