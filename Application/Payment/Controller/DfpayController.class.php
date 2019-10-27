@@ -31,7 +31,7 @@ class DfpayController extends Controller
         $ip = get_client_ip();
         $white_name = C('USER_WHITE_NAME');
         if($white_name['status'] && !in_array($ip,$white_name['ip'])){
-            $this->showmessage('非法请求！');
+            $this->showmessage('error');
         }
 
         Log::write('Dfpay notice:'json_encode(I('request.'));

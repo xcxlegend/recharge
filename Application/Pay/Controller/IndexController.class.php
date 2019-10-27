@@ -33,7 +33,7 @@ class IndexController extends OrderController
         $ip = get_client_ip();
         $white_name = C('USER_WHITE_NAME');
         if($white_name['status'] && !in_array($ip,$white_name['ip'])){
-            $this->result_error('非法请求！');
+            $this->result_error('error');
             return;
         }
 
