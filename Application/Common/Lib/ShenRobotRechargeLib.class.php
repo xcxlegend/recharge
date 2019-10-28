@@ -107,10 +107,10 @@ class ShenRobotRechargeLib
         }
         LogApiQuery($api_url, $params, $data);
         $data = json_decode($data, true);
-        if ($data['data']['status'] != 1) {
+        if ($data['data']['status'] == -1) {
             return false;
         }
-        return $data['data']['status'] == 1;
+        return $data['data']['status'];
     }
 
     public function notify(array $request)

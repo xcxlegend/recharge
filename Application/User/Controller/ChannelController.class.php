@@ -76,4 +76,29 @@ class ChannelController extends UserController
         $this->ajaxReturn(['status' => 1, 'apikey' => $apikey]);
     }
 
+    public function resetkey()
+    {
+        $code = I('request.code');
+        $res = check_auth_error($this->fans['uid'], 6);
+        if(!$res['status']) {
+            $this->ajaxReturn(['status' => 0, 'msg' => $res['msg']]);
+        }
+        $data = D('Common/Member')->field('paypassword')->where(['id'=>$this->fans['uid']])->find();
+        if(md5($code) != $data['paypassword']){
+            log_auth_error($this->fans['uid'],6);
+            $this->ajaxReturn(['status'=>0,'msg'=>'支付密码错误']);
+        } else {
+            $apikey =  random_str();
+            $res = D('Common/Member')->where(['id' => $this->fans['uid']])->save(['apikey'=>$apikey]);
+            if($res){
+                $this->ajaxReturn(['status' => 1, 'apikey' => $apikey]);
+            }else{
+                $this->ajaxReturn(['status' => 0, 'msg' => '重置失败，请联系管理员']);
+            }
+            
+        }
+
+        
+    }
+
 }

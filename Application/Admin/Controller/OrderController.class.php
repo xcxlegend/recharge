@@ -466,7 +466,7 @@ class OrderController extends BaseController
             return;
         }
 
-        if ($order['pay_status'] != 0) {
+        if ($order['pay_status'] == 1 && $order['pay_status'] == 2) {
             $this->ajaxReturn(['status' => 0, 'msg' => '当前订单已经是成功订单']);
             return;
         }
@@ -479,16 +479,22 @@ class OrderController extends BaseController
 
         $ret = (new ChannelManagerLib($channel_info))->query( $order, $pool );
 
-        if ($ret) {
+        if ($ret==1) {
             $payModel = D('Pay');
-            $res = $payModel->completeOrder($order['pay_orderid'], '', 0);
-            if ($res) {
-                $this->ajaxReturn(['status' => 1, 'msg' => "查询成功, 已将订单置为成功状态. "]);
-            } else {
-                $this->ajaxReturn(['status' => 0, 'msg' => "查询成功, 设置订单失败"]);
+            if($order['pay_status']==0){
+                $res = $payModel->completeOrder($order['pay_orderid'], '', 0);
+                if ($res) {
+                    $this->ajaxReturn(['status' => 1, 'msg' => "查询成功, 已将订单置为成功状态. "]);
+                } else {
+                    $this->ajaxReturn(['status' => 0, 'msg' => "查询成功, 设置订单失败"]);
+                }
+            }else{
+                $this->ajaxReturn(['status' => 1, 'msg' => "充值成功！"]);
             }
             //查询成功
-        } else {
+        }elseif($ret==-2) {
+            $this->ajaxReturn(['status' => 1, 'msg' => "已支付，充值失败！"]);
+        }else{
             $this->ajaxReturn(['status' => 0, 'msg' => '当前订单查询到未支付']);
         }
         return;

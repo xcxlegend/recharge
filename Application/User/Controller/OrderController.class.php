@@ -319,17 +319,22 @@ class OrderController extends UserController
                     $this->ajaxReturn(['status' => 0, 'msg' => "无通道信息"]);
             }
         }
-
-        if ($ret) {
+        if ($ret==1) {
             $payModel = D('Pay');
-            $res = $payModel->completeOrder($order['pay_orderid'], '', 0);
-            if ($res) {
-                $this->ajaxReturn(['status' => 1, 'msg' => "查询成功, 已将订单置为成功状态, 并回调商户！"]);
-            } else {
-                $this->ajaxReturn(['status' => 0, 'msg' => "查询成功, 设置订单失败"]);
+            if($order['pay_status']==0){
+                $res = $payModel->completeOrder($order['pay_orderid'], '', 0);
+                if ($res) {
+                    $this->ajaxReturn(['status' => 1, 'msg' => "查询成功, 已将订单置为成功状态, 并回调商户！ "]);
+                } else {
+                    $this->ajaxReturn(['status' => 0, 'msg' => "查询成功, 设置订单失败"]);
+                }
+            }else{
+                $this->ajaxReturn(['status' => 1, 'msg' => "充值成功！"]);
             }
-            // 查询成功
-        } else {
+            //查询成功
+        }elseif($ret==-2) {
+            $this->ajaxReturn(['status' => 1, 'msg' => "已支付，充值失败！"]);
+        }else{
             $this->ajaxReturn(['status' => 0, 'msg' => '当前订单查询到未支付']);
         }
 

@@ -135,9 +135,9 @@
               <td>
                 <button class="layui-btn layui-btn-small" onclick="order_view('订单号:<{$vo.out_trade_id}>','<{:U('Order/show',['oid'=>$vo[id]])}>',780,630)">订单详情</button>
 
-                <eq name="vo.pay_status" value="0">
+                <if condition="$vo['pay_status']==0 || $vo['pay_status']==3" >
                 <button  class="layui-btn layui-btn-small" onclick="checkOrder(<{$vo['id']}>)">查单</button>
-                </eq>
+              </if>
 
               </td>
             </tr>
