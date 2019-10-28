@@ -466,6 +466,8 @@ class OrderController extends BaseController
             return;
         }
 
+        print_r($order);
+
         if ($order['pay_status'] == 1 && $order['pay_status'] == 2) {
             $this->ajaxReturn(['status' => 0, 'msg' => '当前订单已经是成功订单']);
             return;
@@ -475,6 +477,9 @@ class OrderController extends BaseController
         $pool = [];
         if ($order['pool_phone_id']) {
             $pool = M('PoolPhones')->find($order['pool_phone_id']);
+            if(!$pool){
+                $pool = M('PoolOrder')->where(['pool_id'=>$order['pool_phone_id']])->find();
+            }
         }
 
         $ret = (new ChannelManagerLib($channel_info))->query( $order, $pool );
