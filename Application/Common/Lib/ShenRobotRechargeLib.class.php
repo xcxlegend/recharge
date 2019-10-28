@@ -94,9 +94,10 @@ class ShenRobotRechargeLib
             "sign_type":"1",
             "sign":"fe9d818131fb9d4f695032302e4a025d"
         */
+
         $params = [
             'order_no'          => $order['trade_id'],
-            'type'        => $pool['channel'],
+            'type'        => $order['channel'],
             //'sign_type'   => '1',
         ];
 
