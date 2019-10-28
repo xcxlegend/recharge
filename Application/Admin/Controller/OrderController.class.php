@@ -473,6 +473,7 @@ class OrderController extends BaseController
 
         $channel_info = M('Channel')->where(['id' => $order['channel_id']])->find();
         $pool = [];
+        print_r($order);
         if ($order['pool_phone_id']) {
             $pool = M('PoolPhones')->find($order['pool_phone_id']);
             print_r($pool);
