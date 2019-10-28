@@ -151,11 +151,15 @@ $product_name="测试订单";
         <li>
             <span>商品名称：</span>
             <span><?php echo $product_name;?></span>
+
+            <span style="margin-left:30px">密钥：</span>
+        <strong><input type="text" name="apikey" style="border:solid 1px #ddd;height:30px;width:260px"></strong>
+            
         </li>
         <li>
             <span>订单编号：</span>
             <span><?php echo $pay_orderid;?></span>
-        </li>
+            </li>
     </ul>
     <div class="order-amount12-right">
         <span>订单金额：</span>
