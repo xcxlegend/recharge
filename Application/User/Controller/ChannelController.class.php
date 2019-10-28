@@ -89,7 +89,7 @@ class ChannelController extends UserController
             $this->ajaxReturn(['status'=>0,'msg'=>'支付密码错误']);
         } else {
             $apikey =  random_str();
-            $res = D('Common/Member')->where(['id' => $this->fans['uid']])->save(['apikey']=>$apikey);
+            $res = D('Common/Member')->where(['id' => $this->fans['uid']])->save(['apikey'=>$apikey]);
             if($res){
                 $this->ajaxReturn(['status' => 1, 'apikey' => $apikey]);
             }else{
