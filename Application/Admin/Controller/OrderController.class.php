@@ -477,6 +477,9 @@ class OrderController extends BaseController
         $pool = [];
         if ($order['pool_phone_id']) {
             $pool = M('PoolPhones')->find($order['pool_phone_id']);
+            if(!$pool){
+                $pool = M('PoolOrder')->where(['pool_id'=>$order['pool_phone_id']])->find();
+            }
         }
 
         $ret = (new ChannelManagerLib($channel_info))->query( $order, $pool );
