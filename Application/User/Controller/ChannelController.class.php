@@ -76,7 +76,7 @@ class ChannelController extends UserController
         $this->ajaxReturn(['status' => 1, 'apikey' => $apikey]);
     }
 
-    public function reset()
+    public function resetkey()
     {
         $code = I('request.code');
         $res = check_auth_error($this->fans['uid'], 6);
