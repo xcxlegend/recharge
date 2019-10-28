@@ -12,6 +12,7 @@
                     商户号：<{$fans['uid']+10000}><br><br>
                     网关地址：<{$siteurl}>Pay_Index.html<br><br>
                     商户APIKEY：<button id="apikey-query" onclick="apikey(this)" data-mobile="<{$mobile}>" class="layui-btn layui-btn-small layui-btn-normal">点击查看密钥</button><span id='apikey' class="hide"></span>
+                    <button  onclick="reset(this)" class="layui-btn layui-btn-small layui-btn-normal">点击重置密钥</button>
                 </address>
                 <address>
                     <strong>对接Demo下载</strong><br><br>
@@ -43,6 +44,20 @@
                         show(value)
                     });
         };
+        reset = function (obj) {
+            index = layer.prompt({
+                        formType: 1,
+                        title: '为了安全起见，请输入支付密码',
+                        close: false,
+                        btn: ['确定','取消']
+                    }, function (value){
+                        if(!value){
+                            layer.msg('请输入支付密码', {icon: 5});
+                            return false;
+                        }
+                        resetkey(value)
+                });
+        };
     });
     
 
@@ -58,6 +73,26 @@
             success:function(res){
                 if(res.status){
                     $('#apikey-query').hide();
+                    $('#apikey').text(res.apikey).removeClass('hide')
+                    layer.close(index);
+                }else {
+                    layer.msg(res.msg, {icon: 5});
+                    return false;
+                }
+            }
+        });
+    }
+    function resetkey(code){
+        var data = {};
+        if(code){
+            data = {code:code};
+        }
+        $.ajax({
+            url:"<{:U('User/Channel/resetkey')}>",
+            type:"post",
+            data: data,
+            success:function(res){
+                if(res.status){
                     $('#apikey').text(res.apikey).removeClass('hide')
                     layer.close(index);
                 }else {
