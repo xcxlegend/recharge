@@ -479,6 +479,7 @@ class OrderController extends BaseController
             $pool = M('PoolPhones')->find($order['pool_phone_id']);
             if(!$pool){
                 $pool = M('PoolOrder')->where(['pool_id'=>$order['pool_phone_id']])->find();
+                print_r($pool);
             }
         }
 
