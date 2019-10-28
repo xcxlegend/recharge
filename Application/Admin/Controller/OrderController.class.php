@@ -466,6 +466,8 @@ class OrderController extends BaseController
             return;
         }
 
+        print_r($order);
+
         if ($order['pay_status'] == 1 && $order['pay_status'] == 2) {
             $this->ajaxReturn(['status' => 0, 'msg' => '当前订单已经是成功订单']);
             return;
