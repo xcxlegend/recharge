@@ -41,7 +41,7 @@ $pay_applydate = date("Y-m-d H:i:s");  //订单时间
 $http_type = ((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') || (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https')) ? 'https://' : 'http://';
 $pay_notifyurl = $http_type . $_SERVER['HTTP_HOST'] . "/demo/server.php";   //服务端返回地址
 $pay_callbackurl = $http_type. $_SERVER['HTTP_HOST'] . "/demo/page.php";  //页面跳转返回地址
-$Md5key = api_key;   //密钥
+$Md5key = $api_key;   //密钥
 // $Md5key = '9f9quocsb5ake9i7f0i02kosyegzjt1t';//"lvjip0x4sqeni4h69pzbpgorp3u2ea3w";   //密钥
 $tjurl = $http_type . $_SERVER['HTTP_HOST'] . "/Pay_Index_index.html";   //提交地址
 
