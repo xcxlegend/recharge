@@ -479,7 +479,7 @@ class OrderController extends BaseController
             print_r($pool);
             if(empty($pool)){
                 $pool = M('PoolOrder')->where(['pool_id'=>$order['pool_phone_id']])->find();
-                print_r($pool);
+                print_r($order);
             }
         }
 
