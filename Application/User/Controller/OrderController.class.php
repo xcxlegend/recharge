@@ -244,27 +244,27 @@ class OrderController extends UserController
             return;
         }
 
-        if ($order['pay_status'] != 0) {
-            $this->ajaxReturn(['status' => 0, 'msg' => '当前订单已经是成功订单']);
-            return;
-        }
+        // if ($order['pay_status'] != 0) {
+        //     $this->ajaxReturn(['status' => 0, 'msg' => '当前订单已经是成功订单']);
+        //     return;
+        // }
 
-        $channel_info = M('Channel')->where(['id' => $order['channel_id']])->find();
+        // $channel_info = M('Channel')->where(['id' => $order['channel_id']])->find();
 
-        switch ($order['pay_bankcode']){
-            // 901
-            //902
-            //903
-            //904'
-            case '901':
-            case '902':
-            case '903':
-            case '904':
-                break;
-            default:
-                $this->ajaxReturn(['status' => 0, 'msg' => '支付通道无查单功能']);
-                return;
-        }
+        // switch ($order['pay_bankcode']){
+        //     // 901
+        //     //902
+        //     //903
+        //     //904'
+        //     case '901':
+        //     case '902':
+        //     case '903':
+        //     case '904':
+        //         break;
+        //     default:
+        //         $this->ajaxReturn(['status' => 0, 'msg' => '支付通道无查单功能']);
+        //         return;
+        // }
 
         /*$p59Pay = new P59Pay("YlLPzfT3ij", "tGnAwMqpf8ANaPryblDM", "");
         $result = $p59Pay->checkOrder($order["out_trade_id"]);
@@ -286,45 +286,61 @@ class OrderController extends UserController
             $this->ajaxReturn(['status' => 0, 'msg' => '当前订单查询到未支付']);
         }*/
 
-        if ($order['pay_zh_tongdao']) {
-            switch ($order['pay_zh_tongdao']) {
-                case 'P59':
-                    $appkey = C('P59PAY.APPKEY');
-                    $appsecret = C('P59PAY.APPSECT');
-                    $p59Pay = new P59Pay($appkey, $appsecret, "");
-                    if ($channel_info && $channel_info['gateway']) {
-                        $p59Pay->setGateway($channel_info['gateway']);
-                    }
-                    $ret = $p59Pay->checkOrder($order["out_trade_id"]);
-                    break;
-                case 'P361zf':
-                    $appkey = C('P361ZF.APPKEY');
-                    $appsecret = C('P361ZF.APPSECT');
-                    $pay = new P361zf($appkey, $appsecret, "");
-                    if ($channel_info && $channel_info['gateway']) {
-                        $pay->setGateway($channel_info['gateway']);
-                    }
-                    $ret = $pay->checkOrder($order["out_trade_id"]);
-                    break;
-                case 'PHaitong':
-                    $appkey = C('PHaitong.APPKEY');
-                    $appsecret = C('PHaitong.APPSECT');
-                    $pay = new PHaitong($appkey, $appsecret, "");
-                    if ($channel_info && $channel_info['gateway']) {
-                        $pay->setGateway($channel_info['gateway']);
-                    }
-                    $ret = $pay->checkOrder($order["out_trade_id"]);
-                    break;
-                default:
-                    $this->ajaxReturn(['status' => 0, 'msg' => "无通道信息"]);
+        // if ($order['pay_zh_tongdao']) {
+        //     switch ($order['pay_zh_tongdao']) {
+        //         case 'P59':
+        //             $appkey = C('P59PAY.APPKEY');
+        //             $appsecret = C('P59PAY.APPSECT');
+        //             $p59Pay = new P59Pay($appkey, $appsecret, "");
+        //             if ($channel_info && $channel_info['gateway']) {
+        //                 $p59Pay->setGateway($channel_info['gateway']);
+        //             }
+        //             $ret = $p59Pay->checkOrder($order["out_trade_id"]);
+        //             break;
+        //         case 'P361zf':
+        //             $appkey = C('P361ZF.APPKEY');
+        //             $appsecret = C('P361ZF.APPSECT');
+        //             $pay = new P361zf($appkey, $appsecret, "");
+        //             if ($channel_info && $channel_info['gateway']) {
+        //                 $pay->setGateway($channel_info['gateway']);
+        //             }
+        //             $ret = $pay->checkOrder($order["out_trade_id"]);
+        //             break;
+        //         case 'PHaitong':
+        //             $appkey = C('PHaitong.APPKEY');
+        //             $appsecret = C('PHaitong.APPSECT');
+        //             $pay = new PHaitong($appkey, $appsecret, "");
+        //             if ($channel_info && $channel_info['gateway']) {
+        //                 $pay->setGateway($channel_info['gateway']);
+        //             }
+        //             $ret = $pay->checkOrder($order["out_trade_id"]);
+        //             break;
+        //         default:
+        //             $this->ajaxReturn(['status' => 0, 'msg' => "无通道信息"]);
+        //     }
+        // }
+        if ($order['pay_status'] == 1 && $order['pay_status'] == 2) {
+            $this->ajaxReturn(['status' => 0, 'msg' => '当前订单已经是成功订单']);
+            return;
+        }
+
+        $channel_info = M('Channel')->where(['id' => $order['channel_id']])->find();
+        $pool = [];
+        if ($order['pool_phone_id']) {
+            $pool = M('PoolPhones')->find($order['pool_phone_id']);
+            if(empty($pool)){
+                $pool = M('PoolFaild')->where(['pool_id'=>$order['pool_phone_id']])->find();
             }
         }
+
+        $ret = (new ChannelManagerLib($channel_info))->query( $order, $pool );
+
         if ($ret==1) {
             $payModel = D('Pay');
             if($order['pay_status']==0){
                 $res = $payModel->completeOrder($order['pay_orderid'], '', 0);
                 if ($res) {
-                    $this->ajaxReturn(['status' => 1, 'msg' => "查询成功, 已将订单置为成功状态, 并回调商户！ "]);
+                    $this->ajaxReturn(['status' => 1, 'msg' => "查询成功, 已将订单置为成功状态. "]);
                 } else {
                     $this->ajaxReturn(['status' => 0, 'msg' => "查询成功, 设置订单失败"]);
                 }
@@ -337,7 +353,6 @@ class OrderController extends UserController
         }else{
             $this->ajaxReturn(['status' => 0, 'msg' => '当前订单查询到未支付']);
         }
-
         return;
     }
 
