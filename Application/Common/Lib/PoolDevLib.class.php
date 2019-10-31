@@ -122,7 +122,7 @@ class PoolDevLib implements IPoolLib
 //            $this->cache->Client()->zDelete( self::CACHE_KEY_POOL_NOPAY, $this->pool['id'] );
             // $pipe = $this->cache->Client()->multi();
             // $pipe->zDelete( self::CACHE_KEY_POOL_NOPAY, $this->pool['id'] );
-            $timeout = C('POOL_PHONE_TIMEOUT', null, 30);
+            $timeout = C('POOL_PHONE_TIMEOUT', null, 90);
             $this->cache->Client()->zAdd(self::CACHE_KEY_POOL_TIMEOUT, $this->pool['time'] + $timeout, $this->pool['id']);
             // $pipe->exec();
 

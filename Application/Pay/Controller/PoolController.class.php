@@ -108,7 +108,6 @@ class PoolController extends PayController
         $data['order_id'] = createUUID('PL');
 
         //获取支付链接
-
         $randPay = M('ChannelPay')->where(['id'=>$data['channel']])->find();
         $randPay = json_decode($randPay['config'],true);
         $data['pay_code'] = '';
@@ -123,11 +122,9 @@ class PoolController extends PayController
                 $proSum -= $proCur;   
             } 
         } 
-        $paydata = $this->getPay($data);
-        $data['memberid'] = $provider['id'] ;
-        $data['pay_no'] =$paydata['pay_no'];
-        $data['pay_url'] = $paydata['pay_url'];
+        $asyncPayData = $data;
 
+        $data['memberid'] = $provider['id'] ;
         $data['time'] = $this->timestamp;
         $data['money'] = floatval($data['money']/100);
 
@@ -148,6 +145,11 @@ class PoolController extends PayController
             // 如果没有直接转发则进入超时
             $this->setTimeout($data);
         }
+        
+        //异步获取支付
+        $asyncPayData['id'] =$result;
+        $asyncPayData['appsecret'] =$provider['appsecret'];
+        $this->asyncPay($asyncPayData);
 
         D('Admin/PoolStatis')->setStatis($provider['id'],'order_num');
         D('Admin/PoolStatis')->setStatis($provider['id'],'order_money',$data['money']);
@@ -160,20 +162,26 @@ class PoolController extends PayController
     }
 
     
-    protected function getPay(&$params) {
-        $channel = D('Common/Channel')->getById(2);//测试通道
+    protected function asyncPay(&$params) {
+        $url = 'Pay_Rpc_getPayUrl';
 
-        $notify_url = $this->_site . 'Pay_Notify_Index_Method_' . $channel['code'];
-        $manager = new ChannelManagerLib( $channel );
-
-        $result = $manager->order($params, $notify_url, $params['order_id']);
-        if (!$result['pay_no'] || !$result['pay_url']) {
-            Log::write($result['msg']);
-            $manager->reset();
-            $this->result_error($result['msg']);
+        $query = http_build_query($params);
+        $fp=fsockopen($this->_site,80,$errno,$errstr,5);
+        if(!$fp){
+            $this->result_error('rpc error');
+        }else{
+            stream_set_blocking($fp,0);
+            stream_set_timeout($fp,30);
+            $header ="POST $url HTTP/1.1".PHP_EOL;
+            $header.="Host: $this->_site".PHP_EOL;
+            $header.="Connection: close".PHP_EOL;
+            $header.= "Content-type: application/x-www-form-urlencoded".PHP_EOL;
+            $header.= "Content-Length: ".strlen(trim($query)).PHP_EOL;
+            $header.= PHP_EOL;
+            $header.= trim($query);
+            fputs($fp, $header);
         }
-
-        return $result;
+        fclose($fp);
     }
 
 

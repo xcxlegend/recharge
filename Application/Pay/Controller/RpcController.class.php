@@ -3,6 +3,7 @@ namespace Pay\Controller;
 
 use Common\Lib\TranserManager;
 use Think\Exception;
+use Common\Lib\ChannelManagerLib;
 
 /**
  * 内部RPC请求
@@ -29,6 +30,43 @@ class RpcController extends PayController
             return call_user_func_array([$this, $call], $this->request);
         }
         $this->result_error('no call', true);
+    }
+
+    public function getPayUrl() {
+        $channel = D('Common/Channel')->getById(2);//测试通道
+        $notify_url = $this->_site . 'Pay_Notify_Index_Method_' . $channel['code'];
+        $manager = new ChannelManagerLib( $channel );
+        $params = $this->request[];
+        $result = $manager->order($params, $notify_url, $params['order_id']);
+        if (!$result['pay_no'] || !$result['pay_url']) {
+            $manager->reset();
+            //号码商通知
+            $params = [
+                'appkey'        => $params['appkey'],
+                'phone'         => $params['phone'],
+                'money'         => $params['money'],
+                'out_trade_id'  => $params['out_trade_id'],
+                'status'        => -2,
+            ];
+    
+            $sign =  createSign($params['appsecret'], $params);
+            $params["sign"] = $sign;
+            $params['msg'] = $result['msg'];
+    
+            $contents = sendForm($params['notify_url'], $params);
+    
+            Log::write("payurl error notify: ". $params["order_id"] . " url: " . $params["notify_url"] . http_build_query($params) . " resp: " . $result);
+
+            M('PoolPhones')->where(['id' => $params['id']])->delete();
+            exit(ChannelManagerLib::notifyOK($channel['code']));
+        }else{
+            $data['pay_no'] =$result['pay_no'];
+            $data['pay_url'] = $result['pay_url'];
+            if (!M("PoolPhones")->->where(["id" => $params["id"]])->save($data)){
+                Log::write("payurl save error:" . json_encode($data));
+            }
+            exit;
+        }
     }
 
     protected function PhoneTimeout(){
