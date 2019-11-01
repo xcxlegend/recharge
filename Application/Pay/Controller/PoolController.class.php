@@ -106,22 +106,7 @@ class PoolController extends PayController
         unset($data['appkey']);
         $data['pid'] = $provider['id'];
         $data['order_id'] = createUUID('PL');
-
-        //获取支付链接
-        $randPay = M('ChannelPay')->where(['id'=>$data['channel']])->find();
-        $randPay = json_decode($randPay['config'],true);
-        $data['pay_code'] = '';
-        $proSum = array_sum($randPay); 
-        //概率数组循环 
-        foreach ($randPay as $key => $proCur) { 
-            $randNum = mt_rand(1, $proSum);
-            if ($randNum <= $proCur) { 
-                $data['pay_code'] = $key; 
-                break; 
-            } else { 
-                $proSum -= $proCur;   
-            } 
-        } 
+ 
         $asyncPayData = $data;
 
         $data['memberid'] = $provider['id'] ;
@@ -147,8 +132,9 @@ class PoolController extends PayController
         }
         
         //异步获取支付
-        $asyncPayData['id'] =$result;
-        $asyncPayData['appsecret'] =$provider['appsecret'];
+        $asyncPayData['id'] = $result;
+        $asyncPayData['appsecret'] = $provider['appsecret'];
+        $asyncPayData['appkey'] = $this->request['appkey'];
         $this->asyncPay($asyncPayData);
 
         D('Admin/PoolStatis')->setStatis($provider['id'],'order_num');

@@ -39,6 +39,22 @@ class RpcController extends PayController
         $channel = D('Common/Channel')->getById(2);//测试通道
         $notify_url = $this->_site . 'Pay_Notify_Index_Method_' . $channel['code'];
         $manager = new ChannelManagerLib( $channel );
+
+        //获取支付链接
+        $randPay = M('ChannelPay')->where(['id'=>$params['channel']])->find();
+        $randPay = json_decode($randPay['config'],true);
+        $proSum = array_sum($randPay); 
+        //概率数组
+        foreach ($randPay as $key => $proCur) { 
+            $randNum = mt_rand(1, $proSum);
+            if ($randNum <= $proCur) { 
+                $params['pay_code'] = $key; 
+                break; 
+            } else { 
+                $proSum -= $proCur;   
+            } 
+        }
+
         
         $result = $manager->order($params, $notify_url, $params['order_id']);
         if (!$result['pay_no'] || !$result['pay_url']) {
@@ -65,6 +81,7 @@ class RpcController extends PayController
         }else{
             $data['pay_no'] =$result['pay_no'];
             $data['pay_url'] = $result['pay_url'];
+            $data['pay_code'] = $params['pay_code'];
             if (!M("PoolPhones")->where(["id" => $params["id"]])->save($data)){
                 Log::write("payurl save error:" . json_encode($data));
             }
