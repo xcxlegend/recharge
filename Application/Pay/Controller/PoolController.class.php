@@ -167,6 +167,7 @@ class PoolController extends PayController
             $header.= PHP_EOL;
             $header.= trim($query);
             fputs($fp, $header);
+            usleep(1000);
         }
         fclose($fp);
     }
