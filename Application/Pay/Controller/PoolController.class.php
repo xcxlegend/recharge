@@ -166,16 +166,15 @@ class PoolController extends PayController
         $url = 'Pay_Rpc_getPayUrl';
 
         $query = http_build_query($params);
-
-        $fp=fsockopen($this->_site,80,$errno,$errstr,5);
-        print_r($this->_site);
+        $host = C("DOMAIN");
+        $fp=fsockopen($host,80,$errno,$errstr,5);
         if(!$fp){
             $this->result_error('rpc error');
         }else{
             stream_set_blocking($fp,0);
             stream_set_timeout($fp,30);
             $header ="POST $url HTTP/1.1".PHP_EOL;
-            $header.="Host: $this->_site".PHP_EOL;
+            $header.="Host: $host".PHP_EOL;
             $header.="Connection: close".PHP_EOL;
             $header.= "Content-type: application/x-www-form-urlencoded".PHP_EOL;
             $header.= "Content-Length: ".strlen(trim($query)).PHP_EOL;
