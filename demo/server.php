@@ -33,7 +33,7 @@
     $sign = md5($md5str . "key=" . $Md5key);
 
 
-    echo $sign;
+    //echo $sign;
 
     if ($sign == $_REQUEST["sign"]) {
         if ($_REQUEST["status"] == "1") {
