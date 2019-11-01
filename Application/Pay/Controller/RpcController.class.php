@@ -4,6 +4,7 @@ namespace Pay\Controller;
 use Common\Lib\TranserManager;
 use Think\Exception;
 use Common\Lib\ChannelManagerLib;
+use \Think\Log;
 
 /**
  * 内部RPC请求
