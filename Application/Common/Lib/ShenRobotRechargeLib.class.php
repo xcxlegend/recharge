@@ -66,11 +66,8 @@ class ShenRobotRechargeLib
 
         $query['request_time'] = $request_time;
         $data['response_time'] = date('Y-m-d h:i:s');
-
         
         LogApiQuery($api_url, $query, $data);
-
-        $data = json_decode($data, true);
         
         if ($data['code'] != 200) {
             Log::write(json_encode($data), Log::WARN);
