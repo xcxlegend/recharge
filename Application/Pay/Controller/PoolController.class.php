@@ -163,7 +163,7 @@ class PoolController extends PayController
 
     
     protected function asyncPay(&$params) {
-        $url = 'Pay_Rpc_getPayUrl';
+        $url = '/Pay_Rpc_getPayUrl';
 
         $query = http_build_query($params);
         $host = C("DOMAIN");

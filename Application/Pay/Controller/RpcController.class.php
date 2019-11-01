@@ -34,10 +34,12 @@ class RpcController extends PayController
     }
 
     public function getPayUrl() {
+
+        $params = I("post.");
         $channel = D('Common/Channel')->getById(2);//测试通道
         $notify_url = $this->_site . 'Pay_Notify_Index_Method_' . $channel['code'];
         $manager = new ChannelManagerLib( $channel );
-        $params = I("post.");
+        
         $result = $manager->order($params, $notify_url, $params['order_id']);
         if (!$result['pay_no'] || !$result['pay_url']) {
             $manager->reset();
