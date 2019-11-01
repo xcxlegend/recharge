@@ -166,7 +166,7 @@ class PoolController extends PayController
         $url = 'Pay_Rpc_getPayUrl';
 
         $query = http_build_query($params);
-        $host = '47.244.237.40';
+        $host = C("DOMAIN");
         $fp=fsockopen($host,80,$errno,$errstr,5);
         if(!$fp){
             $this->result_error('rpc error');
