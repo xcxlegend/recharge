@@ -44,7 +44,7 @@ class RpcController extends PayController
         if (!$result['pay_no'] || !$result['pay_url']) {
             $manager->reset();
             //号码商通知
-            $params = [
+            $signArray = [
                 'appkey'        => $params['appkey'],
                 'phone'         => $params['phone'],
                 'money'         => $params['money'],
@@ -52,13 +52,13 @@ class RpcController extends PayController
                 'status'        => -2,
             ];
     
-            $sign =  createSign($params['appsecret'], $params);
-            $params["sign"] = $sign;
-            $params['msg'] = $result['msg'];
+            $sign =  createSign($params['appsecret'], $signArray);
+            $signArray["sign"] = $sign;
+            $signArray['msg'] = $result['msg'];
     
-            $contents = sendForm($params['notify_url'], $params);
+            $contents = sendForm($params['notify_url'], $signArray);
     
-            Log::write("payurl error notify: ". $params["order_id"] . " url: " . $params["notify_url"] . http_build_query($params) . " resp: " . $result);
+            Log::write("payurl error notify: ". $params["order_id"] . " url: " . $params["notify_url"] . http_build_query($params) . " resp: " . json_encode($result));
 
             M('PoolPhones')->where(['id' => $params['id']])->delete();
             exit(ChannelManagerLib::notifyOK($channel['code']));

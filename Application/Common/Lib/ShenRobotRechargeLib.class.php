@@ -58,13 +58,16 @@ class ShenRobotRechargeLib
         $query['sign'] = $this->sign($query);
         $request_time = date('Y-m-d h:i:s');
         $data = sendJson($api_url, $query);
-        $data['request_time'] = $request_time;
-        $data['response_time'] = date('Y-m-d h:i:s');
-
         if (!$data) {
             //throw new Exception( '[RECHARGER] fail');
             return false;
         }
+        $data = json_decode($data, true);
+
+        $query['request_time'] = $request_time;
+        $data['response_time'] = date('Y-m-d h:i:s');
+
+        
         LogApiQuery($api_url, $query, $data);
 
         $data = json_decode($data, true);
