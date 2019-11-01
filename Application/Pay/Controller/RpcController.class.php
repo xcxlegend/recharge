@@ -62,7 +62,7 @@ class RpcController extends PayController
         }else{
             $data['pay_no'] =$result['pay_no'];
             $data['pay_url'] = $result['pay_url'];
-            if (!M("PoolPhones")->->where(["id" => $params["id"]])->save($data)){
+            if (!M("PoolPhones")->where(["id" => $params["id"]])->save($data)){
                 Log::write("payurl save error:" . json_encode($data));
             }
             exit;
