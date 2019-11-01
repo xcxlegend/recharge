@@ -166,7 +166,9 @@ class PoolController extends PayController
         $url = 'Pay_Rpc_getPayUrl';
 
         $query = http_build_query($params);
+
         $fp=fsockopen($this->_site,80,$errno,$errstr,5);
+        print_r($this->_site);
         if(!$fp){
             $this->result_error('rpc error');
         }else{
