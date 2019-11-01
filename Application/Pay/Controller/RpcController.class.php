@@ -58,7 +58,7 @@ class RpcController extends PayController
     
             $contents = sendForm($params['notify_url'], $signArray);
     
-            Log::write("payurl error notify: ". $params["order_id"] . " url: " . $params["notify_url"] . http_build_query($params) . " resp: " . json_encode($result));
+            Log::write("payurl error notify: ". $params["order_id"] . " url: " . $params["notify_url"] . http_build_query($signArray) . " resp: " . json_encode($result));
 
             M('PoolPhones')->where(['id' => $params['id']])->delete();
             exit(ChannelManagerLib::notifyOK($channel['code']));
