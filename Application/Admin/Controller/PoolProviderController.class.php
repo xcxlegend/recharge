@@ -121,6 +121,7 @@ class PoolProviderController extends BaseController
 
             $config['transe'] = $post['transe'];
             $config['checkphone'] = $post['checkphone'];
+            $config['limit_num'] = $post['limit_num'];
             $data['config'] = json_encode($config);
 
             $status = D('Common/PoolProvider')->add($data);
@@ -195,6 +196,7 @@ class PoolProviderController extends BaseController
              
             $config['transe'] =  intval($data['transe']);
             $config['checkphone'] =  intval($data['checkphone']);
+            $config['limit_num'] =  intval($data['limit_num']);
             $data['config'] = json_encode($config);
 
             $status = D('Common/PoolProvider')->save($data);
@@ -209,10 +211,11 @@ class PoolProviderController extends BaseController
                 'id'     => $id
             );
 
-            $info = D('PoolProvider')->where($where)->find();
+            $info = D('Common/PoolProvider')->where($where)->find();
             $config = json_decode($info['config'],true);
             $info['transe'] = $config['transe'];
             $info['checkphone'] = $config['checkphone'];
+            $info['limit_num'] = $config['limit_num'];
             $transe = M('Channel')->field('id,title')->where(['paytype'=>3])->select();
             
             $this->assign('transe',$transe);
@@ -252,7 +255,7 @@ class PoolProviderController extends BaseController
                  'id'     => $id
              );
  
-             $info = D('PoolProvider')->where($where)->find();
+             $info = D('Common/PoolProvider')->where($where)->find();
 
              $info = json_decode($info['config'],true);
 
