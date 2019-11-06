@@ -73,7 +73,7 @@ class PoolController extends PayController
         }
 
         $provider_config = json_decode($provider['config'],true);
-        $limit_num = M('PoolPhones')->where(['pid' => $provider['id']])->count();
+        $limit_num = M('PoolPhones')->where(['pid' => $provider['id'],'lock' =>0])->count();
 
         if ($provider_config['limit_num'] > 0 && $provider_config['limit_num'] <= $limit_num) {
             $this->result_error("失败，号码超出库存！",true);
@@ -105,7 +105,7 @@ class PoolController extends PayController
         }
 
 
-        if (M('PoolPhones')->where(['out_trade_id' => $this->request['out_trade_id'],'lock' =>0, 'pid' => $provider['id']])->count()) {
+        if (M('PoolPhones')->where(['out_trade_id' => $this->request['out_trade_id'],'pid' => $provider['id']])->count()) {
             $this->result_error("out_trade_id exist", $sign);
             return;
         }
