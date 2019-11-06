@@ -105,7 +105,7 @@ class PoolController extends PayController
         }
 
 
-        if (M('PoolPhones')->where(['out_trade_id' => $this->request['out_trade_id'], 'pid' => $provider['id']])->count()) {
+        if (M('PoolPhones')->where(['out_trade_id' => $this->request['out_trade_id'],'lock' =>0, 'pid' => $provider['id']])->count()) {
             $this->result_error("out_trade_id exist", $sign);
             return;
         }
