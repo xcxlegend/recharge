@@ -50,6 +50,7 @@
                         <thead>
                         <tr>
                             <th lay-data="{field:'pay_orderid', width:60}">#</th>
+                            <th lay-data="{field:'pay_orderid0', width:60}">号码商ID</th>
                             <th lay-data="{field:'pay_orderid1', width:150}">充值号码</th>
                             <th lay-data="{field:'pay_orderid2', width:80}">充值金额</th>
                             <th lay-data="{field:'pay_orderid3', width:80}">运营商</th>
@@ -69,6 +70,7 @@
                         <volist name="list" id="v">
                             <tr>
                                 <td><{$v.id}></td>
+                                <td><{$v.pid}></td>
                                 <td><{$v.phone}></td>
                                 <td><{$v.money|format_money}></td>
                                 <td><{$sp_list[$v['channel']]}></td>
