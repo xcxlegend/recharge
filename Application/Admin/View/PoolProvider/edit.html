@@ -51,6 +51,12 @@
                 <input type="radio" name="checkphone" value="0" title="关闭" <if condition="$info.checkphone eq 0 ">checked</if>>
             </div>
         </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">允许入库数：</label>
+            <div class="layui-input-inline">
+                <input type="text" name="limit_num" value="<{$info['limit_num']}>"  lay-verify="required" placeholder="0为不限制" autocomplete="off"  id="limit_num" class="layui-input">
+            </div>
+        </div>
     <div class="layui-form-item">
         <label class="layui-form-label">状态：</label>
         <div class="layui-col-md12">  

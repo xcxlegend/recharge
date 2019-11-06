@@ -371,6 +371,9 @@ class OrderController extends PayController
                 $this->handlePoolOrderSuccess( $pool, $provider, $trans_id );
             }
 
+            D('Admin/OrderStatis')->setStatis($order_info["pay_memberid"],'pay_order');
+            D('Admin/OrderStatis')->setStatis($order_info["pay_memberid"],'pay_money',$order["pay_amount"]);
+
 
         } else {
             $member_info = M('Member')->where(['id' => $userid])->find();
@@ -477,6 +480,8 @@ class OrderController extends PayController
                     return;
                 }
 
+                
+
                 D('Admin/PoolStatis')->setStatis($provider['id'],'deduction_order');
                 D('Admin/PoolStatis')->setStatis($provider['id'],'deduction_money',$actmoney);
             }
@@ -500,9 +505,6 @@ class OrderController extends PayController
             $order = M('Order')->where(['phone_pool_id'=>$pool['id']])->find();
             D('Admin/OrderStatis')->setStatis($order["pay_memberid"],'timeout_order');
             D('Admin/OrderStatis')->setStatis($order["pay_memberid"],'timeout_money',$order["pay_amount"]);
-            
-            D('Admin/OrderStatis')->setStatis($order["pay_memberid"],'pay_order');
-            D('Admin/OrderStatis')->setStatis($order["pay_memberid"],'pay_money',$order["pay_amount"]);
 
             D('Admin/PoolStatis')->setStatis($poolOrder['pid'],'success_notify');
             D('Admin/PoolStatis')->setStatis($poolOrder['pid'],'success_money',$pool['money']);

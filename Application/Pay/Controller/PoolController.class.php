@@ -61,7 +61,7 @@ class PoolController extends PayController
             return;
         }
 
-        $provider = M('PoolProvider')->where(['appkey' => $this->request['appkey']])->find();
+        $provider = D('Common/PoolProvider')->where(['appkey' => $this->request['appkey']])->find();
         if (!$provider) {
             $this->result_error("no provider", true);
             return;
@@ -69,6 +69,14 @@ class PoolController extends PayController
 
         if (!$provider['status']) {
             $this->result_error("通道关闭", true);
+            return;
+        }
+
+        $provider_config = json_decode($provider['config'],true);
+        $limit_num = M('PoolPhones')->where(['pid' => $provider['id']])->count();
+
+        if ($provider_config['limit_num'] > 0 && $provider_config['limit_num'] <= $limit_num) {
+            $this->result_error("失败，号码超出库存！",true);
             return;
         }
 
@@ -97,7 +105,7 @@ class PoolController extends PayController
         }
 
 
-        if (M('PoolPhones')->where(['out_trade_id' => $this->request['out_trade_id'], 'pid' => $provider['id']])->count()) {
+        if (M('PoolPhones')->where(['out_trade_id' => $this->request['out_trade_id'],'lock' =>0, 'pid' => $provider['id']])->count()) {
             $this->result_error("out_trade_id exist", $sign);
             return;
         }
