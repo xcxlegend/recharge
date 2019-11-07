@@ -1074,7 +1074,7 @@ class OrderController extends BaseController
             if (!$order){
                 $this->ajaxReturn(['status' => 0, 'msg' => "订单信息错误！"]);
             }
-            if($order['pay_status'] != 0) {
+            if($order['pay_status'] != 0 && $order['pay_status'] != 3) {
                 $this->ajaxReturn(['status' => 0, 'msg' => "该订单状态为已支付！"]);
             }
             $payModel = D('Pay');
