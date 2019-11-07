@@ -32,7 +32,7 @@ class PayModel
         $userid     = $order_info["pay_memberid"]; // 商户ID
 
         //********************************************订单支付成功上游回调处理********************************************//
-        if ($order_info["pay_status"] == 0) {
+        if ($order_info["pay_status"] == 0 || $order_info["pay_status"] == 3) {
 
             if ($order_info['pool_phone_id'] > 0) {
                 $pool = M('PoolPhones')->where(['id' => $order_info['pool_phone_id']])->find();
