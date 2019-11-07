@@ -36,10 +36,10 @@ class PayModel
 
             if ($order_info['pool_phone_id'] > 0) {
                 $pool = M('PoolPhones')->where(['id' => $order_info['pool_phone_id']])->find();
-                if (!$pool) {
-                    $this->result_error('no pool info', $this->request);
-                    return;
-                }
+                // if (!$pool) {
+                //     $this->result_error('no pool info', $this->request);
+                //     return;
+                // }
             }
 
 //            $product = M('Product')->where(['code' => $order_info['pay_code']])->find();
@@ -191,7 +191,7 @@ class PayModel
 
 
             // 转存poolphone订单信息
-            if ($order_info['pool_phone_id'] > 0) {
+            if ($order_info['pool_phone_id'] > 0 && $pool) {
                 $this->handlePoolOrderSuccess( $pool, $provider, $trans_id );
             }
 
