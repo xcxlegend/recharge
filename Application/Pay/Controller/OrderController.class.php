@@ -250,6 +250,11 @@ class OrderController extends PayController
                 M()->rollback();
                 return false;
             }
+
+            //支付成功统计
+            D('Admin/OrderStatis')->setStatis($order_info["pay_memberid"],'pay_order');
+            D('Admin/OrderStatis')->setStatis($order_info["pay_memberid"],'pay_money',$order["pay_amount"]);
+
             //-----------------------------------------修改用户数据 商户余额、冻结余额start-----------------------------------
             //要给用户增加的实际金额（扣除投诉保证金）
             $actualAmount          = $order_info['pay_actualamount'];
@@ -371,10 +376,6 @@ class OrderController extends PayController
                 $this->handlePoolOrderSuccess( $pool, $provider, $trans_id );
             }
 
-            D('Admin/OrderStatis')->setStatis($order_info["pay_memberid"],'pay_order');
-            D('Admin/OrderStatis')->setStatis($order_info["pay_memberid"],'pay_money',$order["pay_amount"]);
-
-
         } else {
             $member_info = M('Member')->where(['id' => $userid])->find();
         }
@@ -484,6 +485,10 @@ class OrderController extends PayController
 
                 D('Admin/PoolStatis')->setStatis($provider['id'],'deduction_order');
                 D('Admin/PoolStatis')->setStatis($provider['id'],'deduction_money',$actmoney);
+
+                //支付成功统计入库
+                D('Admin/PoolStatis')->setStatis($provider['id'],'pay_order');
+                D('Admin/PoolStatis')->setStatis($provider['id'],'pay_money',$pool['money']);
             }
             // 删除phone信息
             if (!M('PoolPhones')->where(['id' => $pool['id']])->delete()){
@@ -524,10 +529,7 @@ class OrderController extends PayController
         if (!$pool){
             $pool = json_decode($poolOrder['data'], true);
         }
-        //支付成功统计入库
-        D('Admin/PoolStatis')->setStatis($provider['id'],'pay_order');
-        D('Admin/PoolStatis')->setStatis($provider['id'],'pay_money',$pool['money']);
-       
+        
         $params = [
             'appkey'        => $provider['appkey'],
             'phone'         => $pool['phone'],
@@ -575,10 +577,6 @@ class OrderController extends PayController
 
     protected function sendOrderNotify( $order, &$member_info )
     {
-        //支付成功统计入库
-        D('Admin/OrderStatis')->setStatis($order["pay_memberid"],'pay_order');
-        D('Admin/OrderStatis')->setStatis($order["pay_memberid"],'pay_money',$order["pay_amount"]);
-        
         $params = [ // 返回字段
             "memberid" => $order["pay_memberid"], // 商户ID
             "orderid" => $order['out_trade_id'], // 订单号
