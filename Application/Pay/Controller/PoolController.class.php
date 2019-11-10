@@ -66,6 +66,7 @@ class PoolController extends PayController
             $this->result_error("no provider", true);
             return;
         }
+        D('Admin/PoolStatis')->setStatis($provider['id'],'do_order');
 
         if (!$provider['status']) {
             $this->result_error("通道关闭", true);
@@ -80,7 +81,7 @@ class PoolController extends PayController
             return;
         }
 
-        D('Admin/PoolStatis')->setStatis($provider['id'],'do_order');
+        
 
         $signArray = [
             "appkey"        => $this->request['appkey'],
