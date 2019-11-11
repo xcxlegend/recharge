@@ -253,7 +253,7 @@ class OrderController extends PayController
 
             //支付成功统计
             D('Admin/OrderStatis')->setStatis($order_info["pay_memberid"],'pay_order');
-            D('Admin/OrderStatis')->setStatis($order_info["pay_memberid"],'pay_money',$order["pay_amount"]);
+            D('Admin/OrderStatis')->setStatis($order_info["pay_memberid"],'pay_money',$order_info["pay_amount"]);
 
             //-----------------------------------------修改用户数据 商户余额、冻结余额start-----------------------------------
             //要给用户增加的实际金额（扣除投诉保证金）
