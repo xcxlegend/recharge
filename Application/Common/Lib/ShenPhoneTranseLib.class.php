@@ -27,7 +27,7 @@ class ShenPhoneTranseLib extends BaseTransLib implements IPoolTranser
             'out_trade_id'       => $pool['order_id'],
             'phone'       => $pool['phone'], //所充话费的手机号码
             'channel'    => $pool['channel'], 
-            'amount'    => intval($pool['money']*100), 
+            'amount'    => strval(intval($pool['money']*100)), 
         ];
 
         $params['sign'] = $this->sign($params);
