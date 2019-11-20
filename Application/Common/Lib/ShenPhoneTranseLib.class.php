@@ -89,7 +89,7 @@ class ShenPhoneTranseLib extends BaseTransLib implements IPoolTranser
             unset($temp);
         }
 
-        return join(' ',$arr);
+        return md5(join('',$arr));
     }
 
     public function notifySuccess()
