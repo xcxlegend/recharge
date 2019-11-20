@@ -80,16 +80,15 @@ class ShenPhoneTranseLib extends BaseTransLib implements IPoolTranser
         foreach ($params as $key => $val) {
             $str = $str . $key . "=" . $val . "&";
         }
-        $str .= "key=" . $str;
 
-        $arr = preg_split('/(?<!^)(?!$)/u', rtrim($str,"&"));
-        foreach($arr as &$v){
-            $temp = unpack('H*', $v);
-            $v = base_convert($temp[1], 16, 2);
-            unset($temp);
-        }
+        // $arr = preg_split('/(?<!^)(?!$)/u', rtrim($str,"&"));
+        // foreach($arr as &$v){
+        //     $temp = unpack('H*', $v);
+        //     $v = base_convert($temp[1], 16, 2);
+        //     unset($temp);
+        // }
 
-        return md5(join('',$arr));
+        return md5(rtrim($str,"&"));
     }
 
     public function notifySuccess()
