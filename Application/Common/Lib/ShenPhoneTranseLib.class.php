@@ -50,6 +50,7 @@ class ShenPhoneTranseLib extends BaseTransLib implements IPoolTranser
     public function notify(&$request)
     {
         $params=file_get_contents("php://input");
+        Log::write($params);
         $params=json_decode($params,true);
 
         $data = [
