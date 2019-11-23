@@ -78,9 +78,11 @@ class ShenPhoneTranseLib extends BaseTransLib implements IPoolTranser
 
         ksort($params);
         $str = "";
-        foreach ($params as $key => $val) {
-            $str = $str . $key . "=" . $val . "&";
-        }
+        // foreach ($params as $key => $val) {
+        //     $str = $str . $key . "=" . $val . "&";
+        // }
+
+        $str = http_build_query($params);
 
         // $arr = preg_split('/(?<!^)(?!$)/u', rtrim($str,"&"));
         // foreach($arr as &$v){
