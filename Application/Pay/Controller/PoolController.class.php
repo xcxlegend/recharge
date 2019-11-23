@@ -150,7 +150,7 @@ class PoolController extends PayController
         if ($overLimit) {
             $asyncPayData['id'] = $result;
             $url = '/Pay_Rpc_transPhone';
-            //$this->asyncHttp($url,$asyncPayData);
+            $this->asyncHttp($url,$asyncPayData);
         }else{
             //异步获取支付
             $asyncPayData['id'] = $result;
