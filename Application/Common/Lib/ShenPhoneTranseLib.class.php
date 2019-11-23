@@ -58,7 +58,7 @@ class ShenPhoneTranseLib extends BaseTransLib implements IPoolTranser
             'serial_number'    => $params['serial_number'],
             'mobile'           => $params['mobile'],
             'amount'           => $params['amount'],
-            'order_status'     => $params['order_status'],
+            'order_status'     => $params['order_status'] ? "true" : "false"
         ];
         $sign = $this->sign($data);
         if ($sign !== $params['sign']) {
