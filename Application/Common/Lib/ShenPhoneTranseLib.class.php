@@ -94,8 +94,7 @@ class ShenPhoneTranseLib extends BaseTransLib implements IPoolTranser
 
     public function notifySuccess()
     {
-//        echo 'SUCCESS';
-        return 'ok';
+        return '{"callback_status":True}';
     }
 
 
