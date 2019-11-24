@@ -125,12 +125,12 @@ class AppRobotRechargeLib
         }
         
 
-        return new ChannelNotifyData($this->decrypt($request['orderNo']), $this->decrypt($request['no']), $request['success_url']); 
+        return new ChannelNotifyData($this->decrypt($request['outOrderNo']), $this->decrypt($request['no']), $request['success_url']); 
     }
 
     public static function notify_ok(array $request){
 
-        return json_encode(['code' => 0, 'data' => $data]);
+        return json_encode(['code' => 0]);
         return 'success';
     }
     public static function notify_err(array $request){
