@@ -80,7 +80,7 @@ class PoolController extends PayController
 
 
         if ($provider_config['limit_num'] >= 0) {
-            if($provider_config['limit_num'] == 0 || $phone_num > $provider_config['limit_num']) 
+            if($provider_config['limit_num'] == 0 || $phone_num > $provider_config['limit_num']){
                 $overLimit = true;
             }
         }else{
