@@ -74,17 +74,20 @@ class PoolController extends PayController
         }
 
         $provider_config = json_decode($provider['config'],true);
-        $limit_num = M('PoolPhones')->where(['pid' => $provider['id'],'lock' =>0])->count();
+        $phone_num = M('PoolPhones')->where(['pid' => $provider['id'],'lock' =>0])->count();
 
         $overLimit = false;
 
-        if ($provider_config['limit_num'] > 0 && $provider_config['limit_num'] <= $limit_num) {
-            if($provider_config['transe']){
+
+        if ($provider_config['limit_num'] >= 0) {
+            if($provider_config['limit_num'] == 0 || $phone_num > $provider_config['limit_num']) 
                 $overLimit = true;
-            }else{
+            }
+        }else{
+            if($phone_num > $provider_config['limit_num']){
                 $this->result_error("失败，号码超出库存！",true);
                 return;
-            }  
+            }
         }
 
         $signArray = [
