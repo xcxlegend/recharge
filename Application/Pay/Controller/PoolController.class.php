@@ -74,14 +74,21 @@ class PoolController extends PayController
         }
 
         $provider_config = json_decode($provider['config'],true);
-        $limit_num = M('PoolPhones')->where(['pid' => $provider['id'],'lock' =>0])->count();
+        $phone_num = M('PoolPhones')->where(['pid' => $provider['id'],'lock' =>0])->count();
 
-        if ($provider_config['limit_num'] > 0 && $provider_config['limit_num'] <= $limit_num) {
-            $this->result_error("失败，号码超出库存！",true);
-            return;
+        $overLimit = false;
+
+
+        if ($provider_config['limit_num'] >= 0) {
+            if($provider_config['limit_num'] == 0 || $phone_num > $provider_config['limit_num']) 
+                $overLimit = true;
+            }
+        }else{
+            if($phone_num > $provider_config['limit_num']){
+                $this->result_error("失败，号码超出库存！",true);
+                return;
+            }
         }
-
-        
 
         $signArray = [
             "appkey"        => $this->request['appkey'],
@@ -126,6 +133,10 @@ class PoolController extends PayController
         $this->createData($data, $provider);
         $lock = false;
 
+        if ($overLimit) {
+            $data['status'] = 2;
+        }
+
         $result = M('PoolPhones')->add($data);
         if (!$result){
             $this->result_error("save db error", true);
@@ -133,18 +144,25 @@ class PoolController extends PayController
             return;
         }
         $data['id'] = $result;
-        
 
         if (!$lock) {
             // 如果没有直接转发则进入超时
             $this->setTimeout($data);
         }
+
+        if ($overLimit) {
+            $asyncPayData['id'] = $result;
+            $url = '/Pay_Rpc_transPhone';
+            $this->asyncHttp($url,$asyncPayData);
+        }else{
+            //异步获取支付
+            $asyncPayData['id'] = $result;
+            $asyncPayData['appsecret'] = $provider['appsecret'];
+            $asyncPayData['appkey'] = $this->request['appkey'];
+            $url = '/Pay_Rpc_getPayUrl';
+            $this->asyncHttp($url,$asyncPayData);
+        }
         
-        //异步获取支付
-        $asyncPayData['id'] = $result;
-        $asyncPayData['appsecret'] = $provider['appsecret'];
-        $asyncPayData['appkey'] = $this->request['appkey'];
-        $this->asyncPay($asyncPayData);
 
         D('Admin/PoolStatis')->setStatis($provider['id'],'order_num');
         D('Admin/PoolStatis')->setStatis($provider['id'],'order_money',$data['money']);
@@ -156,9 +174,7 @@ class PoolController extends PayController
         );
     }
 
-    
-    protected function asyncPay(&$params) {
-        $url = '/Pay_Rpc_getPayUrl';
+    protected function asyncHttp($url,&$params) {
 
         $query = http_build_query($params);
         $host = C("DOMAIN");
@@ -180,6 +196,8 @@ class PoolController extends PayController
         }
         fclose($fp);
     }
+
+
 
 
     protected function setTimeout(&$data) {
