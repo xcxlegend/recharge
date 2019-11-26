@@ -21,7 +21,10 @@ class TransController extends OrderController
             $manager = new TranserManager($channel);
             $res = $manager->notify($this->request);
 
-            $order_id = $res->pay_orderid;
+            $resParams=file_get_contents("php://input");
+            $resParams=json_decode($params,true);
+
+            $order_id = $resParams['order_id'];
             $order = D('PoolOrder')->where(['order_id' => $order_id])->find();
             if (!$order) {
                 throw new Exception("no order");
@@ -69,7 +72,7 @@ class TransController extends OrderController
         
                 $contents = sendForm($pool['notify_url'], $params);
         
-                Log::write(" pool notify faild: ". $order["pay_orderid"] . " url: " . $pool["notify_url"] . http_build_query($params) . " resp: " . $contents);
+                Log::write(" pool notify faild: ". $order["order_id"] . " url: " . $pool["notify_url"] . http_build_query($params) . " resp: " . $contents);
                 M('PoolPhones')->where(['id' => $pool['id']])->delete();
 
                 $res = $manager->notifySuccess();
