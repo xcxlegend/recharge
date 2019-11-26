@@ -467,7 +467,7 @@ class OrderController extends PayController
                 Log::write("dec PoolProvider balance err:" . json_encode($poolOrder));
                 return;
             }*/
-            if (!$isTimeoutOrder) {
+            if (!$isTimeoutOrder || $pool['status']==2) {
                 $provider = M('PoolProvider')->lock(true)->find($provider['id']);
 
                 if (!M('PoolProvider')->where(['id' => $provider['id']])->save(
