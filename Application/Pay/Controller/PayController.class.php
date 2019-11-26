@@ -12,7 +12,7 @@ use Common\Model\RedisCacheModel;
 use Think\Controller;
 use Think\Log;
 
-class PayController
+class PayController 
 {
 
     protected $_site;

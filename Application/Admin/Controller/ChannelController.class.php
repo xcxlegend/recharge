@@ -467,4 +467,31 @@ class ChannelController extends BaseController
             $this->display();
         }
     }
+
+
+    public function pay()
+    {
+        if (IS_POST) {
+            $params = I('post.');
+
+            foreach ($params as $k => $v) {
+                $data['id']=$k;
+                $data['config']=json_encode($v);
+                $res = M('ChannelPay')->save($data);
+            }
+            $this->ajaxReturn(['status' => 1]);
+
+        } else {
+            $data = M('Product')->select();
+            $list = M('ChannelPay')->select();
+            foreach ($list as $k => $v) {
+                $list[$k+1]['config'] = json_decode($v['config'],true);
+            }
+            $this->assign('data', $data);
+            $this->assign('list', $list);
+            $this->display();
+        }
+        
+        
+    }
 }

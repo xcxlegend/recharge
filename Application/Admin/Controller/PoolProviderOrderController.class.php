@@ -188,8 +188,8 @@ class PoolProviderOrderController extends BaseController
         }
         $order = M('PoolRec')->where(['id' => $id])->find();
 
-        D('Admin/PoolStatis')->setStatis($order['pool_id'],'refund_order');
-        D('Admin/PoolStatis')->setStatis($order['pool_id'],'refund_money',$order['money']);
+        D('Admin/PoolStatis')->setStatis($order['pid'],'refund_order');
+        D('Admin/PoolStatis')->setStatis($order['pid'],'refund_money',$order['money']);
 
         $this->ajaxReturn(['info'=>'退单成功', 'status' => true]);
     }

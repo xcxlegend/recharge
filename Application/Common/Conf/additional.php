@@ -13,7 +13,7 @@ return [
     'RPC_PHONE_MID' => '2019828315',
     'RPC_PHONE_MKEY' => 'a854278887892da7e3dadad7d7ae34f7',
 
-    'POOL_PHONE_TIMEOUT' => 30, // 号码匹配超时
+    'POOL_PHONE_TIMEOUT' => 150, // 号码匹配超时
     'POOL_PHONE_ORDER_WX_TIMEOUT' => 90, // 订单微信超时
     'POOL_PHONE_ORDER_ALI_TIMEOUT' => 240, // 订单支付宝超时
 

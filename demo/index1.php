@@ -33,14 +33,15 @@ $pay_memberid = "10062";//商户ID
 $pay_orderid = $_POST["orderid"];    //订单号
 $pay_amount =  $_POST["amount"];    //交易金额
 $pay_bankcode = $_POST["channel"];   //银行编码
-if(empty($pay_memberid)||empty($pay_amount)||empty($pay_bankcode)){
+$api_key=$_POST["apikey"];
+if(empty($pay_memberid)||empty($pay_amount)||empty($pay_bankcode)||empty($api_key)){
     die("信息不完整！");
 }
 $pay_applydate = date("Y-m-d H:i:s");  //订单时间
 $http_type = ((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') || (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https')) ? 'https://' : 'http://';
 $pay_notifyurl = $http_type . $_SERVER['HTTP_HOST'] . "/demo/server.php";   //服务端返回地址
 $pay_callbackurl = $http_type. $_SERVER['HTTP_HOST'] . "/demo/page.php";  //页面跳转返回地址
-$Md5key = "lvjip0x4sqeni4h69pzbpgorp3u2ea3w";   //密钥
+$Md5key = $api_key;   //密钥
 // $Md5key = '9f9quocsb5ake9i7f0i02kosyegzjt1t';//"lvjip0x4sqeni4h69pzbpgorp3u2ea3w";   //密钥
 $tjurl = $http_type . $_SERVER['HTTP_HOST'] . "/Pay_Index_index.html";   //提交地址
 

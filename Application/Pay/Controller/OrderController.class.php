@@ -45,16 +45,16 @@ class OrderController extends PayController
 //            return;
 //        }
 
-        if (!$product) {
+        //if (!$product) {
 //            $product = $this->cache->getOrSet("Product:pay_code:" . $order['pay_code'], function () use (&$order) {
 //                M('Product')->where(['code' => $order['pay_code']])->find();
 //            });
-            $product = D('Common/Product')->getByCode($order['pay_code']);
-        }
-        if (!$product) {
-            $this->result_error("支付方式错误");
-            return;
-        }
+            //$product = D('Common/Product')->getByCode($order['pay_code']);
+        //}
+        //if (!$product) {
+            //$this->result_error("支付方式错误");
+            //return;
+        //}
 
         // 通道名称
 //        $PayName = $parameter["code"];
@@ -250,6 +250,11 @@ class OrderController extends PayController
                 M()->rollback();
                 return false;
             }
+
+            //支付成功统计
+            D('Admin/OrderStatis')->setStatis($order_info["pay_memberid"],'pay_order');
+            D('Admin/OrderStatis')->setStatis($order_info["pay_memberid"],'pay_money',$order_info["pay_amount"]);
+
             //-----------------------------------------修改用户数据 商户余额、冻结余额start-----------------------------------
             //要给用户增加的实际金额（扣除投诉保证金）
             $actualAmount          = $order_info['pay_actualamount'];
@@ -371,7 +376,6 @@ class OrderController extends PayController
                 $this->handlePoolOrderSuccess( $pool, $provider, $trans_id );
             }
 
-
         } else {
             $member_info = M('Member')->where(['id' => $userid])->find();
         }
@@ -477,8 +481,14 @@ class OrderController extends PayController
                     return;
                 }
 
+                
+
                 D('Admin/PoolStatis')->setStatis($provider['id'],'deduction_order');
                 D('Admin/PoolStatis')->setStatis($provider['id'],'deduction_money',$actmoney);
+
+                //支付成功统计入库
+                D('Admin/PoolStatis')->setStatis($provider['id'],'pay_order');
+                D('Admin/PoolStatis')->setStatis($provider['id'],'pay_money',$pool['money']);
             }
             // 删除phone信息
             if (!M('PoolPhones')->where(['id' => $pool['id']])->delete()){
@@ -500,9 +510,6 @@ class OrderController extends PayController
             $order = M('Order')->where(['phone_pool_id'=>$pool['id']])->find();
             D('Admin/OrderStatis')->setStatis($order["pay_memberid"],'timeout_order');
             D('Admin/OrderStatis')->setStatis($order["pay_memberid"],'timeout_money',$order["pay_amount"]);
-            
-            D('Admin/OrderStatis')->setStatis($order["pay_memberid"],'pay_order');
-            D('Admin/OrderStatis')->setStatis($order["pay_memberid"],'pay_money',$order["pay_amount"]);
 
             D('Admin/PoolStatis')->setStatis($poolOrder['pid'],'success_notify');
             D('Admin/PoolStatis')->setStatis($poolOrder['pid'],'success_money',$pool['money']);
@@ -522,10 +529,7 @@ class OrderController extends PayController
         if (!$pool){
             $pool = json_decode($poolOrder['data'], true);
         }
-        //支付成功统计入库
-        D('Admin/PoolStatis')->setStatis($provider['id'],'pay_order');
-        D('Admin/PoolStatis')->setStatis($provider['id'],'pay_money',$pool['money']);
-       
+        
         $params = [
             'appkey'        => $provider['appkey'],
             'phone'         => $pool['phone'],
@@ -573,10 +577,6 @@ class OrderController extends PayController
 
     protected function sendOrderNotify( $order, &$member_info )
     {
-        //支付成功统计入库
-        D('Admin/OrderStatis')->setStatis($order["pay_memberid"],'pay_order');
-        D('Admin/OrderStatis')->setStatis($order["pay_memberid"],'pay_money',$order["pay_amount"]);
-        
         $params = [ // 返回字段
             "memberid" => $order["pay_memberid"], // 商户ID
             "orderid" => $order['out_trade_id'], // 订单号

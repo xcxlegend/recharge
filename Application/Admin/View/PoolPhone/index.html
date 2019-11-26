@@ -46,19 +46,23 @@
                     </div>
                 </form>
                 <div class="list item">
-                    <table class="layui-table" >
+                    <table class="layui-table" lay-data="{width:'100%'}">
                         <thead>
                         <tr>
                             <th lay-data="{field:'pay_orderid', width:60}">#</th>
+                            <th lay-data="{field:'pay_orderid0', width:90}">号码商ID</th>
                             <th lay-data="{field:'pay_orderid1', width:150}">充值号码</th>
-                            <th lay-data="{field:'pay_orderid2', width:200}">充值金额</th>
-                            <th lay-data="{field:'pay_orderid3', width:150}">运营商</th>
-                            <th lay-data="{field:'pay_orderid6', width:150}">号码商订单号</th>
-                            <th lay-data="{field:'pay_orderid4', width:150}">话充平台订单号</th>
+                            <th lay-data="{field:'pay_orderid2', width:80}">充值金额</th>
+                            <th lay-data="{field:'pay_orderid3', width:80}">运营商</th>
+                            <th lay-data="{field:'pay_orderid4', width:120}">号码商订单号</th>
+                            <th lay-data="{field:'pay_orderid5', width:150}">话充平台订单号</th>
+                            <th lay-data="{field:'pay_orderid6', width:120}">支付方式</th>
+                            <th lay-data="{field:'pay_orderid7', width:200}">支付流水号</th>
+                            <th lay-data="{field:'pay_orderid8', width:150}">支付地址</th>
                             <if condition="$param.status eq 1 ">
                             <th lay-data="{field:'pay_orderid15', width:150}">商户订单号</th>
                         </if>
-                            <th lay-data="{field:'pay_orderid5', width:100}">状态</th>
+                            <th lay-data="{field:'pay_orderid9', width:100}">状态</th>
                             <th lay-data="{field:'pay_orderid13', width:180}">时间</th>
                         </tr>
                         </thead>
@@ -66,11 +70,15 @@
                         <volist name="list" id="v">
                             <tr>
                                 <td><{$v.id}></td>
+                                <td><{$v.pid}></td>
                                 <td><{$v.phone}></td>
                                 <td><{$v.money|format_money}></td>
                                 <td><{$sp_list[$v['channel']]}></td>
                                 <td><{$v.out_trade_id}></td>
                                 <td><{$v.order_id}></td>
+                                <td><{$v.pay_code}></td>
+                                <td><{$v.pay_no}></td>
+                                <td><{$v.pay_url}></td>
                                 <if condition="$param.status eq 1 ">
                                 <td><{$v.user_order_id}></td>
                             </if>
