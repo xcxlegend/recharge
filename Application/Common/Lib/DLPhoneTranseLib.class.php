@@ -94,16 +94,10 @@ class DLPhoneTranseLib extends BaseTransLib implements IPoolTranser
             throw new Exception('sign error');
         }else{
             $status = intval($params['order_status']);
-            if($status<1){//失败处理
-                $pool = M('PoolOrder')->where(['order_id' => $params['user_ordernum']])->find();
-                $cache = RedisCacheModel::instance();
-                $cache->Client()->zAdd('pool_phone_timeout', time(), $pool['id']);
-                
-            }else{
-                if($status==2){
-                    return new ChannelNotifyData($params['user_ordernum'], $params['voucher'], '' );
-                }
+            if($status==2){
+                return new ChannelNotifyData($params['user_ordernum'], $params['voucher'], '' );
             }
+            
         }
 
     }

@@ -388,7 +388,13 @@ class OrderController extends PayController
 
     protected function handlePoolOrderSuccess( $pool, $provider, $trans_id = '' ) {
         $this->cache->Client()->zDelete("pool_phone_timeout", $pool['id']);
-        $poolOrder = M('PoolRec')->where(['pool_id' => $pool['id']])->find();
+
+        if($pool['status']==2){
+            $poolOrder = M('PoolOrder')->where(['pool_id' => $pool['id']])->find();
+        }else{
+            $poolOrder = M('PoolRec')->where(['pool_id' => $pool['id']])->find();
+        }
+        
         $config = json_decode(htmlspecialchars_decode($provider['config']), true);
 
         // 是否超时订单
@@ -423,31 +429,32 @@ class OrderController extends PayController
             $pound    = $pool['money'] * $rate;
             $actmoney = $pool['money'] - $pound;
 
-            $poolOrder = [
-                'pool_id'           => $pool['id'],
-                'pid'               => $pool['pid'],
-                'out_trade_id'      => $pool['out_trade_id'],
-                'order_id'          => $pool['order_id'],
-                'data'              => json_encode($pool),
-                'status'            => $isTimeoutOrder ? 3 : 0,
-                'time'              => $this->timestamp,
-                'year'              => date('Y', $this->timestamp),
-                'month'             => date('m', $this->timestamp),
-                'day'               => date('d', $this->timestamp),
-                'money'             => $pool['money'],
-                'channel'           => $pool['channel'],
-                'actmoney'          => $actmoney,
-                'pound'             => $pound,
-                'phone'             => $pool['phone']
-            ];
-            // $poolOrder['actmoney']
-            if (!M('PoolRec')->add($poolOrder)){
-                M()->rollback();
-                Log::write("add poolOrder err:" . json_encode($poolOrder));
-                return;
+            if($pool['status']!=2){
+                $poolOrder = [
+                    'pool_id'           => $pool['id'],
+                    'pid'               => $pool['pid'],
+                    'out_trade_id'      => $pool['out_trade_id'],
+                    'order_id'          => $pool['order_id'],
+                    'data'              => json_encode($pool),
+                    'status'            => $isTimeoutOrder ? 3 : 0,
+                    'time'              => $this->timestamp,
+                    'year'              => date('Y', $this->timestamp),
+                    'month'             => date('m', $this->timestamp),
+                    'day'               => date('d', $this->timestamp),
+                    'money'             => $pool['money'],
+                    'channel'           => $pool['channel'],
+                    'actmoney'          => $actmoney,
+                    'pound'             => $pound,
+                    'phone'             => $pool['phone']
+                ];
+                // $poolOrder['actmoney']
+                if (!M('PoolRec')->add($poolOrder)){
+                    M()->rollback();
+                    Log::write("add poolOrder err:" . json_encode($poolOrder));
+                    return;
+                }
+                $poolOrder['id'] = M('PoolRec')->getLastInsID();
             }
-            $poolOrder['id'] = M('PoolRec')->getLastInsID();
-
             // 给号码商上增加金额和余额进去
            /* if (!M('PoolProvider')->where(['id' => $pool['pid']])->setInc("money", $pool['money'])){
                 M()->rollback();
@@ -546,7 +553,9 @@ class OrderController extends PayController
 
         Log::write(" pool notify: ". $poolOrder["id"] . " url: " . $pool["notify_url"] . '?' . http_build_query($params) . " resp: " . $contents);
         if (strstr(strtolower($contents), "ok") != false) {
-            M('PoolRec')->where(['id' => $poolOrder['id']])->setField("status", 1);
+            if($pool['status']!=2){//转号
+                M('PoolRec')->where(['id' => $poolOrder['id']])->setField("status", 1);
+            }
             return true;
         }
 

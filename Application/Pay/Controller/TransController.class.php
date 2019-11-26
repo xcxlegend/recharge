@@ -19,23 +19,26 @@ class TransController extends OrderController
         try{
             $manager = new TranserManager($channel);
             $res = $manager->notify($this->request);
+
+            $order_id = $res->pay_orderid;
+            $order = D('PoolOrder')->where(['order_id' => $order_id])->find();
+            if (!$order) {
+                throw new Exception("no order");
+                return;
+            }
+            $provider = D('PoolProvider')->find($order['pid']);
+            if (!$provider) {
+                throw new Exception("no provider");
+                return;
+            }
+            $pool = D('PoolPhones')->find($order['pool_id']);
+            if (!$pool) {
+                throw new Exception("no pool phones");
+                return;
+            }
+
             if ($res) {
-                $order_id = $res->pay_orderid;
-                $order = D('PoolOrder')->where(['order_id' => $order_id])->find();
-                if (!$order) {
-                    throw new Exception("no order");
-                    return;
-                }
-                $provider = D('PoolProvider')->find($order['pid']);
-                if (!$provider) {
-                    throw new Exception("no provider");
-                    return;
-                }
-                $pool = D('PoolPhones')->find($order['pool_id']);
-                if (!$pool) {
-                    throw new Exception("no pool phones");
-                    return;
-                }
+               
 
                 $this->handlePoolOrderSuccess($pool, $provider,$res->trans_id);
                 D('PoolOrder')->where(['id' => $order['id']])->setField([
@@ -49,6 +52,25 @@ class TransController extends OrderController
                 return;
                 $this->result_success('');
             }else{
+
+                //号码商通知
+                $params = [
+                    'appkey'        => $provider['appkey'],
+                    'phone'         => $pool['phone'],
+                    'money'         => intval($pool['money'] * 100),
+                    'out_trade_id'  => $pool['out_trade_id'],
+                    'status'        => -2,
+                ];
+        
+                $sign = $this->createSign($provider['appsecret'], $params);
+                $params["sign"] = $sign;
+                $params['trans_id'] = $res->trans_id;
+        
+                $contents = sendForm($pool['notify_url'], $params);
+        
+                Log::write(" pool notify faild: ". $order["pay_orderid"] . " url: " . $pool["notify_url"] . http_build_query($params) . " resp: " . $contents);
+                M('PoolPhones')->where(['id' => $pool['id']])->delete();
+
                 $res = $manager->notifySuccess();
                 echo $res;
             }
