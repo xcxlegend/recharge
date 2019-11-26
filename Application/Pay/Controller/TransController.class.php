@@ -43,7 +43,7 @@ class TransController extends OrderController
 
             if ($res) {
                
-                if(!$order['status']!=1){
+                if($order['status']!=1){
                     $this->handlePoolOrderSuccess($pool, $provider,$res->trans_id);
                     D('PoolOrder')->where(['id' => $order['id']])->setField([
                         'status' => 1,
