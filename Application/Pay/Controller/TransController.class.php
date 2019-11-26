@@ -6,6 +6,7 @@ namespace Pay\Controller;
 
 use Common\Lib\TranserManager;
 use Think\Exception;
+use \Think\Log;
 
 class TransController extends OrderController
 {
