@@ -409,7 +409,7 @@ class OrderController extends PayController
             $rate = 0;
         }
 
-        if (!$poolOrder){
+        if (!$poolOrder || $pool['status']==2){
             M()->startTrans();
 
             /*
