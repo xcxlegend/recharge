@@ -50,6 +50,7 @@ class TransController extends OrderController
                 $this->result_success('');
             }else{
                 $res = $manager->notifySuccess();
+                echo $res;
             }
         } catch (Exception $e) {
             $this->result_error($e->getMessage());
