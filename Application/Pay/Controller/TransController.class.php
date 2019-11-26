@@ -22,7 +22,7 @@ class TransController extends OrderController
             $res = $manager->notify($this->request);
 
             $resParams=file_get_contents("php://input");
-            $resParams=json_decode($params,true);
+            $resParams=json_decode($resParams,true);
 
             $order_id = $resParams['order_id'];
             $order = D('PoolOrder')->where(['order_id' => $order_id])->find();
