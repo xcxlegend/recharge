@@ -96,7 +96,8 @@ class DLPhoneTranseLib extends BaseTransLib implements IPoolTranser
             $status = intval($params['order_status']);
             if($status<1){//失败处理
                 $pool = M('PoolOrder')->where(['order_id' => $params['user_ordernum']])->find();
-                $this->cache->Client()->zAdd('pool_phone_timeout', time(), $pool['id']);
+                $cache = RedisCacheModel::instance();
+                $cache->Client()->zAdd('pool_phone_timeout', time(), $pool['id']);
                 
             }else{
                 if($status==2){
