@@ -66,7 +66,7 @@ class ShenPhoneTranseLib extends BaseTransLib implements IPoolTranser
             throw new Exception('sign error');
         }
         if(!$params['order_status']){//失败处理
-            $pool = M('PoolOrder')->where(['order_id' => $params['user_ordernum']])->find();
+            $pool = M('PoolOrder')->where(['order_id' => $params['order_id']])->find();
             $this->cache->Client()->zAdd('pool_phone_timeout', time(), $pool['id']);
             
         }else{
