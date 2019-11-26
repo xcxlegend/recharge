@@ -6,6 +6,7 @@ namespace Common\Lib;
 
 use Think\Exception;
 use Think\Log;
+use Common\Model\RedisCacheModel;
 
 
 class DLPhoneTranseLib extends BaseTransLib implements IPoolTranser

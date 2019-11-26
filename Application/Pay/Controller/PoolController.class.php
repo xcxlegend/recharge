@@ -135,6 +135,7 @@ class PoolController extends PayController
 
         if ($overLimit) {
             $data['status'] = 2;
+            $lock = true;
         }
 
         $result = M('PoolPhones')->add($data);
