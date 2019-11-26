@@ -66,12 +66,8 @@ class ShenPhoneTranseLib extends BaseTransLib implements IPoolTranser
             Log::write("sign err: {$sign} !== {$params['sign']}");
             throw new Exception('sign error');
         }
-        if(!$params['order_status']){//失败处理
-            $pool = M('PoolOrder')->where(['order_id' => $params['order_id']])->find();
-            $cache = RedisCacheModel::instance();
-            $cache->Client()->zAdd('pool_phone_timeout', time(), $pool['id']);
             
-        }else{
+        if($params['order_status']){//失败处理
             return new ChannelNotifyData($params['order_id'], $params['serial_number'], '' );
         }
         
