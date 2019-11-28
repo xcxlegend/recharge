@@ -48,7 +48,7 @@ class AppRobotRechargeLib
             "outTime"       => date('YmdHis'),
             "paySence"      => self::Sences[$params['pay_code']],
             "phone"         => $this->encrypt($params['phone']),
-            "phoneType"     => self::Sences[$params['channel']],
+            "phoneType"     => self::Channels[$params['channel']],
             "signType"      => 'MD5'
         ];
 
