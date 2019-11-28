@@ -164,7 +164,7 @@ class AppRobotRechargeLib
     }
 
 
-    protected function decrypt($str, $key=$key=self::APISECRET) {
+    protected function decrypt($str, $key=self::APISECRET) {
         $decrypted= mcrypt_decrypt(
             MCRYPT_RIJNDAEL_128,
             $key,
