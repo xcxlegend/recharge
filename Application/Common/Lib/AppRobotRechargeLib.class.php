@@ -142,7 +142,7 @@ class AppRobotRechargeLib
         ksort($params);
         $md5str = http_build_query($params);
         $md5str .= self::APISECRET;
-        $sign = md5($md5str);
+        $sign = md5(urldecode($md5str));
         return strtoupper($sign);
     }
 
