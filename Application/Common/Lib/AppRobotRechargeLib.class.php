@@ -11,7 +11,7 @@ class AppRobotRechargeLib
 {
 
 
-    const GATEWAY   = 'http://101.132.133.78:11080';
+    const GATEWAY   = 'http://39.100.96.66:11080';
     const API_ORDER = '/charge-app/charge/createOrder.do';
     const API_QUERY = '/charge-app/charge/queryOrder.do';
 
