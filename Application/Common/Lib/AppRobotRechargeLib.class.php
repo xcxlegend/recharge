@@ -57,7 +57,7 @@ class AppRobotRechargeLib
 
         $request_time = date('Y-m-d h:i:s');
         $resData = sendJson($api_url, $query);
-        if (!$data) {
+        if (!$resData) {
             return false;
         }
         $resData = json_decode($resData, true);
