@@ -72,7 +72,7 @@ class AppRobotRechargeLib
             return  ['msg'=>$data['msg']];
         }
 
-        return ['pay_no'=>$this->decrypt($data['data']['orderNo']),'pay_url'=>$this->decrypt($data['data']['payUrl'])];
+        return ['pay_no'=>$this->decrypt($data['data']['serialNo']),'pay_url'=>$this->decrypt($data['data']['payUrl'])];
 
 
 
@@ -99,7 +99,7 @@ class AppRobotRechargeLib
         LogApiQuery($api_url, $params, $data);
         $data = json_decode($data, true);
         $status = $this->decrypt($data['data']['orderStatus']);
-        if ($status == -1) {
+        if ($status != -3) {
             return false;
         }
         return $status;
@@ -120,12 +120,12 @@ class AppRobotRechargeLib
             return false;
         }
 
-        if ($this->decrypt($request['orderStatus']) != 'success') {
+        if ($this->decrypt($request['orderStatus']) != -3) {
             return false;
         }
         
 
-        return new ChannelNotifyData($this->decrypt($request['outOrderNo']), $this->decrypt($request['no']), $request['success_url']); 
+        return new ChannelNotifyData($this->decrypt($request['outOrderNo']), $this->decrypt($request['serialNo']), $request['success_url']); 
     }
 
     public static function notify_ok(array $request){
