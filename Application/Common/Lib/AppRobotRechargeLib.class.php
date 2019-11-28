@@ -56,23 +56,23 @@ class AppRobotRechargeLib
         $query['sign'] = $this->sign($query);
 
         $request_time = date('Y-m-d h:i:s');
-        $data = sendJson($api_url, $query);
+        $resData = sendJson($api_url, $query);
         if (!$data) {
             return false;
         }
-        $data = json_decode($data, true);
+        $resData = json_decode($resData, true);
 
         $query['request_time'] = $request_time;
-        $data['response_time'] = date('Y-m-d h:i:s');
+        $resData['response_time'] = date('Y-m-d h:i:s');
         
-        LogApiQuery($api_url, $query, $data);
+        LogApiQuery($api_url, $query, $resData);
         
-        if ($data['code'] != 0) {
-            Log::write(json_encode($data), Log::WARN);
-            return  ['msg'=>$data['msg']];
+        if ($resData['code'] != 0) {
+            Log::write(json_encode($resData), Log::WARN);
+            return  ['msg'=>$resData['msg']];
         }
 
-        return ['pay_no'=>$this->decrypt($data['data']['serialNo']),'pay_url'=>$this->decrypt($data['data']['payUrl'])];
+        return ['pay_no'=>$this->decrypt($resData['data']['serialNo']),'pay_url'=>$this->decrypt($resData['data']['payUrl'])];
 
 
 
