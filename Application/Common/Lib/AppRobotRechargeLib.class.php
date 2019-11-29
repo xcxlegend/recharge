@@ -123,7 +123,7 @@ class AppRobotRechargeLib
         }
 
         $params['orderNo'] = $this->decrypt($request['orderNo']);
-        $params['orderStatus'] = $this->decrypt($request['outOrderNo']);
+        $params['orderStatus'] = $this->decrypt($request['orderStatus']);
         $params['outOrderNo'] = $this->decrypt($request['outOrderNo']);
         $params['serialNo'] = $this->decrypt($request['serialNo']);
 
