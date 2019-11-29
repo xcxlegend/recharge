@@ -99,7 +99,7 @@ class AppRobotRechargeLib
         LogApiQuery($api_url, $params, $data);
         $data = json_decode($data, true);
         $status = $this->decrypt($data['data']['orderStatus']);
-        if ($status != -3) {
+        if ($status != 3) {
             return false;
         }
         return $status;
@@ -129,7 +129,7 @@ class AppRobotRechargeLib
 
         Log::write('notify data:'.json_encode($params), Log::WARN);
 
-        if ($params['orderStatus'] != -3) {
+        if ($params['orderStatus'] != 3) {
             return false;
         }
         
