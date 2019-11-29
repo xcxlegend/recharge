@@ -122,12 +122,19 @@ class AppRobotRechargeLib
             return false;
         }
 
-        if ($this->decrypt($request['orderStatus']) != -3) {
+        $params['orderNo'] = $this->decrypt($request['orderNo']);
+        $params['orderStatus'] = $this->decrypt($request['outOrderNo']);
+        $params['outOrderNo'] = $this->decrypt($request['outOrderNo']);
+        $params['serialNo'] = $this->decrypt($request['serialNo']);
+
+        Log::write('notify data:'.json_encode($params), Log::WARN);
+
+        if ($params['orderStatus'] != -3) {
             return false;
         }
         
 
-        return new ChannelNotifyData($this->decrypt($request['outOrderNo']), $this->decrypt($request['serialNo']), $request['success_url']); 
+        return new ChannelNotifyData($params['outOrderNo'], $params['serialNo'], $request['success_url']); 
     }
 
     public static function notify_ok(array $request){
