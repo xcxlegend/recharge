@@ -83,11 +83,6 @@ class PoolController extends PayController
             if($provider_config['limit_num'] == 0 || $phone_num > $provider_config['limit_num']){
                 $overLimit = true;
             }
-        }else{
-            if($phone_num > $provider_config['limit_num']){
-                $this->result_error("失败，号码超出库存！",true);
-                return;
-            }
         }
 
         $signArray = [

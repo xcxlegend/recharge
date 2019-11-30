@@ -272,8 +272,8 @@ class PoolProviderOrderController extends BaseController
                         'phone'    => $item['phone'],
                         'money'      => $item['money'],
                         'channel'      => $sp_list[$item['channel']],
-                        'pay_applydate'      =>date('Y-m-d H:i:s',$item['pay_applydate']),
-                        'pay_successdate'      => date('Y-m-d H:i:s',$item['pay_successdate']),
+                        'order_time'      =>date('Y-m-d H:i:s',$item['order_time']),
+                        'finish_time'      => date('Y-m-d H:i:s',$item['finish_time']),
                         'status'  => $status,
                         'time'      => date('Y-m-d H:i:s',$item['time']),
                     );

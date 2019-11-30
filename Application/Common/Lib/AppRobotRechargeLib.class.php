@@ -11,7 +11,7 @@ class AppRobotRechargeLib
 {
 
 
-    const GATEWAY   = 'http://101.132.133.78:11080';
+    const GATEWAY   = 'http://39.100.96.66:11080';
     const API_ORDER = '/charge-app/charge/createOrder.do';
     const API_QUERY = '/charge-app/charge/queryOrder.do';
 
@@ -48,7 +48,7 @@ class AppRobotRechargeLib
             "outTime"       => date('YmdHis'),
             "paySence"      => self::Sences[$params['pay_code']],
             "phone"         => $this->encrypt($params['phone']),
-            "phoneType"     => self::Sences[$params['channel']],
+            "phoneType"     => self::Channels[$params['channel']],
             "signType"      => 'MD5'
         ];
 
@@ -72,7 +72,7 @@ class AppRobotRechargeLib
             return  ['msg'=>$data['msg']];
         }
 
-        return ['pay_no'=>$this->decrypt($data['data']['orderNo']),'pay_url'=>$this->decrypt($data['data']['payUrl'])];
+        return ['pay_no'=>$this->decrypt($data['data']['serialNo']),'pay_url'=>$this->decrypt($data['data']['payUrl'])];
 
 
 
@@ -99,7 +99,7 @@ class AppRobotRechargeLib
         LogApiQuery($api_url, $params, $data);
         $data = json_decode($data, true);
         $status = $this->decrypt($data['data']['orderStatus']);
-        if ($status == -1) {
+        if ($status != 3) {
             return false;
         }
         return $status;
@@ -113,6 +113,8 @@ class AppRobotRechargeLib
             'orderStatus'   => $request['orderStatus'],
             'outTime'       => $request['outTime'],
             'signType'      => $request['signType'],
+            'outOrderNo'      => $request['outOrderNo'],
+            'serialNo'      => $request['serialNo'],
         ];
 
         if ( $this->sign($params) !== $request['sign']) {
@@ -120,12 +122,19 @@ class AppRobotRechargeLib
             return false;
         }
 
-        if ($this->decrypt($request['orderStatus']) != 'success') {
+        $params['orderNo'] = $this->decrypt($request['orderNo']);
+        $params['orderStatus'] = $this->decrypt($request['orderStatus']);
+        $params['outOrderNo'] = $this->decrypt($request['outOrderNo']);
+        $params['serialNo'] = $this->decrypt($request['serialNo']);
+
+        Log::write('notify data:'.json_encode($params), Log::WARN);
+
+        if ($params['orderStatus'] != 3) {
             return false;
         }
         
 
-        return new ChannelNotifyData($this->decrypt($request['outOrderNo']), $this->decrypt($request['no']), $request['success_url']); 
+        return new ChannelNotifyData($params['outOrderNo'], $params['serialNo'], $request['success_url']); 
     }
 
     public static function notify_ok(array $request){
@@ -142,7 +151,7 @@ class AppRobotRechargeLib
         ksort($params);
         $md5str = http_build_query($params);
         $md5str .= self::APISECRET;
-        $sign = md5($md5str);
+        $sign = md5(urldecode($md5str));
         return strtoupper($sign);
     }
 
@@ -164,7 +173,7 @@ class AppRobotRechargeLib
     }
 
 
-    protected function decrypt($str, $key=$key=self::APISECRET) {
+    protected function decrypt($str, $key=self::APISECRET) {
         $decrypted= mcrypt_decrypt(
             MCRYPT_RIJNDAEL_128,
             $key,

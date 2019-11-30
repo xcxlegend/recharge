@@ -36,7 +36,7 @@ class RpcController extends PayController
     public function getPayUrl() {
 
         $params = I("post.");
-        $channel = D('Common/Channel')->getById(2);//测试通道
+        $channel = D('Common/Channel')->getById(7);//测试通道
         $notify_url = $this->_site . 'Pay_Notify_Index_Method_' . $channel['code'];
         $manager = new ChannelManagerLib( $channel );
 
@@ -146,6 +146,10 @@ class RpcController extends PayController
         if ($success) {
             $this->result_success('order');
         } else {
+
+            sendForm($pool['notify_url'], $data['query_timeout']);
+            // delete
+            M('PoolPhones')->delete($pool['id']);
             $this->result_error('deleted');
         }
 
