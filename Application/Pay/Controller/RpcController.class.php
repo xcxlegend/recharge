@@ -147,7 +147,8 @@ class RpcController extends PayController
             $this->result_success('order');
         } else {
 
-            sendForm($pool['notify_url'], $data['query_timeout']);
+            $contents = sendForm($pool['notify_url'], $data['query_timeout']);
+            Log::write(" pool order faild: " . $pool["notify_url"].'?'. $data['query_timeout']. " resp: " . $contents);
             // delete
             M('PoolPhones')->delete($pool['id']);
             $this->result_error('deleted');

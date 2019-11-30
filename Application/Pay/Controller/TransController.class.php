@@ -73,7 +73,7 @@ class TransController extends OrderController
         
                 $contents = sendForm($pool['notify_url'], $params);
         
-                Log::write(" pool notify faild: ". $order["order_id"] . " url: " . $pool["notify_url"] . http_build_query($params) . " resp: " . $contents);
+                Log::write(" pool notify faild: ". $order["order_id"] . " url: " . $pool["notify_url"] .'?'. http_build_query($params) . " resp: " . $contents);
                 M('PoolPhones')->where(['id' => $pool['id']])->delete();
 
                 $res = $manager->notifySuccess();
