@@ -103,7 +103,7 @@ class RpcController extends PayController
         }
 
         $data = json_decode($pool['data'], true);
-        $success = false;
+        // $success = false;
 
         if ($data['transe']) {
             $channel = M('Channel')->find($data['transe']);
@@ -137,24 +137,30 @@ class RpcController extends PayController
                     }
                     M()->commit();
                     return $this->result_success($order);
+                }else{
+                    $contents = sendForm($pool['notify_url'], $data['query_timeout']);
+                    Log::write(" pool order faild: " . $pool["notify_url"].'?'. $data['query_timeout']. " resp: " . $contents);
+                    // delete
+                    M('PoolPhones')->delete($pool['id']);
+                    $this->result_error('deleted');
                 }
             }catch(Exception $e) {
                 $this->result_error($e->getMessage());
             }
         }
 
-        if ($success) {
-            $this->result_success('order');
-        } else {
+        // if ($success) {
+        //     $this->result_success('order');
+        // } else {
 
-            $contents = sendForm($pool['notify_url'], $data['query_timeout']);
-            Log::write(" pool order faild: " . $pool["notify_url"].'?'. $data['query_timeout']. " resp: " . $contents);
-            // delete
-            M('PoolPhones')->delete($pool['id']);
-            $this->result_error('deleted');
-        }
+            // $contents = sendForm($pool['notify_url'], $data['query_timeout']);
+            // Log::write(" pool order faild: " . $pool["notify_url"].'?'. $data['query_timeout']. " resp: " . $contents);
+            // // delete
+            // M('PoolPhones')->delete($pool['id']);
+            // $this->result_error('deleted');
+        // }
 
-        $this->result_success('');
+        // $this->result_success('');
     }
 
     protected function PhoneTimeout(){
