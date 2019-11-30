@@ -146,6 +146,10 @@ class RpcController extends PayController
         if ($success) {
             $this->result_success('order');
         } else {
+
+            sendForm($pool['notify_url'], $data['query_timeout']);
+            // delete
+            M('PoolPhones')->delete($pool['id']);
             $this->result_error('deleted');
         }
 
