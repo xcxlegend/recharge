@@ -174,7 +174,7 @@ class PoolController extends PayController
 
         $query = http_build_query($params);
         $host = C("DOMAIN");
-        $fp=fsockopen($host,80,$errno,$errstr,5);
+        $fp=fsockopen($host,80,$errno,$errstr,30);
         if(!$fp){
             $this->result_error('rpc error');
         }else{
