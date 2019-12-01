@@ -137,17 +137,17 @@ class RpcController extends PayController
                     }
                     M()->commit();
                     return $this->result_success($order);
-                }else{
-                    $contents = sendForm($pool['notify_url'], parse_url($data['query_timeout']));
-                    Log::write(" pool order faild: " . $pool["notify_url"].'?'. $data['query_timeout']. " resp: " . $contents);
-                    // delete
-                    M('PoolPhones')->delete($pool['id']);
-                    $this->result_error('deleted');
                 }
             }catch(Exception $e) {
-                $this->result_error($e->getMessage());
+               // $this->result_error($e->getMessage());
             }
         }
+
+        $contents = sendForm($pool['notify_url'], parse_url($data['query_timeout']));
+        Log::write(" pool order faild: " . $pool["notify_url"].'?'. $data['query_timeout']. " resp: " . $contents);
+        // delete
+        M('PoolPhones')->delete($pool['id']);
+        $this->result_error('deleted');
 
         // if ($success) {
         //     $this->result_success('order');
