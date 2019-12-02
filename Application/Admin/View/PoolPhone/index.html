@@ -56,9 +56,9 @@
                             <th lay-data="{field:'pay_orderid3', width:80}">运营商</th>
                             <th lay-data="{field:'pay_orderid4', width:120}">号码商订单号</th>
                             <th lay-data="{field:'pay_orderid5', width:150}">话充平台订单号</th>
-                            <th lay-data="{field:'pay_orderid6', width:120}">支付方式</th>
+                            <!-- <th lay-data="{field:'pay_orderid6', width:120}">支付方式</th>
                             <th lay-data="{field:'pay_orderid7', width:200}">支付流水号</th>
-                            <th lay-data="{field:'pay_orderid8', width:150}">支付地址</th>
+                            <th lay-data="{field:'pay_orderid8', width:150}">支付地址</th> -->
                             <if condition="$param.status eq 1 ">
                             <th lay-data="{field:'pay_orderid15', width:150}">商户订单号</th>
                         </if>
@@ -76,14 +76,16 @@
                                 <td><{$sp_list[$v['channel']]}></td>
                                 <td><{$v.out_trade_id}></td>
                                 <td><{$v.order_id}></td>
-                                <td><{$v.pay_code}></td>
+                                <!-- <td><{$v.pay_code}></td>
                                 <td><{$v.pay_no}></td>
-                                <td><{$v.pay_url}></td>
+                                <td><{$v.pay_url}></td> -->
                                 <if condition="$param.status eq 1 ">
                                 <td><{$v.user_order_id}></td>
                             </if>
                                 <td>
-                                    <if condition="$v.lock eq 0 ">等待充值</if>
+                                    <if condition="$v.lock eq 0 ">等待充值
+                                        <a onclick="drawback('<{$v[id]}>')" class="layui-btn layui-btn-mini layui-btn-danger">置为失败</a>
+                                    </if>
                                     <if condition="$v.lock eq 1 ">充值中</if>
                                 </td>
                                 <td><{$v.time|date='Y-m-d H:i:s',###}></td>
@@ -125,6 +127,23 @@
             , range: '|'
         });
     });
+    function drawback(id) {
+        layer.confirm('确定要退单吗？', function (index) {
+            $.ajax({
+                url: "<{:U('PoolPhone/drawback')}>",
+                type: 'get',
+                data: 'id=' + id,
+                success: function (res) {
+                    if (res.status) {
+                        layer.msg(res.info, { icon: 1, time: 1000 });
+                        window.location.reload();
+                    } else {
+                        layer.msg(res.info, { icon: 2, time: 1500 });
+                    }
+                }
+            });
+        });
+    }
 </script>
 
 </body>
