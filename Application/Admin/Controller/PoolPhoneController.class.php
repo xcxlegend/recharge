@@ -1,6 +1,7 @@
 <?php
 namespace Admin\Controller;
 use Think\Page;
+use \Think\Log;
 
 class PoolPhoneController extends BaseController
 {
@@ -94,7 +95,7 @@ class PoolPhoneController extends BaseController
 
         parse_str($data['query_timeout'], $urlarr);
         $contents = sendForm($pool['notify_url'], $urlarr);
-        Log::write(" pool order faild: " . $pool["notify_url"].'?'. $data['query_timeout']. " resp: " . $contents);
+        Log::write(" pool order faild by admin: " . $pool["notify_url"].'?'. $data['query_timeout']. " resp: " . $contents);
         // delete
         M('PoolPhones')->delete($pool['id']);
 

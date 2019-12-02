@@ -62,7 +62,7 @@
                             <if condition="$param.status eq 1 ">
                             <th lay-data="{field:'pay_orderid15', width:150}">商户订单号</th>
                         </if>
-                            <th lay-data="{field:'pay_orderid9', width:100}">状态</th>
+                            <th lay-data="{field:'pay_orderid9', width:150}">状态</th>
                             <th lay-data="{field:'pay_orderid13', width:180}">时间</th>
                         </tr>
                         </thead>
@@ -128,7 +128,7 @@
         });
     });
     function drawback(id) {
-        layer.confirm('确定要退单吗？', function (index) {
+        layer.confirm('确定要设置为失败吗？', function (index) {
             $.ajax({
                 url: "<{:U('PoolPhone/drawback')}>",
                 type: 'get',
