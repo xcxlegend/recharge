@@ -78,6 +78,29 @@ class PoolPhoneController extends BaseController
         $this->display();
     }
 
+    public function drawback()
+    {
+        $id = I("get.id");
+        if (!$id) {
+            $this->ajaxReturn(['info'=>'参数错误', 'status'=>false]);
+            return;
+        }
+        $pool = M('PoolPhones')->find($id);
+        if (!$pool) {
+            return $this->ajaxReturn(['info'=>'no pool phones', 'status'=>false]);
+        }
+
+        $data = json_decode($pool['data'], true);
+
+        parse_str($data['query_timeout'], $urlarr);
+        $contents = sendForm($pool['notify_url'], $urlarr);
+        Log::write(" pool order faild: " . $pool["notify_url"].'?'. $data['query_timeout']. " resp: " . $contents);
+        // delete
+        M('PoolPhones')->delete($pool['id']);
+
+        $this->ajaxReturn(['info'=>'操作成功', 'status' => true]);
+    }
+
     public function blacklist()
     {
         $param = I("get.");
@@ -114,6 +137,8 @@ class PoolPhoneController extends BaseController
         $this->assign('page', $page->show());
         $this->display();
     }
+
+    
 
 
 }
