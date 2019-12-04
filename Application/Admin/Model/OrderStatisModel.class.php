@@ -11,7 +11,7 @@ class OrderStatisModel extends BaseModel
         
         $where['day'] = strtotime(date("Y-m-d"),time());
         $where['member_id'] = $member_id;
-        $have = $this->where($where)->find();
+        $have = $this->where($where)->lock(true)->find();
 
         if($have){
             return $this->where($where)->setInc($field,$step);
