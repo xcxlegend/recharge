@@ -11,7 +11,7 @@ class PoolStatisModel extends BaseModel
         
         $where['day'] = strtotime(date("Y-m-d"),time());
         $where['pool_id'] = $pool_id;
-        $have = $this->where($where)->find();
+        $have = $this->where($where)->lock(true)->find();
 
         if($have){
             return $this->where($where)->setInc($field,$step);
