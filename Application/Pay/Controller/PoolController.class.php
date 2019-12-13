@@ -73,6 +73,11 @@ class PoolController extends PayController
             return;
         }
 
+        if ($provider['balance'] < 0 ) {
+            $this->result_error("余额不足", true);
+            return;
+        }
+
         $provider_config = json_decode($provider['config'],true);
         $phone_num = M('PoolPhones')->where(['pid' => $provider['id'],'lock' =>0])->count();
 
