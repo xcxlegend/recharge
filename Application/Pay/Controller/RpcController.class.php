@@ -36,7 +36,8 @@ class RpcController extends PayController
     public function getPayUrl() {
 
         $params = I("post.");
-        $channel = D('Common/Channel')->getById(7);//测试通道
+        $pay_channel = !$params['pay_channel'] ? 2 : $params['pay_channel'];
+        $channel = D('Common/Channel')->getById($pay_channel);
         $notify_url = $this->_site . 'Pay_Notify_Index_Method_' . $channel['code'];
         $manager = new ChannelManagerLib( $channel );
 

@@ -119,6 +119,7 @@ class PoolProviderController extends BaseController
             $data["create_time"]=time();
             $data["update_time"]=time();
 
+            $config['robot'] = $post['robot'];
             $config['transe'] = $post['transe'];
             $config['checkphone'] = $post['checkphone'];
             $config['limit_num'] = $post['limit_num'];
@@ -129,8 +130,8 @@ class PoolProviderController extends BaseController
             $this->ajaxReturn(['status'=>$status]);
 
         }else{
-            $transe = M('Channel')->where(['paytype'=>3])->field('id','title')->select();
-            $this->assign('transe',$transe);
+            $channel = M('Channel')->field('id','title')->select();
+            $this->assign('channel',$channel);
             $this->display();
         }
         
@@ -194,6 +195,7 @@ class PoolProviderController extends BaseController
 
             $config = json_decode($info['config'],true);
              
+            $config['robot'] = intval($data['robot']);
             $config['transe'] =  intval($data['transe']);
             $config['checkphone'] =  intval($data['checkphone']);
             $config['limit_num'] =  intval($data['limit_num']);
@@ -213,12 +215,13 @@ class PoolProviderController extends BaseController
 
             $info = D('Common/PoolProvider')->where($where)->find();
             $config = json_decode($info['config'],true);
+            $info['robot'] = $config['robot'];
             $info['transe'] = $config['transe'];
             $info['checkphone'] = $config['checkphone'];
             $info['limit_num'] = $config['limit_num'];
-            $transe = M('Channel')->field('id,title')->where(['paytype'=>3])->select();
+            $channel = M('Channel')->field('id,title')->select();
             
-            $this->assign('transe',$transe);
+            $this->assign('channel',$channel);
             
             $this->assign('info',$info);
             $this->display();

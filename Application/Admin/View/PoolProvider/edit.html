@@ -33,24 +33,40 @@
         </div>
     </div>
     <div class="layui-form-item">
+        <label class="layui-form-label">爬虫通道：</label>
+        <div class="layui-input-inline">
+        <select name="robot">
+                <option value="0">默认通道</option>
+        <foreach name="channel" item="v" key="k">
+        <if condition="$v['paytype'] eq 1">
+            <option value="<{$v.id}>" <if condition="$v['id'] eq $info['robot']">selected</if>><{$v.title}></option>
+        </if>
+        </foreach>
+           
+        </select>
+    </div>
+    </div>
+    <div class="layui-form-item">
             <label class="layui-form-label">转发通道：</label>
             <div class="layui-input-inline">
             <select name="transe">
                     <option value="0">默认通道</option>
-            <foreach name="transe" item="v" key="k">
+            <foreach name="channel" item="v" key="k">
+            <if condition="$v['paytype'] eq 3">
                 <option value="<{$v.id}>" <if condition="$v['id'] eq $info['transe']">selected</if>><{$v.title}></option>
+            </if>
             </foreach>
                
             </select>
         </div>
         </div>
-        <div class="layui-form-item">
+        <!-- <div class="layui-form-item">
             <label class="layui-form-label">号码验证：</label>
             <div class="layui-col-md12">  
                 <input type="radio" name="checkphone" value="1" title="开启" <if condition="$info.checkphone eq 1 ">checked</if>>
                 <input type="radio" name="checkphone" value="0" title="关闭" <if condition="$info.checkphone eq 0 ">checked</if>>
             </div>
-        </div>
+        </div> -->
         <div class="layui-form-item">
             <label class="layui-form-label">允许入库数：</label>
             <div class="layui-input-inline">
