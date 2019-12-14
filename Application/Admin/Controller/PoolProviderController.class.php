@@ -130,7 +130,7 @@ class PoolProviderController extends BaseController
             $this->ajaxReturn(['status'=>$status]);
 
         }else{
-            $channel = M('Channel')->field('id','title','paytype')->select();
+            $channel = M('Channel')->select();
             $this->assign('channel',$channel);
             $this->display();
         }
@@ -219,7 +219,7 @@ class PoolProviderController extends BaseController
             $info['transe'] = $config['transe'];
             $info['checkphone'] = $config['checkphone'];
             $info['limit_num'] = $config['limit_num'];
-            $channel = M('Channel')->field('id','title','paytype')->select();
+            $channel = M('Channel')->select();
             
             $this->assign('channel',$channel);
             

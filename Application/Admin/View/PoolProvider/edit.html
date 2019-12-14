@@ -39,7 +39,7 @@
                 <option value="0">默认通道</option>
         <foreach name="channel" item="v" key="k">
         <if condition="$v['paytype'] eq 1">
-            <option value="<{$v.id}>" <if condition="$v['id'] eq $info['robot']">selected</if>><{$v.id}><{$v.title}></option>
+            <option value="<{$v.id}>" <if condition="$v['id'] eq $info['robot']">selected</if>><{$v.title}></option>
         </if>
         </foreach>
            
@@ -53,7 +53,7 @@
                     <option value="0">默认通道</option>
             <foreach name="channel" item="v" key="k">
             <if condition="$v['paytype'] eq 3">
-                <option value="<{$v.id}>" <if condition="$v['id'] eq $info['transe']">selected</if>><{$v.id}><{$v.title}></option>
+                <option value="<{$v.id}>" <if condition="$v['id'] eq $info['transe']">selected</if>><{$v.title}></option>
             </if>
             </foreach>
                
