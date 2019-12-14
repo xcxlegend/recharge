@@ -11,12 +11,12 @@ class AppRobotRechargeLib
 {
 
 
-    const GATEWAY   = 'http://39.100.96.66:11080';
+    const GATEWAY   = 'http://47.108.119.14';
     const API_ORDER = '/charge-app/charge/createOrder.do';
     const API_QUERY = '/charge-app/charge/queryOrder.do';
 
-    const APIKEY = 'niexq1';
-    const APISECRET = '1234561234567890';
+    const APIKEY = 'phonesystem';
+    const APISECRET = '6541230000012301';
 
     const Channels = [
         '1' => 'CMCC',
