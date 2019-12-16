@@ -57,14 +57,15 @@ class AppRobotRechargeLib
 
         $request_time = date('Y-m-d h:i:s');
         $data = sendJson($api_url, $query);
+
         if (!$data) {
             return false;
         }
         $data = json_decode($data, true);
-
+        $query['outOrderNo'] = $pay_orderid;
+        $query['phone'] = $params['phone'];
         $query['request_time'] = $request_time;
         $data['response_time'] = date('Y-m-d h:i:s');
-        
         LogApiQuery($api_url, $query, $data);
         
         if ($data['code'] != 0) {
@@ -73,8 +74,6 @@ class AppRobotRechargeLib
         }
 
         return ['pay_no'=>$this->decrypt($data['data']['serialNo']),'pay_url'=>$this->decrypt($data['data']['payUrl'])];
-
-
 
     }
 
