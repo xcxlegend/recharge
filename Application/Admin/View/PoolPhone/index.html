@@ -56,9 +56,9 @@
                             <th lay-data="{field:'pay_orderid3', width:80}">运营商</th>
                             <th lay-data="{field:'pay_orderid4', width:120}">号码商订单号</th>
                             <th lay-data="{field:'pay_orderid5', width:150}">话充平台订单号</th>
-                            <!-- <th lay-data="{field:'pay_orderid6', width:120}">支付方式</th>
+                            <th lay-data="{field:'pay_orderid6', width:120}">支付方式</th>
                             <th lay-data="{field:'pay_orderid7', width:200}">支付流水号</th>
-                            <th lay-data="{field:'pay_orderid8', width:150}">支付地址</th> -->
+                            <th lay-data="{field:'pay_orderid8', width:150}">支付地址</th>
                             <if condition="$param.status eq 1 ">
                             <th lay-data="{field:'pay_orderid15', width:150}">商户订单号</th>
                         </if>
@@ -77,9 +77,9 @@
                                 <td><{$sp_list[$v['channel']]}></td>
                                 <td><{$v.out_trade_id}></td>
                                 <td><{$v.order_id}></td>
-                                <!-- <td><{$v.pay_code}></td>
+                                <td><{$v.pay_code}></td>
                                 <td><{$v.pay_no}></td>
-                                <td><{$v.pay_url}></td> -->
+                                <td><{$v.pay_url}></td>
                                 <if condition="$param.status eq 1 ">
                                 <td><{$v.user_order_id}></td>
                             </if>
