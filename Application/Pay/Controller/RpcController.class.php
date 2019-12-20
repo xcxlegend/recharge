@@ -33,9 +33,9 @@ class RpcController extends PayController
         $this->result_error('no call', true);
     }
 
-    public function getPayUrl($aparams) {
+    public function getPayUrl() {
 
-        $params = !$aparams ? I("post.") : $aparams;
+        $params = I("post.");
         $pay_channel = !$params['pay_channel'] ? 2 : $params['pay_channel'];
         $channel = D('Common/Channel')->getById($pay_channel);
         $notify_url = $this->_site . 'Pay_Notify_Index_Method_' . $channel['code'];
@@ -62,11 +62,11 @@ class RpcController extends PayController
         
     }
 
-    private function goOrder($result,$params,$notify_url){
+    private function goOrder($result,$params,$notify_url,$channel){
         $where['id'] = $params['id'];
         if (!$result['pay_no'] || !$result['pay_url']) {
             $poolphone = M('PoolPhones')->field('robot_num')->where($where)->find();
-
+            $manager = new ChannelManagerLib( $channel );
             if($poolphone['robot_num']==($params['robot_num']+1)){
                 $manager->reset();
                 //号码商通知
@@ -91,7 +91,9 @@ class RpcController extends PayController
             }else{
                 M('PoolPhones')->where($where)->setInc('robot_num',1);
                 Log::write("request agin ".$poolphone['robot_num'].":". $params["order_id"]);
-                $this->getPayUrl($params);
+                
+                $result = $manager->order($params, $notify_url, $params['order_id']);
+                $this->goOrder($result,$params,$notify_url,$channel);
             }   
         }else{
             $data['pay_no'] =$result['pay_no'];
