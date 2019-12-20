@@ -90,7 +90,7 @@ class RpcController extends PayController
                 exit(ChannelManagerLib::notifyOK($channel['code']));
             }else{
                 M('PoolPhones')->where($where)->setInc('robot_num',1);
-                Log::write("request agin ".$poolphone['robot_num'].":". $params["order_id"];
+                Log::write("request agin ".$poolphone['robot_num'].":". $params["order_id"]);
                 $result = $manager->order($params, $notify_url, $params['order_id']);
                 $this->goOrder($result,$params,$notify_url);
             }   
