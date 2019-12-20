@@ -58,7 +58,7 @@ class RpcController extends PayController
 
         
         $result = $manager->order($params, $notify_url, $params['order_id']);
-        $this->goOrder($result,$params,$notify_url);
+        $this->goOrder($result,$params,$notify_url, $channel);
         
     }
 
