@@ -67,7 +67,7 @@ class RpcController extends PayController
         if (!$result['pay_no'] || !$result['pay_url']) {
             $poolphone = M('PoolPhones')->field('robot_num')->where($where)->find();
 
-            if($poolphone['robot_num']==3){
+            if($poolphone['robot_num']==($params['robot_num']+1)){
                 $manager->reset();
                 //号码商通知
                 $signArray = [
