@@ -58,32 +58,47 @@ class RpcController extends PayController
 
         
         $result = $manager->order($params, $notify_url, $params['order_id']);
-        if (!$result['pay_no'] || !$result['pay_url']) {
-            $manager->reset();
-            //号码商通知
-            $signArray = [
-                'appkey'        => $params['appkey'],
-                'phone'         => $params['phone'],
-                'money'         => $params['money'],
-                'out_trade_id'  => $params['out_trade_id'],
-                'status'        => -2,
-            ];
-    
-            $sign =  createSign($params['appsecret'], $signArray);
-            $signArray["sign"] = $sign;
-            $signArray['msg'] = $result['msg'];
-    
-            $contents = sendForm($params['notify_url'], $signArray);
-    
-            Log::write("payurl error notify: ". $params["order_id"] . " url: " . $params["notify_url"] .'?'. http_build_query($signArray) . " resp: " . json_encode($result));
+        $this->goOrder($result,$params,$notify_url);
+        
+    }
 
-            M('PoolPhones')->where(['id' => $params['id']])->delete();
-            exit(ChannelManagerLib::notifyOK($channel['code']));
+    private function goOrder($result,$params,$notify_url){
+        $where['id'] = $params['id'];
+        if (!$result['pay_no'] || !$result['pay_url']) {
+            $poolphone = M('PoolPhones')->field('robot_num')->where($where)->find();
+
+            if($poolphone['robot_num']==3){
+                $manager->reset();
+                //号码商通知
+                $signArray = [
+                    'appkey'        => $params['appkey'],
+                    'phone'         => $params['phone'],
+                    'money'         => $params['money'],
+                    'out_trade_id'  => $params['out_trade_id'],
+                    'status'        => -2,
+                ];
+        
+                $sign =  createSign($params['appsecret'], $signArray);
+                $signArray["sign"] = $sign;
+                $signArray['msg'] = $result['msg'];
+        
+                $contents = sendForm($params['notify_url'], $signArray);
+        
+                Log::write("payurl error notify: ". $params["order_id"] . " url: " . $params["notify_url"] .'?'. http_build_query($signArray) . " resp: " . json_encode($result));
+
+                M('PoolPhones')->where($where)->delete();
+                exit(ChannelManagerLib::notifyOK($channel['code']));
+            }else{
+                M('PoolPhones')->where($where)->setInc('robot_num',1);
+                Log::write("request agin ".$poolphone['robot_num'].":". $params["order_id"];
+                $result = $manager->order($params, $notify_url, $params['order_id']);
+                $this->goOrder($result,$params,$notify_url);
+            }   
         }else{
             $data['pay_no'] =$result['pay_no'];
             $data['pay_url'] = $result['pay_url'];
             $data['pay_code'] = $params['pay_code'];
-            if (!M("PoolPhones")->where(["id" => $params["id"]])->save($data)){
+            if (!M("PoolPhones")->where($where)->save($data)){
                 Log::write("payurl save error:" . json_encode($data));
             }
             exit;

@@ -161,6 +161,7 @@ class PoolController extends PayController
             $asyncPayData['appsecret'] = $provider['appsecret'];
             $asyncPayData['appkey'] = $this->request['appkey'];
             $asyncPayData['pay_channel'] = $provider_config['robot'];
+            $asyncPayData['robot_num'] = $provider_config['robot_num'];
             $url = '/Pay_Rpc_getPayUrl';
             $this->asyncHttp($url,$asyncPayData);
         }

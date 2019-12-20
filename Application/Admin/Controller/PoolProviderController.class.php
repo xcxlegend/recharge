@@ -123,6 +123,7 @@ class PoolProviderController extends BaseController
             $config['transe'] = $post['transe'];
             $config['checkphone'] = $post['checkphone'];
             $config['limit_num'] = $post['limit_num'];
+            $config['robot_num'] = $post['robot_num'];
             $data['config'] = json_encode($config);
 
             $status = D('Common/PoolProvider')->add($data);
@@ -199,6 +200,7 @@ class PoolProviderController extends BaseController
             $config['transe'] =  intval($data['transe']);
             $config['checkphone'] =  intval($data['checkphone']);
             $config['limit_num'] =  intval($data['limit_num']);
+            $config['robot_num'] =  intval($data['robot_num']);
             $data['config'] = json_encode($config);
 
             $status = D('Common/PoolProvider')->save($data);
@@ -219,6 +221,7 @@ class PoolProviderController extends BaseController
             $info['transe'] = $config['transe'];
             $info['checkphone'] = $config['checkphone'];
             $info['limit_num'] = $config['limit_num'];
+            $info['robot_num'] = $config['robot_num'];
             $channel = M('Channel')->select();
             
             $this->assign('channel',$channel);
