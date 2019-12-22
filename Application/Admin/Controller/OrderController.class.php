@@ -316,123 +316,123 @@ class OrderController extends BaseController
             ->select();
 
         //查询支付成功的订单的手续费，入金费，总额总和
-        $countWhere               = $where;
-        $countWhere['O.pay_status'] = ['between', [1, 2]];
-        $field                    = ['sum(`pay_amount`) pay_amount','sum(`cost`) cost', 'sum(`pay_poundage`) pay_poundage', 'sum(`pay_actualamount`) pay_actualamount', 'count(`id`) success_count'];
-        $sum                      = M('Order')->alias('as O')->field($field)->where($countWhere)->find();
-        $countWhere['O.pay_status'] = 0;
+        // $countWhere               = $where;
+        // $countWhere['O.pay_status'] = ['between', [1, 2]];
+        // $field                    = ['sum(`pay_amount`) pay_amount','sum(`cost`) cost', 'sum(`pay_poundage`) pay_poundage', 'sum(`pay_actualamount`) pay_actualamount', 'count(`id`) success_count'];
+        // $sum                      = M('Order')->alias('as O')->field($field)->where($countWhere)->find();
+        // $countWhere['O.pay_status'] = 0;
         //失败笔数
-        $sum['fail_count'] =  M('Order')->alias('as O')->where($countWhere)->count();
-        //投诉保证金冻结金额
-        $map = $where;
-        $map['C.status'] = 0;
-        $sum['complaints_deposit_freezed'] = M('complaints_deposit')->alias('as C')->join('LEFT JOIN __ORDER__ AS O ON C.pay_orderid=O.pay_orderid')
-            ->where($map)
-            ->sum('freeze_money');
-        $sum['complaints_deposit_freezed'] += 0;
-        $map['C.status'] = 1;
-        $sum['complaints_deposit_unfreezed'] = M('complaints_deposit')->alias('as C')->join('LEFT JOIN __ORDER__ AS O ON C.pay_orderid=O.pay_orderid')
-            ->where($map)
-            ->sum('freeze_money');
-        $sum['complaints_deposit_unfreezed'] += 0;
-        $profitMap['lx'] = 9;
-        $sum['memberprofit'] = M('moneychange')->where($profitMap)->sum('money');
+        // $sum['fail_count'] =  M('Order')->alias('as O')->where($countWhere)->count();
+        // //投诉保证金冻结金额
+        // $map = $where;
+        // $map['C.status'] = 0;
+        // $sum['complaints_deposit_freezed'] = M('complaints_deposit')->alias('as C')->join('LEFT JOIN __ORDER__ AS O ON C.pay_orderid=O.pay_orderid')
+        //     ->where($map)
+        //     ->sum('freeze_money');
+        // $sum['complaints_deposit_freezed'] += 0;
+        // $map['C.status'] = 1;
+        // $sum['complaints_deposit_unfreezed'] = M('complaints_deposit')->alias('as C')->join('LEFT JOIN __ORDER__ AS O ON C.pay_orderid=O.pay_orderid')
+        //     ->where($map)
+        //     ->sum('freeze_money');
+        // $sum['complaints_deposit_unfreezed'] += 0;
+        // $profitMap['lx'] = 9;
+        // $sum['memberprofit'] = M('moneychange')->where($profitMap)->sum('money');
 
-        $sum['pay_poundage'] = $sum['pay_poundage'] - $sum['cost'] - $sum['memberprofit'];//原始
-        foreach ($sum as $k => $v) {
-            $sum[$k] += 0;
-            $sum[$k] = number_format($sum[$k],2,'.','');
-        }
-        //统计订单信息
-        $is_month = true;
-        //下单时间
-        if ($createtime) {
-            $cstartTime = strtotime($cstime);
-            $cendTime   = strtotime($cetime) ? strtotime($cetime) : time();
-            $is_month   = $cendTime - $cstartTime > self::TMT ? true : false;
-        }
-        //支付时间
-        if ($successtime) {
-            $pstartTime = strtotime($sstime);
-            $pendTime   = strtotime($setime) ? strtotime($setime) : time();
-            $is_month   = $pendTime - $pstartTime > self::TMT ? true : false;
-        }
+        // $sum['pay_poundage'] = $sum['pay_poundage'] - $sum['cost'] - $sum['memberprofit'];//原始
+        // foreach ($sum as $k => $v) {
+        //     $sum[$k] += 0;
+        //     $sum[$k] = number_format($sum[$k],2,'.','');
+        // }
+        // //统计订单信息
+        // $is_month = true;
+        // //下单时间
+        // if ($createtime) {
+        //     $cstartTime = strtotime($cstime);
+        //     $cendTime   = strtotime($cetime) ? strtotime($cetime) : time();
+        //     $is_month   = $cendTime - $cstartTime > self::TMT ? true : false;
+        // }
+        // //支付时间
+        // if ($successtime) {
+        //     $pstartTime = strtotime($sstime);
+        //     $pendTime   = strtotime($setime) ? strtotime($setime) : time();
+        //     $is_month   = $pendTime - $pstartTime > self::TMT ? true : false;
+        // }
 
-        $time       = $successtime ? 'pay_successdate' : 'pay_applydate';
-        $dateFormat = $is_month ? '%Y年-%m月' : '%Y年-%m月-%d日';
-        $field      = "FROM_UNIXTIME(" . $time . ",'" . $dateFormat . "') AS date,SUM(pay_amount) AS amount,SUM(pay_poundage) AS rate,SUM(pay_actualamount) AS total";
-        $_mdata     = M('Order')->alias('as O')->field($field)->where($where)->group('date')->select();
-        $mdata      = [];
-        foreach ($_mdata as $item) {
-            $mdata['amount'][] = $item['amount'] ? $item['amount'] : 0;
-            $mdata['mdate'][]  = "'" . $item['date'] . "'";
-            $mdata['total'][]  = $item['total'] ? $item['total'] : 0;
-            $mdata['rate'][]   = $item['rate'] ? $item['rate'] : 0;
-        }
-        if ($status == '1or2' || $status == 1 || $status == 2) {
-            //今日成功交易总额
-            $todayBegin = date('Y-m-d').' 00:00:00';
-            $todyEnd = date('Y-m-d').' 23:59:59';
-            $todaysumMap['pay_successdate'] = ['between', [strtotime($todayBegin), strtotime($todyEnd)]];
-            $todaysumMap['pay_status'] = ['in', '1,2'];
-            $stat['todaysum'] = M('Order')->where($todaysumMap)->sum('pay_amount');
+        // $time       = $successtime ? 'pay_successdate' : 'pay_applydate';
+        // $dateFormat = $is_month ? '%Y年-%m月' : '%Y年-%m月-%d日';
+        // $field      = "FROM_UNIXTIME(" . $time . ",'" . $dateFormat . "') AS date,SUM(pay_amount) AS amount,SUM(pay_poundage) AS rate,SUM(pay_actualamount) AS total";
+        // $_mdata     = M('Order')->alias('as O')->field($field)->where($where)->group('date')->select();
+        // $mdata      = [];
+        // foreach ($_mdata as $item) {
+        //     $mdata['amount'][] = $item['amount'] ? $item['amount'] : 0;
+        //     $mdata['mdate'][]  = "'" . $item['date'] . "'";
+        //     $mdata['total'][]  = $item['total'] ? $item['total'] : 0;
+        //     $mdata['rate'][]   = $item['rate'] ? $item['rate'] : 0;
+        // }
+        // if ($status == '1or2' || $status == 1 || $status == 2) {
+        //     //今日成功交易总额
+        //     $todayBegin = date('Y-m-d').' 00:00:00';
+        //     $todyEnd = date('Y-m-d').' 23:59:59';
+        //     $todaysumMap['pay_successdate'] = ['between', [strtotime($todayBegin), strtotime($todyEnd)]];
+        //     $todaysumMap['pay_status'] = ['in', '1,2'];
+        //     $stat['todaysum'] = M('Order')->where($todaysumMap)->sum('pay_amount');
 
-            //平台收入
-            $pay_poundage = M('Order')->where($todaysumMap)->sum('pay_poundage');
-            $profitSumMap['datetime'] = ['between', [$todayBegin, $todyEnd]];
-            $profitSumMap['lx'] = 9;
-            $profitSum = M('moneychange')->where($profitSumMap)->sum('money');
-            $order_cost = M('Order')->where($todaysumMap)->sum('cost');
-            $stat['platform'] = $pay_poundage - $order_cost - $profitSum;
-            //代理收入
-            $stat['agentIncome'] = $profitSum;
+        //     //平台收入
+        //     $pay_poundage = M('Order')->where($todaysumMap)->sum('pay_poundage');
+        //     $profitSumMap['datetime'] = ['between', [$todayBegin, $todyEnd]];
+        //     $profitSumMap['lx'] = 9;
+        //     $profitSum = M('moneychange')->where($profitSumMap)->sum('money');
+        //     $order_cost = M('Order')->where($todaysumMap)->sum('cost');
+        //     $stat['platform'] = $pay_poundage - $order_cost - $profitSum;
+        //     //代理收入
+        //     $stat['agentIncome'] = $profitSum;
 
-            //本月成功交易总额
-            $monthBegin = date('Y-m-01').' 00:00:00';
-            $monthsumMap['pay_successdate'] = ['egt', strtotime($monthBegin)];
-            $monthsumMap['pay_status'] = ['in', '1,2'];
-            $stat['monthsum'] = M('Order')->where($monthsumMap)->sum('pay_amount');
+        //     //本月成功交易总额
+        //     $monthBegin = date('Y-m-01').' 00:00:00';
+        //     $monthsumMap['pay_successdate'] = ['egt', strtotime($monthBegin)];
+        //     $monthsumMap['pay_status'] = ['in', '1,2'];
+        //     $stat['monthsum'] = M('Order')->where($monthsumMap)->sum('pay_amount');
 
-            //本月平台收入
-            $pay_poundage = M('Order')->where($monthsumMap)->sum('pay_poundage');
-            $profitSumMap['datetime'] = ['egt', $monthBegin];
-            $profitSumMap['lx'] = 9;
-            $profitSum = M('moneychange')->where($profitSumMap)->sum('money');
-            $order_cost = M('Order')->where($monthsumMap)->sum('cost');
-            $stat['monthPlatform'] = $pay_poundage - $order_cost - $profitSum;
-            //代理收入
-            $stat['monthAgentIncome'] = $profitSum;
+        //     //本月平台收入
+        //     $pay_poundage = M('Order')->where($monthsumMap)->sum('pay_poundage');
+        //     $profitSumMap['datetime'] = ['egt', $monthBegin];
+        //     $profitSumMap['lx'] = 9;
+        //     $profitSum = M('moneychange')->where($profitSumMap)->sum('money');
+        //     $order_cost = M('Order')->where($monthsumMap)->sum('cost');
+        //     $stat['monthPlatform'] = $pay_poundage - $order_cost - $profitSum;
+        //     //代理收入
+        //     $stat['monthAgentIncome'] = $profitSum;
 
-            if($status == 1) {
-                $nopaidsumMap['pay_applydate'] = ['between', [strtotime($todayBegin), strtotime($todyEnd)]];
-                $nopaidsumMap['pay_status'] = 1;
-                //今日异常订单总额
-                $stat['todaynopaidsum'] = M('Order')->where($nopaidsumMap)->sum('pay_amount');
-                //今日异常订单笔数
-                $stat['todaynopaidcount'] = M('Order')->where($nopaidsumMap)->count();
+        //     if($status == 1) {
+        //         $nopaidsumMap['pay_applydate'] = ['between', [strtotime($todayBegin), strtotime($todyEnd)]];
+        //         $nopaidsumMap['pay_status'] = 1;
+        //         //今日异常订单总额
+        //         $stat['todaynopaidsum'] = M('Order')->where($nopaidsumMap)->sum('pay_amount');
+        //         //今日异常订单笔数
+        //         $stat['todaynopaidcount'] = M('Order')->where($nopaidsumMap)->count();
 
-                $monthNopaidsumMap['pay_applydate'] = ['egt', strtotime($todayBegin)];
-                $monthNopaidsumMap['pay_status'] = 1;
-                //本月异常订单总额
-                $stat['monthNopaidsum'] = M('Order')->where($monthNopaidsumMap)->sum('pay_amount');
-                //本月异常订单笔数
-                $stat['monthNopaidcount'] = M('Order')->where($monthNopaidsumMap)->count();
-            }
-        } elseif($status == 0) {
-            //今日未支付订单总额
-            $todayBegin = date('Y-m-d').' 00:00:00';
-            $todyEnd = date('Y-m-d').' 23:59:59';
-            $monthBegin = date('Y-m-01').' 00:00:00';
-            $stat['todaynopaidsum'] = M('Order')->where(['pay_applydate'=>['between', [strtotime($todayBegin), strtotime($todyEnd)]], 'pay_status'=>0])->sum('pay_amount');
-            $stat['monthNopaidsum'] = M('Order')->where(['pay_applydate'=>['egt', strtotime($monthBegin)], 'pay_status'=>0])->sum('pay_amount');
-            $nopaidMap = $where;
-            $nopaidMap['pay_status'] = 0;
-            $stat['totalnopaidsum'] = M('Order')->alias('as O')->where($nopaidMap)->sum('pay_amount');
-        }
-        foreach($stat as $k => $v) {
-            $stat[$k] = $v+0;
-            $stat[$k] = number_format($stat[$k],2,'.','');
-        }
+        //         $monthNopaidsumMap['pay_applydate'] = ['egt', strtotime($todayBegin)];
+        //         $monthNopaidsumMap['pay_status'] = 1;
+        //         //本月异常订单总额
+        //         $stat['monthNopaidsum'] = M('Order')->where($monthNopaidsumMap)->sum('pay_amount');
+        //         //本月异常订单笔数
+        //         $stat['monthNopaidcount'] = M('Order')->where($monthNopaidsumMap)->count();
+        //     }
+        // } elseif($status == 0) {
+        //     //今日未支付订单总额
+        //     $todayBegin = date('Y-m-d').' 00:00:00';
+        //     $todyEnd = date('Y-m-d').' 23:59:59';
+        //     $monthBegin = date('Y-m-01').' 00:00:00';
+        //     $stat['todaynopaidsum'] = M('Order')->where(['pay_applydate'=>['between', [strtotime($todayBegin), strtotime($todyEnd)]], 'pay_status'=>0])->sum('pay_amount');
+        //     $stat['monthNopaidsum'] = M('Order')->where(['pay_applydate'=>['egt', strtotime($monthBegin)], 'pay_status'=>0])->sum('pay_amount');
+        //     $nopaidMap = $where;
+        //     $nopaidMap['pay_status'] = 0;
+        //     $stat['totalnopaidsum'] = M('Order')->alias('as O')->where($nopaidMap)->sum('pay_amount');
+        // }
+        // foreach($stat as $k => $v) {
+        //     $stat[$k] = $v+0;
+        //     $stat[$k] = number_format($stat[$k],2,'.','');
+        // }
         $this->assign('stat', $stat);
         $this->assign('rows', $rows);
         $this->assign("list", $list);

@@ -38,32 +38,32 @@ class IndexController extends BaseController
                 ],
             ],
         ];
-        $ddata = M('Order')
-            ->field([
-                'sum(`pay_amount`) amount',
-                'sum(`pay_poundage`) rate',
-                'sum(`pay_actualamount`) total',
-            ])->where($orderWhere)
-            ->find();
+        // $ddata = M('Order')
+        //     ->field([
+        //         'sum(`pay_amount`) amount',
+        //         'sum(`pay_poundage`) rate',
+        //         'sum(`pay_actualamount`) total',
+        //     ])->where($orderWhere)
+        //     ->find();
 
-        $ddata['num'] = M('Order')->where($orderWhere)->count();
+        // $ddata['num'] = M('Order')->where($orderWhere)->count();
 
         //7天统计
-        $lastweek = time() - 7 * 86400;
-        $sql      = "select COUNT(id) as num,SUM(pay_amount) AS amount,SUM(pay_poundage) AS rate,SUM(pay_actualamount) AS total from pay_order where  1=1 and pay_status>=1 and DATE_SUB(CURDATE(), INTERVAL 7 DAY) <= date(FROM_UNIXTIME(pay_successdate,'%Y-%m-%d')) and pay_successdate>=$lastweek; ";
-        $wdata    = M('Order')->query($sql);
+        // $lastweek = time() - 7 * 86400;
+        // $sql      = "select COUNT(id) as num,SUM(pay_amount) AS amount,SUM(pay_poundage) AS rate,SUM(pay_actualamount) AS total from pay_order where  1=1 and pay_status>=1 and DATE_SUB(CURDATE(), INTERVAL 7 DAY) <= date(FROM_UNIXTIME(pay_successdate,'%Y-%m-%d')) and pay_successdate>=$lastweek; ";
+        // $wdata    = M('Order')->query($sql);
 
         //按月统计
-        $lastyear = strtotime(date('Y-1-1'));
-        $sql      = "select FROM_UNIXTIME(pay_successdate,'%Y年-%m月') AS month,SUM(pay_amount) AS amount,SUM(pay_poundage) AS rate,SUM(pay_actualamount) AS total from pay_order where  1=1 and pay_status>=1 and pay_successdate>=$lastyear GROUP BY month;  ";
-        $_mdata   = M('Order')->query($sql);
-        $mdata    = [];
-        foreach ($_mdata as $item) {
-            $mdata['amount'][] = $item['amount'] ? $item['amount'] : 0;
-            $mdata['mdate'][]  = "'" . $item['month'] . "'";
-            $mdata['total'][]  = $item['total'] ? $item['total'] : 0;
-            $mdata['rate'][]   = $item['rate'] ? $item['rate'] : 0;
-        }
+        // $lastyear = strtotime(date('Y-1-1'));
+        // $sql      = "select FROM_UNIXTIME(pay_successdate,'%Y年-%m月') AS month,SUM(pay_amount) AS amount,SUM(pay_poundage) AS rate,SUM(pay_actualamount) AS total from pay_order where  1=1 and pay_status>=1 and pay_successdate>=$lastyear GROUP BY month;  ";
+        // $_mdata   = M('Order')->query($sql);
+        // $mdata    = [];
+        // foreach ($_mdata as $item) {
+        //     $mdata['amount'][] = $item['amount'] ? $item['amount'] : 0;
+        //     $mdata['mdate'][]  = "'" . $item['month'] . "'";
+        //     $mdata['total'][]  = $item['total'] ? $item['total'] : 0;
+        //     $mdata['rate'][]   = $item['rate'] ? $item['rate'] : 0;
+        // }
         //平台总入金
         $stat['allordersum'] = M('Order')->where(['pay_status'=>['in', '1,2']])->sum('pay_amount');
         //商户总分成
