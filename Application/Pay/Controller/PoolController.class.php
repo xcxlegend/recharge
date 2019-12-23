@@ -85,11 +85,14 @@ class PoolController extends PayController
 
 
         if ($provider_config['limit_num'] >= 0) {
-            if($provider_config['transe']==0 && $phone_num > $provider_config['limit_num'] && $provider_config['limit_num']!=0){
-                $this->result_error("号码超出库存", true);
-            }else{
-                $isTrans = true;
-            }     
+            if($provider_config['limit_num'] == 0 || $phone_num > $provider_config['limit_num']){
+                if($provider_config['transe']==0){
+                    $this->result_error("号码超出库存", true);
+                }else{
+                    $isTrans = true;
+                }
+                
+            }   
         }
 
         $signArray = [
