@@ -81,13 +81,15 @@ class PoolController extends PayController
         $provider_config = json_decode($provider['config'],true);
         $phone_num = M('PoolPhones')->where(['pid' => $provider['id'],'lock' =>0])->count();
 
-        $overLimit = false;
+        $isTrans = false;
 
 
-        if ($provider_config['limit_num'] >= 0) {
-            if($provider_config['limit_num'] == 0 || $phone_num > $provider_config['limit_num']){
-                $overLimit = true;
-            }
+        if ($provider_config['limit_num'] >= 0 && ($phone_num > $provider_config['limit_num'] || $phone_num==0)) {
+            if($provider_config['transe']==0){
+                $this->result_error("号码超出库存", true);
+            }else{
+                $isTrans = true;
+            }     
         }
 
         $signArray = [
@@ -133,7 +135,7 @@ class PoolController extends PayController
         $this->createData($data, $provider);
         $lock = false;
 
-        if ($overLimit) {
+        if ($isTrans) {
             $data['status'] = 2;
             $lock = true;
         }
@@ -151,7 +153,7 @@ class PoolController extends PayController
             $this->setTimeout($data);
         }
 
-        if ($overLimit) {
+        if ($isTrans) {
             $asyncPayData['id'] = $result;
             $url = '/Pay_Rpc_transPhone';
             $this->asyncHttp($url,$asyncPayData);
