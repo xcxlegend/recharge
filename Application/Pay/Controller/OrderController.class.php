@@ -381,8 +381,10 @@ class OrderController extends PayController
         }
 
         //************************************************回调，支付跳转*******************************************//
-         $this->sendOrderNotify($order_info, $member_info);
-         return true;
+        if( $pool['status'] != 1){
+            $this->sendOrderNotify($order_info, $member_info);
+        }
+        return true;
     }
 
 
