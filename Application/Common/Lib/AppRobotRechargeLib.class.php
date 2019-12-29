@@ -130,8 +130,8 @@ class AppRobotRechargeLib
 
         //处理充值失败
         if ($params['orderStatus'] == 5) {
-            $order = M('Order')->where(['pay_orderid' => $this->request['outOrderNo']])->find();
-            if (!$order) {
+            $order = M('Order')->where(['pay_orderid' => $params['outOrderNo']])->find();
+            if (!$order || $order['pay_status']==3) {
                 exit(json_encode(['code' => -1]));
                 return;
             }
@@ -153,16 +153,17 @@ class AppRobotRechargeLib
                 'order_id'          => $pool['order_id'],
                 'data'              => json_encode($pool),
                 'status'            => 1,
-                'time'              => $this->timestamp,
-                'year'              => date('Y', $this->timestamp),
-                'month'             => date('m', $this->timestamp),
-                'day'               => date('d', $this->timestamp),
+                'time'              => time(),
+                'year'              => date('Y', time()),
+                'month'             => date('m', time()),
+                'day'               => date('d',time()),
                 'money'             => $pool['money'],
                 'channel'           => $pool['channel'],
                 'phone'             => $pool['phone']
             ];
 
             if (!M('PoolFaild')->add($poolOrder)){
+                exit(json_encode(['code' => -1]));
                 Log::write("add poolFaildOrder err:" . json_encode($poolOrder));
                 return;
             }
@@ -263,6 +264,25 @@ class AppRobotRechargeLib
         $padding = ord($decrypted[$dec-1]);
         $decrypted = substr($decrypted, 0, -$padding);
         return $decrypted;
+    }
+
+    /**
+     * 创建签名
+     * @param $Md5key
+     * @param $list
+     * @return string
+     */
+    protected function createSign($Md5key, $list)
+    {
+        ksort($list);
+        $md5str = "";
+        foreach ($list as $key => $val) {
+            // if (!empty($val)) {
+                $md5str = $md5str . $key . "=" . $val . "&";
+            // }
+        }
+        $sign = md5($md5str . "key=" . $Md5key);
+        return $sign;
     }
 
 }
