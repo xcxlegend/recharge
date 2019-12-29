@@ -128,6 +128,86 @@ class AppRobotRechargeLib
 
         Log::write('notify data:'.json_encode($params), Log::WARN);
 
+        //处理充值失败
+        if ($params['orderStatus'] == 5) {
+            $order = M('Order')->where(['pay_orderid' => $this->request['outOrderNo']])->find();
+            if (!$order) {
+                exit(json_encode(['code' => -1]));
+                return;
+            }
+            M('Order')->where(['id' => $order['id']])->save([
+                'pay_status' => 3,
+                'pay_successdate' => time(),
+            ]);
+
+
+            $pool = M('PoolPhones')->where(['id' => $order['pool_phone_id']])->find();
+            $trans_id = $params['serialNo'];
+
+            $provider = M('PoolProvider')->where(['id' => $pool['pid']])->find();
+
+            $poolOrder = [
+                'pool_id'           => $pool['id'],
+                'pid'               => $pool['pid'],
+                'out_trade_id'      => $pool['out_trade_id'],
+                'order_id'          => $pool['order_id'],
+                'data'              => json_encode($pool),
+                'status'            => 1,
+                'time'              => $this->timestamp,
+                'year'              => date('Y', $this->timestamp),
+                'month'             => date('m', $this->timestamp),
+                'day'               => date('d', $this->timestamp),
+                'money'             => $pool['money'],
+                'channel'           => $pool['channel'],
+                'phone'             => $pool['phone']
+            ];
+
+            if (!M('PoolFaild')->add($poolOrder)){
+                Log::write("add poolFaildOrder err:" . json_encode($poolOrder));
+                return;
+            }
+
+            //商户通知
+            // $params = [ // 返回字段
+            //     "memberid" => $order["pay_memberid"], // 商户ID
+            //     "orderid" => $order['out_trade_id'], // 订单号
+            //     'transaction_id' => $order["pay_orderid"], //支付流水号
+            //     "amount" => intval($order["pay_amount"] * 100), // 交易金额
+            //     "datetime" => date("YmdHis", $order['pay_successdate']), // 交易时间
+            //     "status" => -1, // 交易状态
+            // ];
+
+            // $member_info = M('Member')->where(['id' => $order['pay_memberid']])->find();
+            // $sign = $this->createSign($member_info['apikey'], $params);
+            // $params["sign"] = $sign;
+            // $params["attach"] = $order["attach"];
+    
+            // $contents = sendForm($order['pay_notifyurl'], $params);
+    
+            // Log::write("order notify faild: " . $order["id"] . " url: " . $order["pay_notifyurl"] . '?' . http_build_query($params) . " resp: " . $contents . '|' .json_encode($member_info));
+            
+
+            //号码商通知
+            $params = [
+                'appkey'        => $provider['appkey'],
+                'phone'         => $pool['phone'],
+                'money'         => intval($pool['money'] * 100),
+                'out_trade_id'  => $pool['out_trade_id'],
+                'status'        => -2,
+            ];
+    
+            $sign = $this->createSign($provider['appsecret'], $params);
+            $params["sign"] = $sign;
+            $params['trans_id'] = $trans_id;
+    
+            $contents = sendForm($pool['notify_url'], $params);
+    
+            Log::write(" pool notify faild: ". $order["pay_orderid"] . " url: " . $pool["notify_url"] . http_build_query($params) . " resp: " . $contents);
+
+            M('PoolPhones')->where(['id' => $pool['id']])->delete();
+            exit(json_encode(['code' => 0]));
+        }
+
         if ($params['orderStatus'] != 3) {
             return false;
         }
