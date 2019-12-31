@@ -225,7 +225,7 @@ class AppRobotRechargeLib
             return false;
         }
 
-        return ['pay_no'=>$this->decrypt($request['data']['serialNo']),'pay_url'=>$this->decrypt($request['data']['payUrl'])];
+        return ['pay_no'=>$this->decrypt($request['serialNo']),'pay_url'=>$this->decrypt($request['payUrl'])];
     }
 
     public static function notify_ok(array $request){
