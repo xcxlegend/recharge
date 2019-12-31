@@ -88,6 +88,17 @@ class ChannelManagerLib
         // return false;
     }
 
+    static public function notifyUrl( $method, $request ) {
+
+        $class = self::create($method);
+        if  (!$class){
+            throw new Exception("渠道方式接口错误不存在 new");
+            return false;
+        }
+        return $class->notify_url( $request );
+
+    }
+
     static public function notifyOK( $method ) {
         $class = self::create($method);
         return $class->notify_ok();

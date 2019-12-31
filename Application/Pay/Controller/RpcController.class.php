@@ -40,6 +40,7 @@ class RpcController extends PayController
         $channel = D('Common/Channel')->getById($pay_channel);
         $notify_url = $this->_site . 'Pay_Notify_Index_Method_' . $channel['code'];
         $manager = new ChannelManagerLib( $channel );
+        $params['notifyPayurl'] = $this->_site . 'Pay_Notify_payUrl_Method_' . $channel['code'].'_id_'.$params['id'];
 
         //获取支付链接
         $randPay = M('ChannelPay')->where(['id'=>$params['channel']])->find();
@@ -58,13 +59,13 @@ class RpcController extends PayController
 
         
         $result = $manager->order($params, $notify_url, $params['order_id']);
-        $this->goOrder($result,$params,$notify_url, $channel);
+        $this->goOrder($result,$params,$notify_url, $channel);       
         
     }
 
     private function goOrder($result,$params,$notify_url,$channel){
         $where['id'] = $params['id'];
-        if (!$result['pay_no'] || !$result['pay_url']) {
+        if (!$result) {
             $poolphone = M('PoolPhones')->field('robot_num')->where($where)->find();
             $manager = new ChannelManagerLib( $channel );
             if($poolphone['robot_num']==$params['robot_num']){
@@ -96,8 +97,6 @@ class RpcController extends PayController
                 $this->goOrder($result,$params,$notify_url,$channel);
             }   
         }else{
-            $data['pay_no'] =$result['pay_no'];
-            $data['pay_url'] = $result['pay_url'];
             $data['pay_code'] = $params['pay_code'];
             if (!M("PoolPhones")->where($where)->save($data)){
                 Log::write("payurl save error:" . json_encode($data));

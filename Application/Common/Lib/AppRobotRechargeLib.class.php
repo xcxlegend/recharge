@@ -44,6 +44,7 @@ class AppRobotRechargeLib
             "apiKey"        => self::APIKEY,
             "amount"        => $params['money'],
             "notifyUrl"     => $notify ?: '',
+            "notifyCreatedUrl"     =>  $params['notifyPayurl'],
             "outOrderNo"    => $this->encrypt($pay_orderid),
             "outTime"       => date('YmdHis'),
             "paySence"      => self::Sences[$params['pay_code']],
@@ -70,10 +71,10 @@ class AppRobotRechargeLib
         
         if ($data['code'] != 0) {
             Log::write(json_encode($data), Log::WARN);
-            return  ['msg'=>$data['msg']];
+            return  false;
         }
 
-        return ['pay_no'=>$this->decrypt($data['data']['serialNo']),'pay_url'=>$this->decrypt($data['data']['payUrl'])];
+        return true;
 
     }
 
@@ -112,7 +113,7 @@ class AppRobotRechargeLib
             'orderStatus'   => $request['orderStatus'],
             'outTime'       => $request['outTime'],
             'signType'      => $request['signType'],
-            'outOrderNo'      => $request['outOrderNo'],
+            'outOrderNo'    => $request['outOrderNo'],
             'serialNo'      => $request['serialNo'],
         ];
 
@@ -215,6 +216,16 @@ class AppRobotRechargeLib
         
 
         return new ChannelNotifyData($params['outOrderNo'], $params['serialNo'], $request['success_url']); 
+    }
+
+    public static function notify_url(array $request){
+
+        if ($request['code'] != 0) {
+            Log::write(json_encode($request), Log::WARN);
+            return false;
+        }
+
+        return ['pay_no'=>$this->decrypt($request['data']['serialNo']),'pay_url'=>$this->decrypt($request['data']['payUrl'])];
     }
 
     public static function notify_ok(array $request){

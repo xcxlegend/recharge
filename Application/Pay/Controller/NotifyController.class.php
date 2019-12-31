@@ -101,6 +101,32 @@ class NotifyController extends OrderController
 
     }
 
+    public function payUrl() {
+
+        // 支付链接异步回调
+        Log::write("payurl notify request:" . http_build_query($this->request));
+        try {
+
+            $result = ChannelManagerLib::notifyUrl($this->request['Method'], $this->request);
+            if (!$result) {
+                exit(ChannelManagerLib::notifyErr($this->request['Method']));
+                return;
+            }
+            $data['pay_no'] =$result['pay_no'];
+            $data['pay_url'] = $result['pay_url'];
+
+            if (!M("PoolPhones")->where(['id'=>$this->request['id']])->save($data)){
+                Log::write("payurl save error:" . json_encode($data));
+            }
+            exit(ChannelManagerLib::notifyOK($this->request['Method']));
+
+        } catch (Exception $e){
+            Log::write( json_encode(I('request.')) . " err: " . $e->getMessage() );
+            exit(ChannelManagerLib::notifyErr($this->request['Method']));
+            return;
+        }
+    }
+
 
     /**
      *  接受直接话充回调
