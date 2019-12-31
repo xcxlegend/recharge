@@ -218,7 +218,7 @@ class AppRobotRechargeLib
         return new ChannelNotifyData($params['outOrderNo'], $params['serialNo'], $request['success_url']); 
     }
 
-    public static function notify_url(array $request){
+    public function notify_url(array $request){
 
         if ($request['code'] != 0) {
             Log::write(json_encode($request), Log::WARN);
