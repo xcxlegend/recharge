@@ -1,0 +1,105 @@
+<include file="Public/header"/>
+<style>
+    .wrapper-content {
+    padding: 0px;
+}
+.wrapper {
+    padding: 0;
+}
+</style>
+<form class="layui-form" style="width:280px;margin:10px auto;" action="" method="get" autocomplete="off" id="sform" style="<{$param['phone'] ? 'display:none':''}>">
+
+        <div class="layui-inline">
+            <div class="layui-input-inline">
+                <input type="text" name="phone" autocomplete="off" placeholder="请输入手机号"
+                        class="layui-input" value="<{$param.phone}>">
+            </div>
+            
+            <div class="layui-input-inline">
+                <button onclick="$('#export').val(0);$('#sform').submit();" class="layui-btn"><span
+                        class="glyphicon glyphicon-search"></span> 搜索
+                </button>
+                <input type="hidden" id="export" name="export" value="0">
+                <!-- <a onclick="$('#export').val(1);$('#sform').submit();" class="layui-btn layui-btn-danger"><span class="glyphicon glyphicon-export"></span> 导出</a> -->
+            </div>
+
+        </div>
+        </form>
+<div class="row" id="pc">
+    <div class="col-md-12">
+        
+        <div class="ibox float-e-margins">
+            <div class="ibox-content" style="padding:50px;text-align: center;">
+                
+
+                    <style>
+                        .layui-table{margin: 0px;}
+                        .layui-table th{background-color:#f7f7f7;border: 0;text-align: center}
+                        .layui-table td{line-height: 200%;text-align: center;border: 1px solid #e5e5e5;}
+                    </style>
+
+                    <div style="border: solid 1px #e5e5e5;width:780px;margin:0 auto;">
+                    <table class="layui-table" >
+                        <thead>
+                        <tr>
+                            <th width="120px">订单生成时间</th>
+                            <th width="200px">订单号</th>
+                            <th width="100px">充值号码</th>
+                            <th width="100px">到账金额</th>
+                            <th width="150px">所有状态<span class="fa down"></span></th>
+
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <volist name="list" id="v">
+                            <tr>
+                                <td style="border-left:0;"><{$v.time|date='Y-m-d',###}></td>
+                                <td><{$v.order_id}></td>
+                                <td><{$v.phone}></td>
+                                <td><{$v.money|intval}>元</td>
+                                <td><{$v['do_status'] > 0 ? '充值成功':'充值失败'}><br><span style="color:#0e93fd">支付详情</span></td>
+                    
+                            </tr>
+                        </volist>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row zuy-nav" id="mobile">
+    <volist name="list" id="v">
+        <div class="ibox-content" style="margin:0 0 5px 0;">
+            <div class="row" style="padding:10px 20px 15px 20px;font-weight:bold;">
+                <label class="col-xs-6">话费充值产品-<{$v.money|intval}>元</label>
+                <label class="col-xs-6" style="text-align: right;color:#0e93fd"><{$v['do_status'] > 0 ? '订购成功':'订购失败'}></label>
+            </div>
+            <div style="padding:0 20px;line-height: 200%;">
+                    订购时间：<{$v.time|date='Y-m-d H:i:s',###}><br/>
+                    手机号：<{$v.phone}><br/>
+                    支付方式：统一支付话费充值<br/>
+                    支付流水号：<{$v.trade_id}><br/>
+                    产品详情：话费充值产品-<{$v.money|intval}>元<br/>
+            </div>
+        </div>
+    </volist>
+</div>
+<include file="Public/footer"/>
+<script type="text/javascript">
+	function browserRedirect() {
+        var sUserAgent = navigator.userAgent.toLowerCase();
+        if (/ipad|iphone|midp|rv:1.2.3.4|ucweb|android|windows ce|windows mobile/.test(sUserAgent)) {
+            $("#pc").hide();
+            $("#mobile").show();
+        } else {
+            $("#mobile").hide();
+            $("#pc").show();
+        }
+    }
+	browserRedirect(); 
+</script>
+
+</body>
+</html>

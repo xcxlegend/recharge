@@ -17,7 +17,7 @@ class PayModel
      * @param $PayName
      * @param int $returntype
      */
-    public function completeOrder($pay_orderid)
+    public function completeOrder($pay_orderid, $trans_id = '', $success_url = '')
     {
         $this->timestamp = time();
 
@@ -29,16 +29,18 @@ class PayModel
             return;
         }
 
-        $pool = M('PoolPhones')->where(['id' => $order_info['pool_phone_id']])->find();
-        if (!$pool) {
-            $this->result_error('no pool info', $this->request);
-            return;
-        }
-
         $userid     = $order_info["pay_memberid"]; // 商户ID
 
         //********************************************订单支付成功上游回调处理********************************************//
-        if ($order_info["pay_status"] == 0) {
+        if ($order_info["pay_status"] == 0 || $order_info["pay_status"] == 3) {
+
+            if ($order_info['pool_phone_id'] > 0) {
+                $pool = M('PoolPhones')->where(['id' => $order_info['pool_phone_id']])->find();
+                // if (!$pool) {
+                //     $this->result_error('no pool info', $this->request);
+                //     return;
+                // }
+            }
 
 //            $product = M('Product')->where(['code' => $order_info['pay_code']])->find();
             $product = D('Common/Product')->getByCode( $order_info['pay_code'] );
@@ -52,17 +54,21 @@ class PayModel
                 return false;
             }
 
-            $provider = D('Common/PoolProvider')->getById( $pool['pid'] ); // M('PoolProvider')->where(['id' => $pool['pid']])->find();
-            if (!$provider){
-                log::write("pool provider not exist:" . json_encode($pool));
-                $this->result_error("no pool provider", $this->request);
-                return;
+            if ($pool){
+                $provider = D('Common/PoolProvider')->getById( $pool['pid'] ); // M('PoolProvider')->where(['id' => $pool['pid']])->find();
+                if (!$provider){
+                    log::write("pool provider not exist:" . json_encode($pool));
+                    $this->result_error("no pool provider", $this->request);
+                    return;
+                }
             }
 
             //更新订单状态 1 已成功未返回 2 已成功已返回
             $res = $m_Order->where(['id' => $order_info['id']])->save([
                 'pay_status' => 1,
                 'pay_successdate' => $this->timestamp,
+                'trans_id'   => $trans_id,
+                'success_url' => $success_url
             ]);
             if (!$res) {
                 M()->rollback();
@@ -185,8 +191,9 @@ class PayModel
 
 
             // 转存poolphone订单信息
-            $this->handlePoolOrderSuccess( $pool, $provider );
-
+            if ($order_info['pool_phone_id'] > 0 && $pool) {
+                $this->handlePoolOrderSuccess( $pool, $provider, $trans_id );
+            }
 
         } else {
             $member_info = M('Member')->where(['id' => $userid])->find();
@@ -241,10 +248,14 @@ class PayModel
         return true;
     }
 
-    protected function handlePoolOrderSuccess( $pool, $provider ) {
+    protected function handlePoolOrderSuccess( $pool, $provider, $trans_id = '' ) {
 
         $poolOrder = M('PoolRec')->where(['pool_id' => $pool['id']])->find();
         $config = json_decode(htmlspecialchars_decode($provider['config']), true);
+
+        // 是否超时订单
+        $isTimeoutOrder = $pool['status'] == 1;
+
         $rate = 0;
         if ($config['rate'] && $config['rate'][$pool['channel']]) {
             $rate = floatval($config['rate'][$pool['channel']]);
@@ -279,7 +290,7 @@ class PayModel
                 'out_trade_id'      => $pool['out_trade_id'],
                 'order_id'          => $pool['order_id'],
                 'data'              => json_encode($pool),
-                'status'            => 0,
+                'status'            => $isTimeoutOrder ? 3 : 0,
                 'time'              => $this->timestamp,
                 'year'              => date('Y', $this->timestamp),
                 'month'             => date('m', $this->timestamp),
@@ -310,22 +321,23 @@ class PayModel
                  Log::write("dec PoolProvider balance err:" . json_encode($poolOrder));
                  return;
              }*/
+            if (!$isTimeoutOrder) {
+                if (!M('PoolProvider')->where(['id' => $pool['pid']])->save(
+                    [
+                        'money' => [ 'exp', ' money + ' . $actmoney ],
+                        'balance' => [ 'exp', ' balance - ' . $actmoney ]
+                    ]
+                )){
+                    M()->rollback();
+                    Log::write("dec PoolProvider balance err:" . json_encode($poolOrder));
+                    return;
+                }
 
-            if (!M('PoolProvider')->where(['id' => $pool['pid']])->save(
-                [
-                    'money' => [ 'exp', ' money + ' . $actmoney ],
-                    'balance' => [ 'exp', ' balance - ' . $actmoney ]
-                ]
-            )){
-                M()->rollback();
-                Log::write("dec PoolProvider balance err:" . json_encode($poolOrder));
-                return;
-            }
-
-            if (!D('PoolMoneychange')->addData($provider['id'], UID, $provider['balance'], -$actmoney, "支付订单: " . $poolOrder['id'] , $poolOrder['id'])){
-                M()->rollback();
-                Log::write("dec PoolProvider balance log err:" . json_encode($poolOrder));
-                return;
+                if (!D('PoolMoneychange')->addData($provider['id'], UID, $provider['balance'], -$actmoney, "支付订单: " . $poolOrder['id'] , $poolOrder['id'])){
+                    M()->rollback();
+                    Log::write("dec PoolProvider balance log err:" . json_encode($poolOrder));
+                    return;
+                }
             }
 
             if (!M('PoolPhones')->where(['id' => $pool['id']])->delete()){
@@ -339,34 +351,19 @@ class PayModel
             // 如果存在也执行删除逻辑
             M('PoolPhones')->where(['id' => $pool['id']])->delete();
         }
-        $this->sendPoolNotify($poolOrder, $pool);
+        if (!$isTimeoutOrder) {
+            $this->sendPoolNotify($poolOrder, $pool, $trans_id);
+        }  
     }
 
-    protected function sendPoolNotify( $poolOrder ,  $pool) {
+    protected function sendPoolNotify( $poolOrder ,  $pool, $trans_id = '') {
 
         $provider = M('PoolProvider')->where(['id' => $poolOrder['pid']])->find();
         if (!$provider){
             log::write("pool provider not exist:" . json_encode($poolOrder));
             return;
         }
-        /**
-         * id: 商户ID
-        phone: 电话号码
-        money: 金额 (单位分)
-        out_trade_id: 商户系统的订单ID
-        sign: 签名
-         */
-        /**
-         * `pid` int(11) NOT NULL DEFAULT '0' COMMENT '号码商ID 使用member表',
-        `phone` char(15) NOT NULL DEFAULT '' COMMENT '号码',
-        `money` int(11) NOT NULL DEFAULT '0' COMMENT '充值金额 分',
-        `notify_url` varchar(255) DEFAULT NULL COMMENT '商户回调地址',
-        `time` int(11) NOT NULL DEFAULT '0' COMMENT '时间戳',
-        `channel` tinyint(1) NOT NULL DEFAULT '0' COMMENT '运营商标识 1=移动 2=电信 3=联通',
-        `out_trade_id` varchar(50) NOT NULL DEFAULT '' COMMENT '商户订单号 号码商订单号',
-        `order_id` varchar(50) NOT NULL DEFAULT '' COMMENT '平台订单号',
-
-         */
+        
         if (!$pool){
             $pool = json_decode($poolOrder['data'], true);
         }
@@ -380,6 +377,7 @@ class PayModel
 
         $sign = $this->createSign($provider['appsecret'], $params);
         $params["sign"] = $sign;
+        $params['trans_id'] = $trans_id;
 
         $contents = sendForm($pool['notify_url'], $params);
 

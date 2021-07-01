@@ -1,12 +1,11 @@
 <?php
 namespace Pay\Controller;
-use Common\Lib\ChannelOrder;
+use Common\Lib\JsonLogLib;
 use Think\Exception;
 use \Think\Log;
-use Common\Lib\ChannelManagerLib;
+use Common\Lib\IPhoneRechagerLib;
 use Common\Lib\PoolDevLib;
 use Common\Model\RedisCacheModel;
-
 /**
  * Class IndexController
  * @package Pay\Controller
@@ -31,66 +30,65 @@ class IndexController extends OrderController
 
     public function index() {
 
+        $ip = get_client_ip();
+        $white_name = C('USER_WHITE_NAME');
+        if($white_name['status'] && !in_array($ip,$white_name['ip'])){
+            $this->result_error('no auth');
+            return;
+        }
+
         if (!$this->check()) {
             return;
         }
 
         list($msec, $sec) = explode(' ', microtime());
         $pay_orderid = 'MP' . date('YmdHis',$sec) . intval($msec * 10000);
-
-//        $poolLib = new PoolDevLib();
-
-//        $phoneRecharger = 'PhoneRechargeDev';
-
         if (!$this->checkChannel()) {
             return;
         }
-        $notify_url = $this->_site . 'Pay_Notify_Index_Method_' . $this->channel['code'];
-        $manager = new ChannelManagerLib( $this->channel );
-        try{
-            $c_order = $manager->order( I('request.'), $notify_url, $pay_orderid);
 
-            if ($c_order instanceof ChannelOrder) {
+        $matchDo = new PoolDevLib();
+        $poolPhone = $matchDo->query(I('request.'));
 
-                $order = [
-                    'pay_memberid' => $this->member['id'],
-                    'pay_orderid' => $pay_orderid,
-                    'pay_amount' => round($this->request['pay_amount'] / 100, 2),
-                    'pay_applydate' => time(),
-                    'pay_code' => $this->request['pay_bankcode'],
-                    'pay_notifyurl' => $this->request['pay_notifyurl'],
-                    'pay_callbackurl' => $this->request['pay_returnurl'] ?: '',
-                    'pay_status' => 0,
-                    'out_trade_id' => $this->request['pay_orderid'],
-                    'memberid' => $c_order->poolPid,
-                    'attach' => $this->request['pay_attach'],
-                    'pay_productname' => $this->request['pay_productname'],
-                    'pay_url' => $c_order->wapUrl ?: $c_order->qrUrl ?: '',
-                    'pool_phone_id' => $c_order->poolId,
-                    'channel_id' => $this->channel['id'],
-                    'trade_id' => $c_order->tradeID
-                ];
+        if($poolPhone){
+            $order = [
+                'pay_memberid' => $this->member['id'],
+                'pay_orderid' => $poolPhone['order_id'],
+                'pay_amount' => round($this->request['pay_amount'] / 100, 2),
+                'pay_applydate' => time(),
+                'pay_code' => $this->request['pay_bankcode'],
+                'pay_notifyurl' => $this->request['pay_notifyurl'],
+                'pay_callbackurl' => $this->request['pay_returnurl'] ?: '',
+                'pay_status' => 0,
+                'out_trade_id' => $this->request['pay_orderid'],
+                'memberid' =>$poolPhone['pid'],
+                'attach' => $this->request['pay_attach'],
+                'pay_productname' => $this->request['pay_productname'],
+                'pay_url' => $poolPhone['pay_url'],
+                'pool_phone_id' => $poolPhone['id'],
+                'channel_id' => $this->channel['id'],
+                'trade_id' => $poolPhone['pay_no']
+            ];
 
-                if (!$this->orderadd($order, $this->product, $this->channel)) {
-                    throw new Exception("订单保存失败");
-                }
-
-                $resp = [
-                    'orderId' => $pay_orderid,
-                    'orderNo' => $this->request['pay_orderid'],
-                    'url'     => $c_order->wapUrl,
-                    'qr_url'  => $c_order->qrUrl,
-                ];
-                $this->result_success($resp, "创建订单成功");
-                return true;
+            if (!$this->orderadd($order, $this->product, $this->channel)) {
+                throw new Exception("订单保存失败");
             }
-            throw new Exception("支付Lib返回信息错误");
-        } catch(Exception $e){
-            Log::write($e->getMessage());
-            $manager->reset();
-//            $c_order->reset();
-            $this->result_error($e->getMessage());
-//            $this->result_error('订单生成失败');
+
+            D('Admin/OrderStatis')->setStatis($this->member['id'],'order_num');
+            D('Admin/OrderStatis')->setStatis($this->member['id'],'order_money',$order['pay_amount']);
+
+            $resp = [
+                'orderId' => $pay_orderid,
+                'orderNo' => $this->request['pay_orderid'],
+                'url'     => $poolPhone['pay_url'],
+                'qr_url'  => $poolPhone['pay_url'],
+            ];
+            $this->result_success($resp, "创建订单成功");
+            return true;
+
+        } else {
+            //Log::write($e->getMessage());
+            $this->result_error('发起失败，请重试！');
             return;
         }
     }
@@ -423,6 +421,11 @@ class IndexController extends OrderController
             $this->result_error("订单不存在或未支付");
             return;
         }
+
+        if ($order['pay_status'] == 3) {
+            $this->result_error("充值失败");
+            return;
+        }
         
         $this->result_success([
             "time"          => date('Y-m-d H:i:s', $order['pay_successdate']),
@@ -456,6 +459,42 @@ class IndexController extends OrderController
         }
         $params['balance'] = $member['balance'];
         $this->result_success($params);
+    }
+
+    public function test() {
+
+//        $log = [
+//            'request'  => I('request.'),
+//            'response' => ['status' => 0, 'msg' => 'ok'],
+//            'action'   => 'api',
+//            'url'      => 'Pay_Index_test',
+//        ];
+////        JsonLogLib::write($log);
+
+//        $this->log(1, $log);
+      /*  $count = M('PoolPhones')->where([
+            'pid' => ['in', [1]],
+            'lock' => 0,
+            'money' => 10,
+        ])->count();
+        $startId = M('PoolPhones')->where([
+            'pid' => ['in', [1]],
+            'lock' => 0,
+            'money' => 10,
+        ])->limit(1)->getField('id');
+        echo $count;
+        print_r($startId);*/
+//        M()->startTrans();
+//        $pool = M("pool_phones")->where([
+//            'id' => ['in', [1]],
+//            'lock' => 0,
+//            'money' => 10,
+//            'id' => ['gt', 2],
+//        ])->lock(true)->limit(1)->find();
+//        print_r($pool);
+//        sleep(10);
+//        M()->commit();
+        exit("ok");
     }
 
 }

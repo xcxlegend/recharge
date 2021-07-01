@@ -44,14 +44,14 @@ class NotifyController extends OrderController
             $res = ChannelManagerLib::notify($this->request['Method'], $this->request);
             if (!$res) {
 //              exit('err');
-                ChannelManagerLib::notifyErr($this->request['Method']);
+                exit(ChannelManagerLib::notifyOK($this->request['Method']));
                 return;
             }
-            list($pay_orderid, $trans_id) = $res;
+            // list($pay_orderid, $trans_id) = $res;
 
             // $trans_id = $this->request['trade_no'];
 
-            $this->EditMoney($pay_orderid, $trans_id);
+            $this->EditMoney($res->pay_orderid, $res->trans_id, $res->success_url);
 //            exit('success');
             exit(ChannelManagerLib::notifyOK($this->request['Method']));
         } catch (Exception $e){
@@ -99,6 +99,81 @@ class NotifyController extends OrderController
 
 
 
+    }
+
+    public function payUrl() {
+
+        // 支付链接异步回调
+        Log::write("payurl notify request:" . http_build_query($this->request));
+        try {
+
+            $result = ChannelManagerLib::notifyUrl($this->request['Method'], $this->request);
+            if (!$result) {
+                exit(ChannelManagerLib::notifyErr($this->request['Method']));
+                return;
+            }
+            $data['pay_no'] =$result['pay_no'];
+            $data['pay_url'] = $result['pay_url'];
+
+            if (!M("PoolPhones")->where(['id'=>$this->request['id']])->save($data)){
+                Log::write("payurl save error:" . json_encode($data));
+            }
+            exit(ChannelManagerLib::notifyOK($this->request['Method']));
+
+        } catch (Exception $e){
+            Log::write( json_encode(I('request.')) . " err: " . $e->getMessage() );
+            exit(ChannelManagerLib::notifyErr($this->request['Method']));
+            return;
+        }
+    }
+
+
+    /**
+     *  接受直接话充回调
+     */
+    public function phone() {
+        /**
+         *
+            phone: 		电话号码
+            money: 		金额 (单位分)
+            out_trade_id: 	商户系统的订单ID
+            status:		1 表示成功
+         */
+        if (!$this->request['Method']){
+            return $this->result_error('no method');
+        }
+
+        if (
+            !$this->request['phone'] ||
+            !$this->request['money'] ||
+            !$this->request['out_trade_id'] ||
+            !$this->request['status']
+        ) {
+            return $this->result_error('param error');
+        }
+
+        $pool = D('PoolPhones')->where(['order_id' => $this->request['out_trade_id']])->find();
+        if (!$pool) {
+            return $this->result_error('no order');
+        }
+
+        if ($this->request['status'] == 1) {
+            $provider = D('Common/PoolProvider')->getById( $pool['pid'] );
+            if (!$provider) {
+                return $this->result_error('no provider');
+            }
+            $this->handlePoolOrderSuccess($pool, $provider);
+            echo 'ok';
+            // 处理订单 回调号码商
+        } else if ($this->request['status'] == -1) {
+            // 超时回调
+            // 直接超时
+            $this->cache->Client()->zAdd('pool_phone_timeout', time(), $pool['id']);
+            echo 'ok';
+        } else {
+            $this->result_error('unkown status');
+        }
+        return;
     }
 
 

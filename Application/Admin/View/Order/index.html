@@ -68,10 +68,12 @@
               <div class="layui-input-inline">
                 <select name="status">
                   <option value="">全部状态</option>
+                  
                   <option <if condition="$status neq '' && $status eq 0">selected</if> value="0">未处理</option>
                   <option <if condition="$status eq 1">selected</if> value="1">成功，未返回</option>
                   <option <if condition="$status eq 2">selected</if> value="2">成功，已返回</option>
                   <option <if condition="$status eq '1or2'">selected</if> value="1or2">成功，已/未返回</option>
+                  <option <if condition="$status eq 3">selected</if> value="3">充值失败</option>
                 </select>
               </div>
               <div class="layui-input-inline">
@@ -180,10 +182,10 @@
                 <td style="text-align:center; color:#369"><{$vo['pay_status']|status=###}></td>
                 <td>
                     <button  class="layui-btn layui-btn-small" onclick="order_view('系统订单号:<{$vo.pay_orderid}>','<{:U('Admin/Order/show',['oid'=>$vo[id]])}>',400)">订单详情</button>
-                  <eq name="vo.pay_status" value="0">
-                 <button  class="layui-btn layui-btn-small layui-btn-danger" onclick="setOrderPaid('设置订单为已支付','<{:U('Admin/Order/setOrderPaid',['orderid'=>$vo[id]])}>',400)">设置为已支付</button>
-                 <button  class="layui-btn layui-btn-small" onclick="checkOrder(<{$vo['id']}>)">查单</button>
-                  </eq>
+                  <if condition="$vo['pay_status']==0 || $vo['pay_status']==3" >
+                    <button  class="layui-btn layui-btn-small layui-btn-danger" onclick="setOrderPaid('设置订单为已支付','<{:U('Admin/Order/setOrderPaid',['orderid'=>$vo[id]])}>',400)">设置为已支付</button>
+                    <button  class="layui-btn layui-btn-small" onclick="checkOrder(<{$vo['id']}>)">查单</button>
+                  </if>
 
                 <neq name="vo.pay_status" value="0">
                         <if condition="$vo['lock_status']==1">

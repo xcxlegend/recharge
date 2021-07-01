@@ -7,10 +7,12 @@
  */
 
 namespace Pay\Controller;
+use Common\Lib\JsonLogLib;
 use Common\Model\RedisCacheModel;
+use Think\Controller;
+use Think\Log;
 
-
-class PayController
+class PayController 
 {
 
     protected $_site;
@@ -27,12 +29,12 @@ class PayController
     }
 
     protected function result( $data ) {
-        echo json_encode($data);
+        echo json_encode($data, JSON_UNESCAPED_UNICODE);
         exit;
     }
 
 
-    protected function result_error( $info , $with_log = false ) {
+    protected function result_error( $info , $with_log = false) {
         $data = [
             'status'  => "error",
             "message" => $info,
@@ -46,7 +48,9 @@ class PayController
             }
             \Think\Log::write($info . ': ' . $with_log, \Think\Log::WARN);
         }
+        $this->log($data, Log::ERR);
         $this->result($data);
+        return false;
     }
 
     protected function result_success( $param, $info = "ok") {
@@ -55,7 +59,20 @@ class PayController
             'message'   => $info,
             'data'   => $param
         ];
+        $this->log($data);
         $this->result($data);
+        return true;
+    }
+
+
+    protected function log($response, $level = Log::INFO) {
+        $log = [
+            'request'  => $this->request,
+            'response' => $response,
+            'action'   => 'api',
+            'url'      => I('server.REQUEST_URI'),
+        ];
+        JsonLogLib::write($log, $level);
     }
 
 

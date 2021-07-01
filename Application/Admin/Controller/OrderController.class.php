@@ -61,36 +61,67 @@ class OrderController extends BaseController
         
 
         if(!empty($param['export'])){
-            
-            $data = M('Order')->where($where)->order('id DESC')->select();
-            $list = array();
-            foreach ($data as $item) {
-                switch ($item['status']) {
-                    case 0:
-                        $status = '未支付';
-                        break;
-                    case 1:
-                        $status = '已支付，未返回';
-                        break;
-                    case 2:
-                        $status = '已支付，已返回';
-                        break;
-                }
 
-                $list[] = array(
-                    'order_id'    => $item['pay_orderid'],
-                    'trade_id'      => $item['trade_id'],
-                    'out_trade_id'    => $item['out_trade_id'],
-                    'pay_memberid'    => $item['pay_memberid'],
-                    'pay_actualamount'      => $item['pay_actualamount'],
-                    'pay_name'      => $paylist[$item['pay_code']]['name'],
-                    'pay_applydate'      =>date('Y-m-d H:i:s',$item['pay_applydate']),
-                    'pay_successdate'      => date('Y-m-d H:i:s',$item['pay_successdate']),
-                    'status'  => $status,
-                );
-            }
+            set_time_limit(0);
+            header ( "Content-type:application/vnd.ms-excel" );
+            header ( "Content-Disposition:filename=" . iconv ( "UTF-8", "GB18030", "商户订单" ) . ".csv" );
+            
+            $fp = fopen('php://output', 'a'); 
+            
             $title = array('平台订单号', '充值流水号', '商户订单号','商户ID', '金额', '支付方式', '创建时间', '成功时间', '状态');
-            exportexcel($list, $title);
+            foreach ($title as $i => $v) {  
+                $title[$i] = iconv('utf-8', 'GB18030', $v);  
+            }
+
+            fputcsv($fp, $title);
+
+            $count = M('Order')->where($where)->count();
+            $limit = 5000;
+
+            for ($i=0;$i<intval($count/$limit)+1;$i++){
+
+                $data = M('Order')->where($where)->limit(strval($i*$limit).",{$limit}")->order('id DESC')->select();
+
+                foreach ( $data as $item ) {
+                    $rows = array();
+                    switch ($item['status']) {
+                        case 0:
+                            $status = '未支付';
+                            break;
+                        case 1:
+                            $status = '已支付，未返回';
+                            break;
+                        case 2:
+                            $status = '已支付，已返回';
+                            break;
+                        case 3:
+                            $status = '充值失败';
+                            break;
+                    }
+    
+                    $info = array(
+                        'order_id'    => $item['pay_orderid'],
+                        'trade_id'      => $item['trade_id'],
+                        'out_trade_id'    => $item['out_trade_id'],
+                        'pay_memberid'    => $item['pay_memberid'],
+                        'pay_actualamount'      => $item['pay_actualamount'],
+                        'pay_name'      => $paylist[$item['pay_code']]['name'],
+                        'pay_applydate'      =>date('Y-m-d H:i:s',$item['pay_applydate']),
+                        'pay_successdate'      => date('Y-m-d H:i:s',$item['pay_successdate']),
+                        'status'  => $status,
+                    );
+
+                    foreach ($info as $text){
+                        $rows[] = iconv('utf-8', 'GB18030', $text);
+                    }
+                    fputcsv($fp, $rows);
+                }
+                
+                //释放内存
+                unset($data);
+                ob_flush();
+                flush();
+            }
             exit;
             
         }
@@ -99,7 +130,7 @@ class OrderController extends BaseController
 
         $count = M('Order')->where($where)->count();
         $page = new \Think\Page($count, 20);
-        $list = M('Order')->where($where)->limit($page->firstRow, $page->listRows)->select();
+        $list = M('Order')->where($where)->limit($page->firstRow, $page->listRows)->order('id DESC')->select();
         $data = array(
             'list' => $list,
             'page' => $page->show(),
@@ -107,51 +138,77 @@ class OrderController extends BaseController
 
         
 
-        //交易总额
-        $money['total'] = M('Order')->field('sum(`money`) as money')->find();
-        //订单总量
-        $money['total']['count'] = M('Order')->count();
+        // //交易总额
+        // $money['total'] = M('Order')->field('sum(`money`) as money')->find();
+        // //订单总量
+        // $money['total']['count'] = M('Order')->count();
 
-        //上月
-        $smonth = date('Y-m-01 00:00:00',strtotime('-1 month'));
-        $emonth = date("Y-m-d 23:59:59", strtotime(-date('d').'day'));
-        $monthWhere['pay_applydate'] = ['between', [strtotime($smonth), strtotime($emonth)]];
-        $money['month'] = M('Order')->field('sum(`money`) as money')->where($monthWhere)->find();
+        // //上月
+        // $smonth = date('Y-m-01 00:00:00',strtotime('-1 month'));
+        // $emonth = date("Y-m-d 23:59:59", strtotime(-date('d').'day'));
+        // $monthWhere['pay_applydate'] = ['between', [strtotime($smonth), strtotime($emonth)]];
+        // $money['month'] = M('Order')->field('sum(`money`) as money')->where($monthWhere)->find();
 
-        //上周
-        $sWeek =  date("Y-m-d H:i:s",mktime(0, 0 , 0,date("m"),date("d")-date("w")+1-7,date("Y")));
-        $eweek =  date("Y-m-d H:i:s",mktime(23,59,59,date("m"),date("d")-date("w")+7-7,date("Y")));
-        $weekWhere['pay_applydate'] = ['between', [strtotime($sWeek), strtotime($eweek)]];
-        $money['week'] = M('Order')->field('sum(`money`) money')->where($weekWhere)->find();
+        // //上周
+        // $sWeek =  date("Y-m-d H:i:s",mktime(0, 0 , 0,date("m"),date("d")-date("w")+1-7,date("Y")));
+        // $eweek =  date("Y-m-d H:i:s",mktime(23,59,59,date("m"),date("d")-date("w")+7-7,date("Y")));
+        // $weekWhere['pay_applydate'] = ['between', [strtotime($sWeek), strtotime($eweek)]];
+        // $money['week'] = M('Order')->field('sum(`money`) money')->where($weekWhere)->find();
 
-        //今日
-        $stoday = date('Y-m-d 00:00:00');
-        $etoday = date("Y-m-d 23:59:59");
-        $todayWhere['pay_applydate'] = ['between', [strtotime($stoday), strtotime($etoday)]];
-        $money['today'] = M('Order')->field('sum(`money`) as money')->where($todayWhere)->find();
-        //今日订单量
-        $money['today']['count'] = M('Order')->where($todayWhere)->count();
+        // //今日
+        // $stoday = date('Y-m-d 00:00:00');
+        // $etoday = date("Y-m-d 23:59:59");
+        // $todayWhere['pay_applydate'] = ['between', [strtotime($stoday), strtotime($etoday)]];
+        // $money['today'] = M('Order')->field('sum(`money`) as money')->where($todayWhere)->find();
+        // //今日订单量
+        // $money['today']['count'] = M('Order')->where($todayWhere)->count();
 
-        //成功总额
-        $totalWhere['pay_status'] =array('gt',0);
-        $money['success_total'] = M('Order')->field('sum(`money`) as money')->where($totalWhere)->find();
-        //成功订单总量
-        $money['success_total']['count'] = M('Order')->where($totalWhere)->count();
+        // //成功总额
+        // $totalWhere['pay_status'] =array('gt',0);
+        // $money['success_total'] = M('Order')->field('sum(`money`) as money')->where($totalWhere)->find();
+        // //成功订单总量
+        // $money['success_total']['count'] = M('Order')->where($totalWhere)->count();
 
-        //今日成功总额
-        $todayWhere['pay_status'] =array('gt',0);
-        $money['success_today'] = M('Order')->field('sum(`money`) as money')->where($todayWhere)->find();
-        //今日成功总量
-        $money['success_today']['count'] = M('Order')->where($todayWhere)->count();
+        // //今日成功总额
+        // $todayWhere['pay_status'] =array('gt',0);
+        // $money['success_today'] = M('Order')->field('sum(`money`) as money')->where($todayWhere)->find();
+        // //今日成功总量
+        // $money['success_today']['count'] = M('Order')->where($todayWhere)->count();
 
         
 
         $this->assign('paylist', $paylist);
         $this->assign('param', $param);
-        $this->assign('count', $money);
+        // $this->assign('count', $money);
         $this->assign('sp_list', $sp_list);
         $this->assign('list', $data['list']);
         $this->assign('page', $data['page']);
+        $this->display();
+    }
+
+    public function search()
+    {
+        $param = I("get.");
+        if(!empty($param['phone'])){
+            $where['a.phone'] = $param['phone'];
+            $data = D('PoolProviderSuccess')->getList($where);
+            $arr = ['do_status'=>1];
+            array_walk($data['list'], function (&$value, $key, $arr) {
+                $value = array_merge($value, $arr);
+            }, $arr);
+
+            $data1 = D('PoolProviderFaild')->getList($where);
+            foreach ($data1['list'] as $item){
+                $data['list'][] = $item;
+            }
+
+            array_multisort(array_column($data['list'], 'time'), SORT_DESC, $data['list']);
+
+            $this->assign('param', $param);
+            $this->assign('list', $data['list']);
+        }
+        
+
         $this->display();
     }
 
@@ -259,123 +316,123 @@ class OrderController extends BaseController
             ->select();
 
         //查询支付成功的订单的手续费，入金费，总额总和
-        $countWhere               = $where;
-        $countWhere['O.pay_status'] = ['between', [1, 2]];
-        $field                    = ['sum(`pay_amount`) pay_amount','sum(`cost`) cost', 'sum(`pay_poundage`) pay_poundage', 'sum(`pay_actualamount`) pay_actualamount', 'count(`id`) success_count'];
-        $sum                      = M('Order')->alias('as O')->field($field)->where($countWhere)->find();
-        $countWhere['O.pay_status'] = 0;
+        // $countWhere               = $where;
+        // $countWhere['O.pay_status'] = ['between', [1, 2]];
+        // $field                    = ['sum(`pay_amount`) pay_amount','sum(`cost`) cost', 'sum(`pay_poundage`) pay_poundage', 'sum(`pay_actualamount`) pay_actualamount', 'count(`id`) success_count'];
+        // $sum                      = M('Order')->alias('as O')->field($field)->where($countWhere)->find();
+        // $countWhere['O.pay_status'] = 0;
         //失败笔数
-        $sum['fail_count'] =  M('Order')->alias('as O')->where($countWhere)->count();
-        //投诉保证金冻结金额
-        $map = $where;
-        $map['C.status'] = 0;
-        $sum['complaints_deposit_freezed'] = M('complaints_deposit')->alias('as C')->join('LEFT JOIN __ORDER__ AS O ON C.pay_orderid=O.pay_orderid')
-            ->where($map)
-            ->sum('freeze_money');
-        $sum['complaints_deposit_freezed'] += 0;
-        $map['C.status'] = 1;
-        $sum['complaints_deposit_unfreezed'] = M('complaints_deposit')->alias('as C')->join('LEFT JOIN __ORDER__ AS O ON C.pay_orderid=O.pay_orderid')
-            ->where($map)
-            ->sum('freeze_money');
-        $sum['complaints_deposit_unfreezed'] += 0;
-        $profitMap['lx'] = 9;
-        $sum['memberprofit'] = M('moneychange')->where($profitMap)->sum('money');
+        // $sum['fail_count'] =  M('Order')->alias('as O')->where($countWhere)->count();
+        // //投诉保证金冻结金额
+        // $map = $where;
+        // $map['C.status'] = 0;
+        // $sum['complaints_deposit_freezed'] = M('complaints_deposit')->alias('as C')->join('LEFT JOIN __ORDER__ AS O ON C.pay_orderid=O.pay_orderid')
+        //     ->where($map)
+        //     ->sum('freeze_money');
+        // $sum['complaints_deposit_freezed'] += 0;
+        // $map['C.status'] = 1;
+        // $sum['complaints_deposit_unfreezed'] = M('complaints_deposit')->alias('as C')->join('LEFT JOIN __ORDER__ AS O ON C.pay_orderid=O.pay_orderid')
+        //     ->where($map)
+        //     ->sum('freeze_money');
+        // $sum['complaints_deposit_unfreezed'] += 0;
+        // $profitMap['lx'] = 9;
+        // $sum['memberprofit'] = M('moneychange')->where($profitMap)->sum('money');
 
-        $sum['pay_poundage'] = $sum['pay_poundage'] - $sum['cost'] - $sum['memberprofit'];//原始
-        foreach ($sum as $k => $v) {
-            $sum[$k] += 0;
-            $sum[$k] = number_format($sum[$k],2,'.','');
-        }
-        //统计订单信息
-        $is_month = true;
-        //下单时间
-        if ($createtime) {
-            $cstartTime = strtotime($cstime);
-            $cendTime   = strtotime($cetime) ? strtotime($cetime) : time();
-            $is_month   = $cendTime - $cstartTime > self::TMT ? true : false;
-        }
-        //支付时间
-        if ($successtime) {
-            $pstartTime = strtotime($sstime);
-            $pendTime   = strtotime($setime) ? strtotime($setime) : time();
-            $is_month   = $pendTime - $pstartTime > self::TMT ? true : false;
-        }
+        // $sum['pay_poundage'] = $sum['pay_poundage'] - $sum['cost'] - $sum['memberprofit'];//原始
+        // foreach ($sum as $k => $v) {
+        //     $sum[$k] += 0;
+        //     $sum[$k] = number_format($sum[$k],2,'.','');
+        // }
+        // //统计订单信息
+        // $is_month = true;
+        // //下单时间
+        // if ($createtime) {
+        //     $cstartTime = strtotime($cstime);
+        //     $cendTime   = strtotime($cetime) ? strtotime($cetime) : time();
+        //     $is_month   = $cendTime - $cstartTime > self::TMT ? true : false;
+        // }
+        // //支付时间
+        // if ($successtime) {
+        //     $pstartTime = strtotime($sstime);
+        //     $pendTime   = strtotime($setime) ? strtotime($setime) : time();
+        //     $is_month   = $pendTime - $pstartTime > self::TMT ? true : false;
+        // }
 
-        $time       = $successtime ? 'pay_successdate' : 'pay_applydate';
-        $dateFormat = $is_month ? '%Y年-%m月' : '%Y年-%m月-%d日';
-        $field      = "FROM_UNIXTIME(" . $time . ",'" . $dateFormat . "') AS date,SUM(pay_amount) AS amount,SUM(pay_poundage) AS rate,SUM(pay_actualamount) AS total";
-        $_mdata     = M('Order')->alias('as O')->field($field)->where($where)->group('date')->select();
-        $mdata      = [];
-        foreach ($_mdata as $item) {
-            $mdata['amount'][] = $item['amount'] ? $item['amount'] : 0;
-            $mdata['mdate'][]  = "'" . $item['date'] . "'";
-            $mdata['total'][]  = $item['total'] ? $item['total'] : 0;
-            $mdata['rate'][]   = $item['rate'] ? $item['rate'] : 0;
-        }
-        if ($status == '1or2' || $status == 1 || $status == 2) {
-            //今日成功交易总额
-            $todayBegin = date('Y-m-d').' 00:00:00';
-            $todyEnd = date('Y-m-d').' 23:59:59';
-            $todaysumMap['pay_successdate'] = ['between', [strtotime($todayBegin), strtotime($todyEnd)]];
-            $todaysumMap['pay_status'] = ['in', '1,2'];
-            $stat['todaysum'] = M('Order')->where($todaysumMap)->sum('pay_amount');
+        // $time       = $successtime ? 'pay_successdate' : 'pay_applydate';
+        // $dateFormat = $is_month ? '%Y年-%m月' : '%Y年-%m月-%d日';
+        // $field      = "FROM_UNIXTIME(" . $time . ",'" . $dateFormat . "') AS date,SUM(pay_amount) AS amount,SUM(pay_poundage) AS rate,SUM(pay_actualamount) AS total";
+        // $_mdata     = M('Order')->alias('as O')->field($field)->where($where)->group('date')->select();
+        // $mdata      = [];
+        // foreach ($_mdata as $item) {
+        //     $mdata['amount'][] = $item['amount'] ? $item['amount'] : 0;
+        //     $mdata['mdate'][]  = "'" . $item['date'] . "'";
+        //     $mdata['total'][]  = $item['total'] ? $item['total'] : 0;
+        //     $mdata['rate'][]   = $item['rate'] ? $item['rate'] : 0;
+        // }
+        // if ($status == '1or2' || $status == 1 || $status == 2) {
+        //     //今日成功交易总额
+        //     $todayBegin = date('Y-m-d').' 00:00:00';
+        //     $todyEnd = date('Y-m-d').' 23:59:59';
+        //     $todaysumMap['pay_successdate'] = ['between', [strtotime($todayBegin), strtotime($todyEnd)]];
+        //     $todaysumMap['pay_status'] = ['in', '1,2'];
+        //     $stat['todaysum'] = M('Order')->where($todaysumMap)->sum('pay_amount');
 
-            //平台收入
-            $pay_poundage = M('Order')->where($todaysumMap)->sum('pay_poundage');
-            $profitSumMap['datetime'] = ['between', [$todayBegin, $todyEnd]];
-            $profitSumMap['lx'] = 9;
-            $profitSum = M('moneychange')->where($profitSumMap)->sum('money');
-            $order_cost = M('Order')->where($todaysumMap)->sum('cost');
-            $stat['platform'] = $pay_poundage - $order_cost - $profitSum;
-            //代理收入
-            $stat['agentIncome'] = $profitSum;
+        //     //平台收入
+        //     $pay_poundage = M('Order')->where($todaysumMap)->sum('pay_poundage');
+        //     $profitSumMap['datetime'] = ['between', [$todayBegin, $todyEnd]];
+        //     $profitSumMap['lx'] = 9;
+        //     $profitSum = M('moneychange')->where($profitSumMap)->sum('money');
+        //     $order_cost = M('Order')->where($todaysumMap)->sum('cost');
+        //     $stat['platform'] = $pay_poundage - $order_cost - $profitSum;
+        //     //代理收入
+        //     $stat['agentIncome'] = $profitSum;
 
-            //本月成功交易总额
-            $monthBegin = date('Y-m-01').' 00:00:00';
-            $monthsumMap['pay_successdate'] = ['egt', strtotime($monthBegin)];
-            $monthsumMap['pay_status'] = ['in', '1,2'];
-            $stat['monthsum'] = M('Order')->where($monthsumMap)->sum('pay_amount');
+        //     //本月成功交易总额
+        //     $monthBegin = date('Y-m-01').' 00:00:00';
+        //     $monthsumMap['pay_successdate'] = ['egt', strtotime($monthBegin)];
+        //     $monthsumMap['pay_status'] = ['in', '1,2'];
+        //     $stat['monthsum'] = M('Order')->where($monthsumMap)->sum('pay_amount');
 
-            //本月平台收入
-            $pay_poundage = M('Order')->where($monthsumMap)->sum('pay_poundage');
-            $profitSumMap['datetime'] = ['egt', $monthBegin];
-            $profitSumMap['lx'] = 9;
-            $profitSum = M('moneychange')->where($profitSumMap)->sum('money');
-            $order_cost = M('Order')->where($monthsumMap)->sum('cost');
-            $stat['monthPlatform'] = $pay_poundage - $order_cost - $profitSum;
-            //代理收入
-            $stat['monthAgentIncome'] = $profitSum;
+        //     //本月平台收入
+        //     $pay_poundage = M('Order')->where($monthsumMap)->sum('pay_poundage');
+        //     $profitSumMap['datetime'] = ['egt', $monthBegin];
+        //     $profitSumMap['lx'] = 9;
+        //     $profitSum = M('moneychange')->where($profitSumMap)->sum('money');
+        //     $order_cost = M('Order')->where($monthsumMap)->sum('cost');
+        //     $stat['monthPlatform'] = $pay_poundage - $order_cost - $profitSum;
+        //     //代理收入
+        //     $stat['monthAgentIncome'] = $profitSum;
 
-            if($status == 1) {
-                $nopaidsumMap['pay_applydate'] = ['between', [strtotime($todayBegin), strtotime($todyEnd)]];
-                $nopaidsumMap['pay_status'] = 1;
-                //今日异常订单总额
-                $stat['todaynopaidsum'] = M('Order')->where($nopaidsumMap)->sum('pay_amount');
-                //今日异常订单笔数
-                $stat['todaynopaidcount'] = M('Order')->where($nopaidsumMap)->count();
+        //     if($status == 1) {
+        //         $nopaidsumMap['pay_applydate'] = ['between', [strtotime($todayBegin), strtotime($todyEnd)]];
+        //         $nopaidsumMap['pay_status'] = 1;
+        //         //今日异常订单总额
+        //         $stat['todaynopaidsum'] = M('Order')->where($nopaidsumMap)->sum('pay_amount');
+        //         //今日异常订单笔数
+        //         $stat['todaynopaidcount'] = M('Order')->where($nopaidsumMap)->count();
 
-                $monthNopaidsumMap['pay_applydate'] = ['egt', strtotime($todayBegin)];
-                $monthNopaidsumMap['pay_status'] = 1;
-                //本月异常订单总额
-                $stat['monthNopaidsum'] = M('Order')->where($monthNopaidsumMap)->sum('pay_amount');
-                //本月异常订单笔数
-                $stat['monthNopaidcount'] = M('Order')->where($monthNopaidsumMap)->count();
-            }
-        } elseif($status == 0) {
-            //今日未支付订单总额
-            $todayBegin = date('Y-m-d').' 00:00:00';
-            $todyEnd = date('Y-m-d').' 23:59:59';
-            $monthBegin = date('Y-m-01').' 00:00:00';
-            $stat['todaynopaidsum'] = M('Order')->where(['pay_applydate'=>['between', [strtotime($todayBegin), strtotime($todyEnd)]], 'pay_status'=>0])->sum('pay_amount');
-            $stat['monthNopaidsum'] = M('Order')->where(['pay_applydate'=>['egt', strtotime($monthBegin)], 'pay_status'=>0])->sum('pay_amount');
-            $nopaidMap = $where;
-            $nopaidMap['pay_status'] = 0;
-            $stat['totalnopaidsum'] = M('Order')->alias('as O')->where($nopaidMap)->sum('pay_amount');
-        }
-        foreach($stat as $k => $v) {
-            $stat[$k] = $v+0;
-            $stat[$k] = number_format($stat[$k],2,'.','');
-        }
+        //         $monthNopaidsumMap['pay_applydate'] = ['egt', strtotime($todayBegin)];
+        //         $monthNopaidsumMap['pay_status'] = 1;
+        //         //本月异常订单总额
+        //         $stat['monthNopaidsum'] = M('Order')->where($monthNopaidsumMap)->sum('pay_amount');
+        //         //本月异常订单笔数
+        //         $stat['monthNopaidcount'] = M('Order')->where($monthNopaidsumMap)->count();
+        //     }
+        // } elseif($status == 0) {
+        //     //今日未支付订单总额
+        //     $todayBegin = date('Y-m-d').' 00:00:00';
+        //     $todyEnd = date('Y-m-d').' 23:59:59';
+        //     $monthBegin = date('Y-m-01').' 00:00:00';
+        //     $stat['todaynopaidsum'] = M('Order')->where(['pay_applydate'=>['between', [strtotime($todayBegin), strtotime($todyEnd)]], 'pay_status'=>0])->sum('pay_amount');
+        //     $stat['monthNopaidsum'] = M('Order')->where(['pay_applydate'=>['egt', strtotime($monthBegin)], 'pay_status'=>0])->sum('pay_amount');
+        //     $nopaidMap = $where;
+        //     $nopaidMap['pay_status'] = 0;
+        //     $stat['totalnopaidsum'] = M('Order')->alias('as O')->where($nopaidMap)->sum('pay_amount');
+        // }
+        // foreach($stat as $k => $v) {
+        //     $stat[$k] = $v+0;
+        //     $stat[$k] = number_format($stat[$k],2,'.','');
+        // }
         $this->assign('stat', $stat);
         $this->assign('rows', $rows);
         $this->assign("list", $list);
@@ -409,7 +466,7 @@ class OrderController extends BaseController
             return;
         }
 
-        if ($order['pay_status'] != 0) {
+        if ($order['pay_status'] == 1 && $order['pay_status'] == 2) {
             $this->ajaxReturn(['status' => 0, 'msg' => '当前订单已经是成功订单']);
             return;
         }
@@ -418,20 +475,29 @@ class OrderController extends BaseController
         $pool = [];
         if ($order['pool_phone_id']) {
             $pool = M('PoolPhones')->find($order['pool_phone_id']);
+            if(empty($pool)){
+                $pool = M('PoolFaild')->where(['pool_id'=>$order['pool_phone_id']])->find();
+            }
         }
 
         $ret = (new ChannelManagerLib($channel_info))->query( $order, $pool );
 
-        if ($ret) {
+        if ($ret==1) {
             $payModel = D('Pay');
-            $res = $payModel->completeOrder($order['pay_orderid'], '', 0);
-            if ($res) {
-                $this->ajaxReturn(['status' => 1, 'msg' => "查询成功, 已将订单置为成功状态. "]);
-            } else {
-                $this->ajaxReturn(['status' => 0, 'msg' => "查询成功, 设置订单失败"]);
+            if($order['pay_status']==0){
+                $res = $payModel->completeOrder($order['pay_orderid'], '', 0);
+                if ($res) {
+                    $this->ajaxReturn(['status' => 1, 'msg' => "查询成功, 已将订单置为成功状态. "]);
+                } else {
+                    $this->ajaxReturn(['status' => 0, 'msg' => "查询成功, 设置订单失败"]);
+                }
+            }else{
+                $this->ajaxReturn(['status' => 1, 'msg' => "充值成功！"]);
             }
-            // 查询成功
-        } else {
+            //查询成功
+        }elseif($ret==-2) {
+            $this->ajaxReturn(['status' => 1, 'msg' => "已支付，充值失败！"]);
+        }else{
             $this->ajaxReturn(['status' => 0, 'msg' => '当前订单查询到未支付']);
         }
         return;
@@ -443,7 +509,11 @@ class OrderController extends BaseController
     public function exportorder()
     {
 
-        // 调用redis-task方法
+        set_time_limit(0);
+        header ( "Content-type:application/vnd.ms-excel" );
+        header ( "Content-Disposition:filename=" . iconv ( "UTF-8", "GB18030", "商户订单" ) . ".csv" );
+        
+        $fp = fopen('php://output', 'a'); 
 
         $memberid = I("request.memberid");
         if ($memberid) {
@@ -499,22 +569,79 @@ class OrderController extends BaseController
             '通道商户号',
             '状态',
         ];
-        $numberField = ['pay_amount', 'pay_poundage', 'pay_actualamount'];
 
-        $query = M('Order')
+        foreach ($title as $i => $v) {  
+            $title[$i] = iconv('utf-8', 'GB18030', $v);  
+        }
+
+        fputcsv($fp, $title);
+
+        $count = M('Order')
             ->join('LEFT JOIN __MEMBER__ ON __MEMBER__.id+10000 = __ORDER__.pay_memberid')
-            ->where($where) ->field('pay_order.*, pay_member.username');
-
-
-        $total = $query->count();
+            ->where($where) ->field('pay_order.*, pay_member.username')->count();
         $limit = 5000;
+
+        for ($i=0;$i<intval($count/$limit)+1;$i++){
+            $data = M('Order')
+            ->join('LEFT JOIN __MEMBER__ ON __MEMBER__.id+10000 = __ORDER__.pay_memberid')
+            ->where($where) ->field('pay_order.*, pay_member.username')->limit(strval($i*$limit).",{$limit}")->select();
+
+            foreach ( $data as $item ) {
+                $rows = array();
+                switch ($item['pay_status']) {
+                    case 0:
+                        $status = '未处理';
+                        break;
+                    case 1:
+                        $status = '成功，未返回';
+                        break;
+                    case 2:
+                        $status = '成功，已返回';
+                        break;
+                    case 3:
+                        $status = '充值失败';
+                        break;
+                }
+
+                if ($item['pay_successdate']) {
+                    $pay_successdate = date('Y-m-d H:i:s', $item['pay_successdate']);
+                } else {
+                    $pay_successdate = 0;
+                }
+                $info = [
+                    'id'               => $item['id'],
+                    'out_trade_id'     => $item['out_trade_id'],
+                    'pay_orderid'      => $item['pay_orderid'],
+                    'pay_memberid'     => $item['pay_memberid'],
+                    'username'     => $item['username'],
+                    'pay_amount'       => $item['pay_amount'],
+                    'pay_poundage'     => $item['pay_poundage'],
+                    'pay_actualamount' => $item['pay_actualamount'],
+                    'pay_applydate'    => date('Y-m-d H:i:s', $item['pay_applydate']),
+                    'pay_successdate'  => $pay_successdate,
+                    'pay_zh_tongdao'   => $item['pay_zh_tongdao'],
+                    'memberid'         => $item['memberid'],
+                    'pay_status'       => $status,
+                ];
+
+                foreach ( $info as $text){
+                    $rows[] = iconv('utf-8', 'GB18030', $text);
+                }
+                fputcsv($fp, $rows);
+            }
+            
+            //释放内存
+            unset($data);
+            ob_flush();
+            flush();
+        }
+        exit;
+
 
         $pager = intval($total / $limit ) + 1;
 
         for ($i = 1; $i <= $pager; $i++){
-            $data = M('Order')
-                ->join('LEFT JOIN __MEMBER__ ON __MEMBER__.id+10000 = __ORDER__.pay_memberid')
-                ->where($where) ->field('pay_order.*, pay_member.username')->limit($limit)->page($i)->select();
+           
             foreach ($data as $item) {
                 switch ($item['pay_status']) {
                     case 0:
@@ -525,6 +652,9 @@ class OrderController extends BaseController
                         break;
                     case 2:
                         $status = '成功，已返回';
+                        break;
+                    case 3:
+                        $status = '充值失败';
                         break;
                 }
                 if ($item['pay_successdate']) {
@@ -551,47 +681,6 @@ class OrderController extends BaseController
             unset($data);
         }
 
-        /*$data = $query->select();
-        foreach ($data as $item) {
-
-            switch ($item['pay_status']) {
-                case 0:
-                    $status = '未处理';
-                    break;
-                case 1:
-                    $status = '成功，未返回';
-                    break;
-                case 2:
-                    $status = '成功，已返回';
-                    break;
-            }
-            if ($item['pay_successdate']) {
-                $pay_successdate = date('Y-m-d H:i:s', $item['pay_successdate']);
-            } else {
-                $pay_successdate = 0;
-            }
-            $list[] = [
-                'out_trade_id'     => $item['out_trade_id'],
-                'pay_orderid'      => $item['pay_orderid'],
-                'pay_memberid'     => $item['pay_memberid'],
-                'username'     => $item['username'],
-                'pay_amount'       => $item['pay_amount'],
-                'pay_poundage'     => $item['pay_poundage'],
-                'pay_actualamount' => $item['pay_actualamount'],
-                'pay_applydate'    => date('Y-m-d H:i:s', $item['pay_applydate']),
-                'pay_successdate'  => $pay_successdate,
-                'pay_zh_tongdao'   => $item['pay_zh_tongdao'],
-                'memberid'         => $item['memberid'],
-                'pay_status'       => $status,
-            ];
-        }*/
-        // exportexcel($list, $title, $numberField);
-        // 将已经写到csv中的数据存储变量销毁，释放内存占用
-        // unset($list);
-
-        //刷新缓冲区
-        // ob_flush();
-        // flush();
 
     }
 
@@ -985,7 +1074,7 @@ class OrderController extends BaseController
             if (!$order){
                 $this->ajaxReturn(['status' => 0, 'msg' => "订单信息错误！"]);
             }
-            if($order['pay_status'] != 0) {
+            if($order['pay_status'] != 0 && $order['pay_status'] != 3) {
                 $this->ajaxReturn(['status' => 0, 'msg' => "该订单状态为已支付！"]);
             }
             $payModel = D('Pay');
@@ -1228,6 +1317,42 @@ class OrderController extends BaseController
         $this->assign('page', $page->show());
         $this->assign("isrootadmin", is_rootAdministrator());
         C('TOKEN_ON', false);
+        $this->display();
+    }
+
+
+    public function statis()
+    {
+        $param = I("get.");
+        if(!empty($param['member_id'])){
+            $where['member_id'] = $param['member_id'];
+            $where1['a.member_id'] = $param['member_id'];
+        }
+        if(!empty($param['day'])){
+            list($stime, $etime)  = explode('|', $param['day']);
+            $where['day'] = ['between', [strtotime($stime), strtotime($etime) ? strtotime($etime) : time()]];
+            $where1['a.day'] = ['between', [strtotime($stime), strtotime($etime) ? strtotime($etime) : time()]];
+        }
+        $count['do_order'] = M('OrderStatis')->field('sum(`do_order`) as do_order')->where($where)->find();
+        $count['order_num'] = M('OrderStatis')->field('sum(`order_num`) as order_num')->where($where)->find();
+        $count['order_money'] = M('OrderStatis')->field('sum(`order_money`) as order_money')->where($where)->find();
+        
+        $count['pay_order'] = M('OrderStatis')->field('sum(`pay_order`) as pay_order')->where($where)->find();
+        $count['pay_money'] = M('OrderStatis')->field('sum(`pay_money`) as pay_money')->where($where)->find();
+        $count['timeout_order'] = M('OrderStatis')->field('sum(`timeout_order`) as timeout_order')->where($where)->find();
+        $count['timeout_money'] = M('OrderStatis')->field('sum(`timeout_money`) as timeout_money')->where($where)->find();
+
+        $join = 'LEFT JOIN pay_member b ON a.member_id=b.id';
+        $field = 'a.*,b.username';
+        $countnum = M('OrderStatis')->alias('a')->join($join)->where($where1)->count();
+        $page = new \Think\Page($countnum, 15);
+
+        $list = M('OrderStatis')->alias('a')->join($join)->field($field)->where($where1)->limit($page->firstRow, $page->listRows)->order('id DESC')->select();
+        
+        $this->assign('count', $count);
+        $this->assign('param', $param);
+        $this->assign('list', $list);
+        $this->assign('page', $page->show());
         $this->display();
     }
 }

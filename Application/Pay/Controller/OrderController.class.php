@@ -45,16 +45,16 @@ class OrderController extends PayController
 //            return;
 //        }
 
-        if (!$product) {
+        //if (!$product) {
 //            $product = $this->cache->getOrSet("Product:pay_code:" . $order['pay_code'], function () use (&$order) {
 //                M('Product')->where(['code' => $order['pay_code']])->find();
 //            });
-            $product = D('Common/Product')->getByCode($order['pay_code']);
-        }
-        if (!$product) {
-            $this->result_error("支付方式错误");
-            return;
-        }
+            //$product = D('Common/Product')->getByCode($order['pay_code']);
+        //}
+        //if (!$product) {
+            //$this->result_error("支付方式错误");
+            //return;
+        //}
 
         // 通道名称
 //        $PayName = $parameter["code"];
@@ -194,7 +194,7 @@ class OrderController extends PayController
      * @param $PayName
      * @param int $returntypepay_code
      */
-    protected function EditMoney($pay_orderid, $trans_id = '')
+    protected function EditMoney($pay_orderid, $trans_id = '', $success_url = '')
     {
 
         $m_Order    = M("Order");
@@ -243,11 +243,18 @@ class OrderController extends PayController
                 'pay_status' => 1,
                 'pay_successdate' => $this->timestamp,
                 'trans_id'   => $trans_id,
+                'success_url' => $success_url
             ]);
+            $order_info['pay_successdate'] = $this->timestamp;
             if (!$res) {
                 M()->rollback();
                 return false;
             }
+
+            //支付成功统计
+            D('Admin/OrderStatis')->setStatis($order_info["pay_memberid"],'pay_order');
+            D('Admin/OrderStatis')->setStatis($order_info["pay_memberid"],'pay_money',$order_info["pay_amount"]);
+
             //-----------------------------------------修改用户数据 商户余额、冻结余额start-----------------------------------
             //要给用户增加的实际金额（扣除投诉保证金）
             $actualAmount          = $order_info['pay_actualamount'];
@@ -328,6 +335,7 @@ class OrderController extends PayController
             ];
 
             $moneychange_result = $this->MoenyChange($moneychange_data); // 资金变动记录
+            
 
             if ($moneychange_result == false) {
                 M()->rollback();
@@ -363,70 +371,37 @@ class OrderController extends PayController
 
             M()->commit();
 
-            //-----------------------------------------修改用户数据 商户余额、冻结余额end-----------------------------------
-
-            //-----------------------------------------修改通道风控支付数据start----------------------------------------------
-//            $m_Channel     = M('Channel');
-//            $channel_where = ['id' => $order_info['channel_id']];
-//            $channel_info  = D('Common/Channel')->getById( $order_info['channel_id'] );//   $m_Channel->where($channel_where)->find();
-            //判断当天交易金额并修改支付状态
-           /* $this->saveOfflineStatus(
-                $m_Channel,
-                $order_info['channel_id'],
-                $order_info['pay_amount'],
-                $channel_info
-            );*/
-
-            //-----------------------------------------修改通道风控支付数据end------------------------------------------------
-
-            //-----------------------------------------修改子账号风控支付数据start--------------------------------------------
-//            $m_ChannelAccount      = M('ChannelAccount');
-//            $channel_account_where = ['id' => $order_info['account_id']];
-//            $channel_account_info  = $m_ChannelAccount->where($channel_account_where)->find();
-//            if ($channel_account_info['is_defined'] == 0) {
-//                //继承自定义风控规则
-//                $channel_info['paying_money'] = $channel_account_info['paying_money']; //当天已交易金额应该为子账号的交易金额
-//                $channel_account_info         = $channel_info;
-//            }
-//            //判断当天交易金额并修改支付状态
-//            $channel_account_res = $this->saveOfflineStatus(
-//                $m_ChannelAccount,
-//                $order_info['account_id'],
-//                $order_info['pay_amount'],
-//                $channel_account_info
-//            );
-//            if ($channel_account_info['unit_interval']) {
-//                $m_ChannelAccount->where([
-//                    'id' => $order_info['account_id'],
-//                ])->save([
-//                    'unit_paying_number' => ['exp', 'unit_paying_number+1'],
-//                    'unit_paying_amount' => ['exp', 'unit_paying_amount+' . $order_info['pay_actualamount']],
-//                ]);
-//            }
-
-            //-----------------------------------------修改子账号风控支付数据end----------------------------------------------
-
-
             // 转存poolphone订单信息
             if ($order_info['pool_phone_id'] > 0) {
                 $this->handlePoolOrderSuccess( $pool, $provider, $trans_id );
             }
-
 
         } else {
             $member_info = M('Member')->where(['id' => $userid])->find();
         }
 
         //************************************************回调，支付跳转*******************************************//
-         $this->sendOrderNotify($order_info, $member_info);
-         return true;
+        if( $pool['status'] != 1){
+            $this->sendOrderNotify($order_info, $member_info);
+        }
+        return true;
     }
 
 
     protected function handlePoolOrderSuccess( $pool, $provider, $trans_id = '' ) {
         $this->cache->Client()->zDelete("pool_phone_timeout", $pool['id']);
-        $poolOrder = M('PoolRec')->where(['pool_id' => $pool['id']])->find();
+
+        if($pool['status']==2){
+            $poolOrder = M('PoolOrder')->where(['pool_id' => $pool['id']])->find();
+        }else{
+            $poolOrder = M('PoolRec')->where(['pool_id' => $pool['id']])->find();
+        }
+        
         $config = json_decode(htmlspecialchars_decode($provider['config']), true);
+
+        // 是否超时订单
+        $isTimeoutOrder = $pool['status'] == 1;
+
         $rate = 0;
         if ($config['rate'] && $config['rate'][$pool['channel']]) {
             $rate = floatval($config['rate'][$pool['channel']]);
@@ -436,8 +411,9 @@ class OrderController extends PayController
             $rate = 0;
         }
 
-        if (!$poolOrder){
+        if (!$poolOrder || $pool['status']==2){
             M()->startTrans();
+
             /*
              *  `pool_id` int(11) NOT NULL DEFAULT '0' COMMENT 'POOL序列ID order里对应字段索引',
   `pid` int(11) NOT NULL DEFAULT '0' COMMENT '号码商ID',
@@ -455,31 +431,32 @@ class OrderController extends PayController
             $pound    = $pool['money'] * $rate;
             $actmoney = $pool['money'] - $pound;
 
-            $poolOrder = [
-                'pool_id'           => $pool['id'],
-                'pid'               => $pool['pid'],
-                'out_trade_id'      => $pool['out_trade_id'],
-                'order_id'          => $pool['order_id'],
-                'data'              => json_encode($pool),
-                'status'            => 0,
-                'time'              => $this->timestamp,
-                'year'              => date('Y', $this->timestamp),
-                'month'             => date('m', $this->timestamp),
-                'day'               => date('d', $this->timestamp),
-                'money'             => $pool['money'],
-                'channel'           => $pool['channel'],
-                'actmoney'          => $actmoney,
-                'pound'             => $pound,
-                'phone'             => $pool['phone']
-            ];
-            // $poolOrder['actmoney']
-            if (!M('PoolRec')->add($poolOrder)){
-                M()->rollback();
-                Log::write("add poolOrder err:" . json_encode($poolOrder));
-                return;
+            if($pool['status']!=2){
+                $poolOrder = [
+                    'pool_id'           => $pool['id'],
+                    'pid'               => $pool['pid'],
+                    'out_trade_id'      => $pool['out_trade_id'],
+                    'order_id'          => $pool['order_id'],
+                    'data'              => json_encode($pool),
+                    'status'            => $isTimeoutOrder ? 3 : 0,
+                    'time'              => $this->timestamp,
+                    'year'              => date('Y', $this->timestamp),
+                    'month'             => date('m', $this->timestamp),
+                    'day'               => date('d', $this->timestamp),
+                    'money'             => $pool['money'],
+                    'channel'           => $pool['channel'],
+                    'actmoney'          => $actmoney,
+                    'pound'             => $pound,
+                    'phone'             => $pool['phone']
+                ];
+                // $poolOrder['actmoney']
+                if (!M('PoolRec')->add($poolOrder)){
+                    M()->rollback();
+                    Log::write("add poolOrder err:" . json_encode($poolOrder));
+                    return;
+                }
+                $poolOrder['id'] = M('PoolRec')->getLastInsID();
             }
-            $poolOrder['id'] = M('PoolRec')->getLastInsID();
-
             // 给号码商上增加金额和余额进去
            /* if (!M('PoolProvider')->where(['id' => $pool['pid']])->setInc("money", $pool['money'])){
                 M()->rollback();
@@ -492,24 +469,37 @@ class OrderController extends PayController
                 Log::write("dec PoolProvider balance err:" . json_encode($poolOrder));
                 return;
             }*/
+            if (!$isTimeoutOrder || $pool['status']==2) {
+                $provider = M('PoolProvider')->lock(true)->find($provider['id']);
 
-            if (!M('PoolProvider')->where(['id' => $pool['pid']])->save(
-                [
-                    'money' => [ 'exp', ' money + ' . $actmoney ],
-                    'balance' => [ 'exp', ' balance - ' . $actmoney ]
-                ]
-            )){
-                M()->rollback();
-                Log::write("dec PoolProvider balance err:" . json_encode($poolOrder));
-                return;
+                if (!M('PoolProvider')->where(['id' => $provider['id']])->save(
+                    [
+                        'money' => [ 'exp', ' money + ' . $actmoney ],
+                        'balance' => [ 'exp', ' balance - ' . $actmoney ]
+                    ]
+                )){
+                    M()->rollback();
+                    Log::write("dec PoolProvider balance err:" . json_encode($poolOrder));
+                    return;
+                }
+
+
+                if (!D('PoolMoneychange')->addData($provider['id'], 0, $provider['balance'], -$actmoney, "支付订单: " . $poolOrder['id'] , $poolOrder['id'], 4)){
+                    M()->rollback();
+                    Log::write("dec PoolProvider balance log err:" . json_encode($poolOrder));
+                    return;
+                }
+
+                
+
+                D('Admin/PoolStatis')->setStatis($provider['id'],'deduction_order');
+                D('Admin/PoolStatis')->setStatis($provider['id'],'deduction_money',$actmoney);
+
+                //支付成功统计入库
+                D('Admin/PoolStatis')->setStatis($provider['id'],'pay_order');
+                D('Admin/PoolStatis')->setStatis($provider['id'],'pay_money',$pool['money']);
             }
-
-            if (!D('PoolMoneychange')->addData($provider['id'], UID, $provider['balance'], -$actmoney, "支付订单: " . $poolOrder['id'] , $poolOrder['id'], 4)){
-                M()->rollback();
-                Log::write("dec PoolProvider balance log err:" . json_encode($poolOrder));
-                return;
-            }
-
+            // 删除phone信息
             if (!M('PoolPhones')->where(['id' => $pool['id']])->delete()){
                 M()->rollback();
                 Log::write("delete PoolPhones err:" . json_encode($poolOrder));
@@ -521,7 +511,20 @@ class OrderController extends PayController
             // 如果存在也执行删除逻辑
             M('PoolPhones')->where(['id' => $pool['id']])->delete();
         }
-        $this->sendPoolNotify($poolOrder, $pool, $trans_id);
+        // 非超时订单才回调
+        if (!$isTimeoutOrder) {
+            $this->sendPoolNotify($poolOrder, $pool, $trans_id);
+        }else{
+            //商户超时支付订单统计
+            $order = M('Order')->where(['phone_pool_id'=>$pool['id']])->find();
+            D('Admin/OrderStatis')->setStatis($order["pay_memberid"],'timeout_order');
+            D('Admin/OrderStatis')->setStatis($order["pay_memberid"],'timeout_money',$order["pay_amount"]);
+
+            D('Admin/PoolStatis')->setStatis($poolOrder['pid'],'success_notify');
+            D('Admin/PoolStatis')->setStatis($poolOrder['pid'],'success_money',$pool['money']);
+
+        }
+        
     }
 
     protected function sendPoolNotify( $poolOrder ,  $pool, $trans_id = '') {
@@ -531,27 +534,11 @@ class OrderController extends PayController
             log::write("pool provider not exist:" . json_encode($poolOrder));
             return;
         }
-        /**
-         * id: 商户ID
-        phone: 电话号码
-        money: 金额 (单位分)
-        out_trade_id: 商户系统的订单ID
-        sign: 签名
-         */
-        /**
-         * `pid` int(11) NOT NULL DEFAULT '0' COMMENT '号码商ID 使用member表',
-        `phone` char(15) NOT NULL DEFAULT '' COMMENT '号码',
-        `money` int(11) NOT NULL DEFAULT '0' COMMENT '充值金额 分',
-        `notify_url` varchar(255) DEFAULT NULL COMMENT '商户回调地址',
-        `time` int(11) NOT NULL DEFAULT '0' COMMENT '时间戳',
-        `channel` tinyint(1) NOT NULL DEFAULT '0' COMMENT '运营商标识 1=移动 2=电信 3=联通',
-        `out_trade_id` varchar(50) NOT NULL DEFAULT '' COMMENT '商户订单号 号码商订单号',
-        `order_id` varchar(50) NOT NULL DEFAULT '' COMMENT '平台订单号',
-
-         */
+        
         if (!$pool){
             $pool = json_decode($poolOrder['data'], true);
         }
+        
         $params = [
             'appkey'        => $provider['appkey'],
             'phone'         => $pool['phone'],
@@ -566,9 +553,11 @@ class OrderController extends PayController
 
         $contents = sendForm($pool['notify_url'], $params);
 
-        Log::write(" pool notify: ". $poolOrder["id"] . " url: " . $pool["notify_url"] . http_build_query($params) . " resp: " . $contents);
+        Log::write(" pool notify: ". $poolOrder["id"] . " url: " . $pool["notify_url"] . '?' . http_build_query($params) . " resp: " . $contents);
         if (strstr(strtolower($contents), "ok") != false) {
-            M('PoolRec')->where(['id' => $poolOrder['id']])->setField("status", 1);
+            if($pool['status']!=2){//转号
+                M('PoolRec')->where(['id' => $poolOrder['id']])->setField("status", 1);
+            }
             return true;
         }
 
@@ -647,7 +636,7 @@ class OrderController extends PayController
             'body'          => $notifystr,
             'times'         => 0,
             'last'          => $this->timestamp + 15,
-            "type"          => $type, // 订单回调类型
+            "type"          => $type, //订单回调类型
             'status'        => 0,
         ];
         return M('OrderNotify')->add($notifyData);

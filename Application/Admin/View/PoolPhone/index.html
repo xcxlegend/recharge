@@ -7,18 +7,63 @@
             </div>
 
             <div class="ibox-content">
+                <form class="layui-form" action="" method="get" autocomplete="off" id="sform">
+                    <div class="layui-form-item">
+                    <div class="layui-inline">
+                        
+                        <div class="layui-input-inline">
+                            <input type="text" name="phone" autocomplete="off" placeholder="手机号"
+                                   class="layui-input" value="<{$param.phone}>">
+                        </div>
+                        <div class="layui-input-inline">
+                        <input type="text" name="out_trade_id" autocomplete="off" placeholder="号码商订单号"
+                                class="layui-input" value="<{$param.out_trade_id}>">
+                        </div>
+                        <div class="layui-input-inline">
+                            <input type="text" name="order_id" autocomplete="off" placeholder="话充平台订单号"
+                                    class="layui-input" value="<{$param.order_id}>">
+                        </div>
+                        <if condition="$param.status eq 1 ">
+                            
+                            <div class="layui-input-inline">
+                                <input type="text" name="user_order_id" autocomplete="off" placeholder="商户订单号"
+                                        class="layui-input" value="<{$param.user_order_id}>">
+                            </div>
+                        </if>
 
+                        <div class="layui-input-inline" style="width:300px">
+                            <input type="text" class="layui-input" name="time" id="time"
+                                   placeholder="创建起始时间" value="<{$param.time}>">
+                        </div>
+          
+                        <div class="layui-input-inline">
+                            <button type="submit" class="layui-btn"><span
+                                    class="glyphicon glyphicon-search"></span> 搜索
+                            </button>
+                           
+                        </div>
+                    </div>
+                    </div>
+                </form>
                 <div class="list item">
-                    <table class="layui-table" >
+                    <table class="layui-table" lay-data="{width:'100%'}">
                         <thead>
                         <tr>
                             <th lay-data="{field:'pay_orderid', width:60}">#</th>
+                            <th lay-data="{field:'pay_orderid0', width:90}">号码商ID</th>
                             <th lay-data="{field:'pay_orderid1', width:150}">充值号码</th>
-                            <th lay-data="{field:'pay_orderid2', width:200}">充值金额</th>
-                            <th lay-data="{field:'pay_orderid3', width:150}">运营商</th>
+                            <th lay-data="{field:'pay_orderid2', width:80}">充值金额</th>
+                            <th lay-data="{field:'pay_orderid3', width:80}">运营商</th>
+                            <th lay-data="{field:'pay_orderid4', width:120}">号码商订单号</th>
+                            <th lay-data="{field:'pay_orderid5', width:150}">话充平台订单号</th>
+                            <th lay-data="{field:'pay_orderid6', width:120}">支付方式</th>
+                            <th lay-data="{field:'pay_orderid7', width:200}">支付流水号</th>
+                            <th lay-data="{field:'pay_orderid8', width:150}">支付地址</th>
+                            <if condition="$param.status eq 1 ">
                             <th lay-data="{field:'pay_orderid15', width:150}">商户订单号</th>
-                            <th lay-data="{field:'pay_orderid4', width:150}">平台订单号</th>
-                            <th lay-data="{field:'pay_orderid5', width:100}">状态</th>
+                        </if>
+                            <th lay-data="{field:'pay_orderid16', width:150}">类型</th>
+                            <th lay-data="{field:'pay_orderid9', width:150}">状态</th>
                             <th lay-data="{field:'pay_orderid13', width:180}">时间</th>
                         </tr>
                         </thead>
@@ -26,13 +71,23 @@
                         <volist name="list" id="v">
                             <tr>
                                 <td><{$v.id}></td>
+                                <td><{$v.pid}></td>
                                 <td><{$v.phone}></td>
                                 <td><{$v.money|format_money}></td>
                                 <td><{$sp_list[$v['channel']]}></td>
                                 <td><{$v.out_trade_id}></td>
                                 <td><{$v.order_id}></td>
+                                <td><{$v.pay_code}></td>
+                                <td><{$v.pay_no}></td>
+                                <td><{$v.pay_url}></td>
+                                <if condition="$param.status eq 1 ">
+                                <td><{$v.user_order_id}></td>
+                            </if>
+                                <td><{$v['status'] == 2 ? '转号' :'正常'}></td>
                                 <td>
-                                    <if condition="$v.lock eq 0 ">等待充值</if>
+                                    <if condition="$v.lock eq 0 ">等待充值
+                                        <a onclick="drawback('<{$v[id]}>')" class="layui-btn layui-btn-mini layui-btn-danger">置为失败</a>
+                                    </if>
                                     <if condition="$v.lock eq 1 ">充值中</if>
                                 </td>
                                 <td><{$v.time|date='Y-m-d H:i:s',###}></td>
@@ -59,6 +114,39 @@
     </div>
 </div>
 <include file="Public/footer"/>
+<script>
+    layui.use(['laydate', 'laypage', 'layer', 'table', 'form'], function() {
+        var laydate = layui.laydate //日期
+            , laypage = layui.laypage //分页
+            ,layer = layui.layer //弹层
+            ,form = layui.form //表单
+            , table = layui.table; //表格
+        //日期时间范围
+        laydate.render({
+            elem: '#time'
+            , type: 'datetime'
+            ,theme: 'molv'
+            , range: '|'
+        });
+    });
+    function drawback(id) {
+        layer.confirm('确定要设置为失败吗？', function (index) {
+            $.ajax({
+                url: "<{:U('PoolPhone/drawback')}>",
+                type: 'get',
+                data: 'id=' + id,
+                success: function (res) {
+                    if (res.status) {
+                        layer.msg(res.info, { icon: 1, time: 1000 });
+                        window.location.reload();
+                    } else {
+                        layer.msg(res.info, { icon: 2, time: 1500 });
+                    }
+                }
+            });
+        });
+    }
+</script>
 
 </body>
 </html>

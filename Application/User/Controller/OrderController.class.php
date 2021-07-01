@@ -74,7 +74,7 @@ class OrderController extends UserController
         }
         $this->assign("successtime", $successtime);
         $where['isdel'] = 0;
-        $where['pay_memberid'] = $this->fans['memberid'];
+        $where['pay_memberid'] = $this->fans['memberid'] - 10000;
         $count = M('Order')->where($where)->count();
         $size = 15;
         $rows  = I('get.rows', $size, 'intval');
@@ -196,6 +196,9 @@ class OrderController extends UserController
             foreach ($data as $item){
 
                 switch ($item['pay_status']){
+                    case -1:
+                        $status = '支付失败';
+                        break;
                     case 0:
                         $status = '未处理';
                         break;
@@ -241,27 +244,27 @@ class OrderController extends UserController
             return;
         }
 
-        if ($order['pay_status'] != 0) {
-            $this->ajaxReturn(['status' => 0, 'msg' => '当前订单已经是成功订单']);
-            return;
-        }
+        // if ($order['pay_status'] != 0) {
+        //     $this->ajaxReturn(['status' => 0, 'msg' => '当前订单已经是成功订单']);
+        //     return;
+        // }
 
-        $channel_info = M('Channel')->where(['id' => $order['channel_id']])->find();
+        // $channel_info = M('Channel')->where(['id' => $order['channel_id']])->find();
 
-        switch ($order['pay_bankcode']){
-            // 901
-            //902
-            //903
-            //904'
-            case '901':
-            case '902':
-            case '903':
-            case '904':
-                break;
-            default:
-                $this->ajaxReturn(['status' => 0, 'msg' => '支付通道无查单功能']);
-                return;
-        }
+        // switch ($order['pay_bankcode']){
+        //     // 901
+        //     //902
+        //     //903
+        //     //904'
+        //     case '901':
+        //     case '902':
+        //     case '903':
+        //     case '904':
+        //         break;
+        //     default:
+        //         $this->ajaxReturn(['status' => 0, 'msg' => '支付通道无查单功能']);
+        //         return;
+        // }
 
         /*$p59Pay = new P59Pay("YlLPzfT3ij", "tGnAwMqpf8ANaPryblDM", "");
         $result = $p59Pay->checkOrder($order["out_trade_id"]);
@@ -283,53 +286,73 @@ class OrderController extends UserController
             $this->ajaxReturn(['status' => 0, 'msg' => '当前订单查询到未支付']);
         }*/
 
-        if ($order['pay_zh_tongdao']) {
-            switch ($order['pay_zh_tongdao']) {
-                case 'P59':
-                    $appkey = C('P59PAY.APPKEY');
-                    $appsecret = C('P59PAY.APPSECT');
-                    $p59Pay = new P59Pay($appkey, $appsecret, "");
-                    if ($channel_info && $channel_info['gateway']) {
-                        $p59Pay->setGateway($channel_info['gateway']);
-                    }
-                    $ret = $p59Pay->checkOrder($order["out_trade_id"]);
-                    break;
-                case 'P361zf':
-                    $appkey = C('P361ZF.APPKEY');
-                    $appsecret = C('P361ZF.APPSECT');
-                    $pay = new P361zf($appkey, $appsecret, "");
-                    if ($channel_info && $channel_info['gateway']) {
-                        $pay->setGateway($channel_info['gateway']);
-                    }
-                    $ret = $pay->checkOrder($order["out_trade_id"]);
-                    break;
-                case 'PHaitong':
-                    $appkey = C('PHaitong.APPKEY');
-                    $appsecret = C('PHaitong.APPSECT');
-                    $pay = new PHaitong($appkey, $appsecret, "");
-                    if ($channel_info && $channel_info['gateway']) {
-                        $pay->setGateway($channel_info['gateway']);
-                    }
-                    $ret = $pay->checkOrder($order["out_trade_id"]);
-                    break;
-                default:
-                    $this->ajaxReturn(['status' => 0, 'msg' => "无通道信息"]);
+        // if ($order['pay_zh_tongdao']) {
+        //     switch ($order['pay_zh_tongdao']) {
+        //         case 'P59':
+        //             $appkey = C('P59PAY.APPKEY');
+        //             $appsecret = C('P59PAY.APPSECT');
+        //             $p59Pay = new P59Pay($appkey, $appsecret, "");
+        //             if ($channel_info && $channel_info['gateway']) {
+        //                 $p59Pay->setGateway($channel_info['gateway']);
+        //             }
+        //             $ret = $p59Pay->checkOrder($order["out_trade_id"]);
+        //             break;
+        //         case 'P361zf':
+        //             $appkey = C('P361ZF.APPKEY');
+        //             $appsecret = C('P361ZF.APPSECT');
+        //             $pay = new P361zf($appkey, $appsecret, "");
+        //             if ($channel_info && $channel_info['gateway']) {
+        //                 $pay->setGateway($channel_info['gateway']);
+        //             }
+        //             $ret = $pay->checkOrder($order["out_trade_id"]);
+        //             break;
+        //         case 'PHaitong':
+        //             $appkey = C('PHaitong.APPKEY');
+        //             $appsecret = C('PHaitong.APPSECT');
+        //             $pay = new PHaitong($appkey, $appsecret, "");
+        //             if ($channel_info && $channel_info['gateway']) {
+        //                 $pay->setGateway($channel_info['gateway']);
+        //             }
+        //             $ret = $pay->checkOrder($order["out_trade_id"]);
+        //             break;
+        //         default:
+        //             $this->ajaxReturn(['status' => 0, 'msg' => "无通道信息"]);
+        //     }
+        // }
+        if ($order['pay_status'] == 1 && $order['pay_status'] == 2) {
+            $this->ajaxReturn(['status' => 0, 'msg' => '当前订单已经是成功订单']);
+            return;
+        }
+
+        $channel_info = M('Channel')->where(['id' => $order['channel_id']])->find();
+        $pool = [];
+        if ($order['pool_phone_id']) {
+            $pool = M('PoolPhones')->find($order['pool_phone_id']);
+            if(empty($pool)){
+                $pool = M('PoolFaild')->where(['pool_id'=>$order['pool_phone_id']])->find();
             }
         }
 
-        if ($ret) {
+        $ret = (new ChannelManagerLib($channel_info))->query( $order, $pool );
+
+        if ($ret==1) {
             $payModel = D('Pay');
-            $res = $payModel->completeOrder($order['pay_orderid'], '', 0);
-            if ($res) {
-                $this->ajaxReturn(['status' => 1, 'msg' => "查询成功, 已将订单置为成功状态, 并回调商户！"]);
-            } else {
-                $this->ajaxReturn(['status' => 0, 'msg' => "查询成功, 设置订单失败"]);
+            if($order['pay_status']==0){
+                $res = $payModel->completeOrder($order['pay_orderid'], '', 0);
+                if ($res) {
+                    $this->ajaxReturn(['status' => 1, 'msg' => "查询成功, 已将订单置为成功状态. "]);
+                } else {
+                    $this->ajaxReturn(['status' => 0, 'msg' => "查询成功, 设置订单失败"]);
+                }
+            }else{
+                $this->ajaxReturn(['status' => 1, 'msg' => "充值成功！"]);
             }
-            // 查询成功
-        } else {
+            //查询成功
+        }elseif($ret==-2) {
+            $this->ajaxReturn(['status' => 1, 'msg' => "已支付，充值失败！"]);
+        }else{
             $this->ajaxReturn(['status' => 0, 'msg' => '当前订单查询到未支付']);
         }
-
         return;
     }
 
@@ -340,17 +363,19 @@ class OrderController extends UserController
     {
         $id = I("get.oid",0,'intval');
         if($id){
+            $where['pay_memberid'] = $this->fans['memberid'] - 10000;
+            $where['id']=$id;
             $order = M('Order')
-                ->where(['id'=>$id])
+                ->where($where)
                 ->find();
         }
 
-        if($order['pay_memberid'] != $this->fans['memberid']) {
-            $parentId = D('Common/Member')->where(['id'=>$order['pay_memberid']-10000])->getField('parentid');
-            if($parentId != $this->fans['uid']) {
-                $this->error('没有权限查看该订单');
-            }
-        }
+        // if($order['pay_memberid'] != $this->fans['memberid']-10000) {
+        //     $parentId = D('Common/Member')->where(['id'=>$order['pay_memberid']-10000])->getField('parentid');
+        //     if($parentId != $this->fans['uid']) {
+        //         $this->error('没有权限查看该订单');
+        //     }
+        // }
         $this->assign('order',$order);
         $this->display();
     }

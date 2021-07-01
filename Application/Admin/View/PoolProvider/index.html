@@ -7,7 +7,7 @@
                 <div class="row">
                     <div class="col-sm-2 pull-right">
                         <a href="javascript:;" class="layui-btn layui-btn-small"
-                           onclick="add('添加号码商','<{:U('PoolProvider/add')}>',500,540)">添加号码商</a>
+                           onclick="add('添加号码商','<{:U('PoolProvider/add')}>',400,550)">添加号码商</a>
                     </div>
                 </div>
             </div>
@@ -33,24 +33,24 @@
                             </div>
                         </form>
                 <!--号码商列表-->
-                <div class="layui-field-box">
-                <table class="layui-table">
+                <div class="list item">
+                    <table class="layui-table" lay-data="{width:'100%'}">
                     <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>名称</th>
-                        <th>联系人</th>
-                        <th>联系电话</th>
-                    <if condition="$param.status gt 0 ">
-                        <th>appkey</th>
-                        <th>appsecret</th>
-                        <th>总收入</th>
-                        <th>余额 (元)</th>
-                    </if>
-                        <th>状态</th>
-                        <th>添加时间</th>
-                        <th>操作</th>
-                    </tr>
+                        <tr>
+                            <th lay-data="{field:'pay_orderid1', width:60}">#</th>
+                            <th lay-data="{field:'pay_orderid2', width:150}">名称</th>
+                            <th lay-data="{field:'pay_orderid3', width:80}">联系人</th>
+                            <th lay-data="{field:'pay_orderid4', width:150}">联系电话</th>
+                        <if condition="$param.status gt 0 ">
+                            <th lay-data="{field:'pay_orderid5', width:150}">appkey</th>
+                            <th lay-data="{field:'pay_orderid6', width:200}">appsecret</th>
+                            <th lay-data="{field:'pay_orderid7', width:80}">总收入</th>
+                            <th lay-data="{field:'pay_orderid8', width:80}">余额 (元)</th>
+                        </if>
+                            <th lay-data="{field:'pay_orderid9', width:80}">状态</th>
+                            <th lay-data="{field:'pay_orderid10', width:180}">添加时间</th>
+                            <th lay-data="{field:'pay_orderid11', width:400}">操作</th>
+                        </tr>
                     </thead>
                     <tbody>
                     <volist name="list" id="v">
@@ -79,9 +79,8 @@
                                 <a href="<{:U('PoolProvider/order',['id'=>$v[id]])}>" class="layui-btn layui-btn-mini layui-btn-success">交易明细</a>
                                 <a onclick="rate('费率设置','<{:U('PoolProvider/rate',['id'=>$v[id]])}>',380,480)" class="layui-btn layui-btn-success layui-btn-mini">费率</a>
                             </if>
-                                <a onclick="edit('编辑号码商','<{:U('PoolProvider/edit',['id'=>$v[id]])}>',540,440)" class="layui-btn layui-btn-mini layui-btn-normal"><i class="layui-icon">&#xe642;</i>编辑</a>
+                                <a onclick="edit('编辑号码商','<{:U('PoolProvider/edit',['id'=>$v[id]])}>',400,550)" class="layui-btn layui-btn-mini layui-btn-normal"><i class="layui-icon">&#xe642;</i>编辑</a>
                                 <a onclick="del(this,'<{$v[id]}>')" class="layui-btn layui-btn-danger layui-btn-mini"><i class="layui-icon">&#xe640;</i>删除</a>
-                               
                             </td>
                         </tr>
                     </volist>
@@ -147,6 +146,14 @@
     function show(title,url,w,h){
         x_admin_show(title,url,w,h);
     }
+
+    layui.use(['laydate', 'laypage', 'layer', 'table', 'form'], function () {
+        var laydate = layui.laydate //日期
+            , laypage = layui.laypage //分页
+            , layer = layui.layer //弹层
+            , form = layui.form //表单
+            , table = layui.table; //表格
+    });
 
 </script>
 </body>

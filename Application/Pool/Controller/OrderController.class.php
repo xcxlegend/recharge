@@ -54,38 +54,70 @@ class OrderController extends PoolController
             $where['a.status'] = $param['status'];
         }
 
-        $sp_list = array('1'=>'移动','2'=>'电信','3'=>'联通');
+        $sp_list = array('1'=>'移动','2'=>'联通','3'=>'电信');
 
         if(!empty($param['export'])){
+            set_time_limit(0);
+            header ( "Content-type:application/vnd.ms-excel" );
+            header ( "Content-Disposition:filename=" . iconv ( "UTF-8", "GB18030", "话充订单" ) . ".csv" );
             
-            $data = D('Admin/PoolProviderSuccess')->getAllList($where);
-            $list = array();
-            foreach ($data as $item) {
-                switch ($item['status']) {
-                    case 0:
-                        $status = '未回调';
-                        break;
-                    case 1:
-                        $status = '回调成功';
-                        break;
-                }
-
-                $list[] = array(
-                    'order_id'    => $item['order_id'],
-                    'trade_id'      => $item['trade_id'],
-                    
-                    'phone'    => $item['phone'],
-                    'money'      => $item['money'],
-                    'channel'      => $sp_list[$item['channel']],
-                    'pay_applydate'      =>date('Y-m-d H:i:s',$item['pay_applydate']),
-                    'pay_successdate'      => date('Y-m-d H:i:s',$item['pay_successdate']),
-                    'status'  => $status,
-                );
-            }
+            $fp = fopen('php://output', 'a'); 
+            
             $title = array('平台订单号', '充值流水号', '手机号', '金额', '运营商', '创建时间', '成功时间', '状态');
-            exportexcel($list, $title);
+            foreach ($title as $i => $v) {  
+                $title[$i] = iconv('utf-8', 'GB18030', $v);  
+            }
+
+            fputcsv($fp, $title);
+
+            $count = D('Admin/PoolProviderSuccess')->getCount($where);
+            $limit = 5000;
+
+            for ($i=0;$i<intval($count/$limit)+1;$i++){
+
+                $data = D('Admin/PoolProviderSuccess')->getExportList($where,strval($i*$limit).",{$limit}");
+
+                foreach ( $data as $item ) {
+                    $rows = array();
+                    switch ($item['status']) {
+                        case 0:
+                            $status = '未回调';
+                            break;
+                        case 1:
+                            $status = '回调成功';
+                            break;
+                        case 2:
+                            $status = '退单';
+                            break;
+                    }
+    
+                    $trade_id = !$item['trade_id'] ? $item['pool_trans_id'] :$item['trade_id'];
+                    $pay_applydate = !$item['pay_applydate'] ? $item['pool_order_time'] :$item['pay_applydate'];
+                    $pay_successdate = !$item['pay_successdate'] ? $item['pool_finish_time'] :$item['pay_successdate'];
+
+                    $info = array(
+                        'order_id'    => $item['order_id'],
+                        'trade_id'      => $trade_id,
+                        'phone'    => $item['phone'],
+                        'money'      => $item['money'],
+                        'channel'      => $sp_list[$item['channel']],
+                        'pay_applydate'      =>date('Y-m-d H:i:s',$pay_applydate),
+                        'pay_successdate'      => date('Y-m-d H:i:s',$pay_successdate),
+                        'status'  => $status,
+                    );
+
+                    foreach ( $info as $text){
+                        $rows[] = iconv('utf-8', 'GB18030', $text);
+                    }
+                    fputcsv($fp, $rows);
+                }
+                
+                //释放内存
+                unset($data);
+                ob_flush();
+                flush();
+            }
             exit;
-            
         }
 
         $data = D('Admin/PoolProviderSuccess')->getList($where);
@@ -93,29 +125,29 @@ class OrderController extends PoolController
 
          //交易总额
          $totalWhere['pid'] = $this->provider['uid'];
-         $money['total'] = D('PoolProviderSuccess')->field('sum(`money`) as money')->where($totalWhere)->find();
+         $money['total'] = D('Admin/PoolProviderSuccess')->field('sum(`money`) as money')->where($totalWhere)->find();
  
          //上月
          $monthWhere['month'] = date('m',strtotime('last month'));
          $monthWhere['pid'] = $this->provider['uid'];
-         $money['month'] = D('PoolProviderSuccess')->field('sum(`money`) as money')->where($monthWhere)->find();
+         $money['month'] = D('Admin/PoolProviderSuccess')->field('sum(`money`) as money')->where($monthWhere)->find();
  
          //上周
          $sWeek =  date("Y-m-d H:i:s",mktime(0, 0 , 0,date("m"),date("d")-date("w")+1-7,date("Y")));
          $eweek =  date("Y-m-d H:i:s",mktime(23,59,59,date("m"),date("d")-date("w")+7-7,date("Y")));
          $weekWhere['time'] = ['between', [strtotime($sWeek), strtotime($eweek)]];
          $weekWhere['pid'] = $this->provider['uid'];
-         $money['week'] = D('PoolProviderSuccess')->field('sum(`money`) money')->where($weekWhere)->find();
+         $money['week'] = D('Admin/PoolProviderSuccess')->field('sum(`money`) money')->where($weekWhere)->find();
          //今日
          $todayWhere['day'] = date("d");
          $todayWhere['pid'] = $this->provider['uid'];
-         $money['today'] = D('PoolProviderSuccess')->field('sum(`money`) as money')->where($todayWhere)->find();
+         $money['today'] = D('Admin/PoolProviderSuccess')->field('sum(`money`) as money')->where($todayWhere)->find();
  
          //订单总量
-         $money['total']['count'] = D('PoolProviderSuccess')->where($totalWhere)->count();
+         $money['total']['count'] = D('Admin/PoolProviderSuccess')->where($totalWhere)->count();
  
          //今日订单量
-         $money['today']['count'] = D('PoolProviderSuccess')->where($todayWhere)->count();
+         $money['today']['count'] = D('Admin/PoolProviderSuccess')->where($todayWhere)->count();
 
 
         

@@ -1,0 +1,194 @@
+<include file="Public/header" />
+<div class="row">
+    <div class="col-md-12">
+        <div class="ibox float-e-margins">
+            <div class="ibox-title">
+                <h5>订单数据报表</h5>
+            </div>
+
+            <div class="ibox-content">
+                <form class="layui-form" action="" method="get" autocomplete="off" id="sform">
+                    <input type="hidden" name="p" value="1">
+                    <div class="layui-form-item">
+                        <div class="layui-inline">
+                            <div class="layui-input-inline" >
+                                <input type="text" name="pid" autocomplete="off" placeholder="号码商ID"
+                                    class="layui-input" value="<{$param.pid}>">
+                            </div>
+
+                            <div class="layui-input-inline" style="width:300px">
+                                <input type="text" class="layui-input" name="day" id="day"
+                                    placeholder="创建起始时间" value="<{$param.day}>">
+                            </div>
+
+
+
+                            <div class="layui-input-inline">
+                                <button onclick="$('#export').val(0);$('#sform').submit();" class="layui-btn"><span
+                                        class="glyphicon glyphicon-search"></span> 搜索
+                                </button>
+                                <input type="hidden" id="export" name="export" value="0">
+                            </div>
+                        </div>
+                    </div>
+                </form>
+
+                <blockquote class="layui-elem-quote" style="font-size:14px;padding;8px;">
+                    号码商下单数：<span class="label label-info">
+                        <{$count.do_order.do_order}>
+                    </span>
+                    创建订单数：<span class="label label-info">
+                        <{$count.order_num.order_num}>
+                    </span>
+                    创建订单成功率：<span class="label label-info">
+                        <php>
+                            echo(round($count['order_num']['order_num']/$count['do_order']['do_order'] * 100,2));
+                        </php>%
+                    </span>
+                    创建订单总额：<span class="label label-info">
+                        <{$count.order_money.order_money|format_money}>元
+                    </span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                </blockquote>
+
+                <blockquote class="layui-elem-quote" style="font-size:14px;padding;8px;">
+                    匹配成功数：<span class="label label-info">
+                        <{$count.match_num.match_num}>
+                    </span>
+                    匹配成功总额：<span class="label label-info">
+                        <{$count.match_money.match_money|format_money}>元
+                    </span>
+                </blockquote>
+
+                <blockquote class="layui-elem-quote" style="font-size:14px;padding;8px;">
+                    支付成功数：<span class="label label-info">
+                        <{$count.pay_order.pay_order}>
+                    </span>
+                    支付成功总额：<span class="label label-info">
+                        <{$count.pay_money.pay_money|format_money}>元
+                    </span>
+                    扣款数：<span class="label label-info">
+                        <{$count.deduction_order.deduction_order}>
+                    </span>
+                    扣款总额：<span class="label label-info">
+                        <{$count.deduction_money.deduction_money|format_money}>元
+                    </span>
+                    退单数：<span class="label label-info">
+                        <{$count.refund_order.refund_order}>
+                    </span>
+                    退单总额：<span class="label label-info">
+                        <{$count.refund_money.refund_money|format_money}>元
+                    </span>
+                    成功已通知超时数：<span class="label label-info">
+                        <{$count.success_notify.success_notify}>
+                    </span>
+                    成功通知超时总额：<span class="label label-info">
+                        <{$count.success_money.success_money|format_money}>元
+                    </span>
+                </blockquote>
+
+
+
+
+                <div class="list item">
+                    <table class="layui-table" lay-data="{width:'100%'}">
+                        <thead>
+                            <tr>
+                                <th lay-data="{field:'pay_orderid', width:120}">时间</th>
+                                <th lay-data="{field:'pay_orderid14', width:100}">号码商</th>
+                                <th lay-data="{field:'pay_orderid1', width:120}">号码商下单数</th>
+                                <th lay-data="{field:'pay_orderid2', width:100}">创建订单数</th>
+                                <th lay-data="{field:'pay_orderid3', width:130}">创建订单成功率</th>
+                                <th lay-data="{field:'pay_orderid15', width:120}">创建订单总额</th>
+                                <th lay-data="{field:'pay_orderid4', width:100}">匹配成功数</th>
+                                <th lay-data="{field:'pay_orderid5', width:120}">匹配成功总额</th>
+                                <th lay-data="{field:'pay_orderid6', width:100}">支付成功数</th>
+                                <th lay-data="{field:'pay_orderid7', width:110}">支付成功总额</th>
+                                <th lay-data="{field:'pay_orderid8', width:100}">扣款数</th>
+                                <th lay-data="{field:'pay_orderid9', width:100}">扣款总额</th>
+                                <th lay-data="{field:'pay_orderid10', width:80}">退单数</th>
+                                <th lay-data="{field:'pay_orderid11', width:100}">退单总额</th>
+                                <th lay-data="{field:'pay_orderid12', width:160}">成功已通知超时数</th>
+                                <th lay-data="{field:'pay_orderid13', width:160}">成功通知超时总额</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <volist name="list" id="v">
+                                <tr>
+                                    <td>
+                                        <{$v.day|date='Y-m-d',###}>
+                                    </td>
+                                    <td>
+                                        <{$v.name}>
+                                    </td>
+                                    <td>
+                                        <{$v.do_order}>
+                                    </td>
+                                    <td>
+                                        <{$v.order_num}>
+                                    </td>
+                                    <td>
+                                        <php>
+                                                echo(round($v['order_num']/$v['do_order'] * 100,2));
+                                            </php>%
+                                    </td>
+                                    <td>
+                                        <{$v.order_money}>
+                                    </td>
+                                    <td>
+                                        <{$v.match_num}>
+                                    </td>
+                                    <td>
+                                        <{$v.match_money}>
+                                    </td>
+                                    <td>
+                                        <{$v.pay_order}>
+                                    </td>
+                                    <td>
+                                        <{$v.pay_money|format_money}>
+                                    </td>
+                                    <td>
+                                        <{$v.deduction_order}>
+                                    </td>
+                                    <td>
+                                        <{$v.deduction_money|format_money}>
+                                    </td>
+                                    <td>
+                                        <{$v.refund_order}>
+                                    </td>
+                                    <td>
+                                        <{$v.refund_money|format_money}>
+                                    </td>
+                                    <td><{$v.success_notify}> </td>
+
+                                    <td><{$v.success_money|format_money}> </td>
+                                </tr>
+                            </volist>
+                        </tbody>
+                    </table>
+                    <{$page}>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<include file="Public/footer" />
+<script>
+    layui.use(['laydate', 'laypage', 'layer', 'table', 'form'], function () {
+        var laydate = layui.laydate //日期
+            , laypage = layui.laypage //分页
+            , layer = layui.layer //弹层
+            , form = layui.form //表单
+            , table = layui.table; //表格
+        //日期时间范围
+        laydate.render({
+            elem: '#day'
+            , type: 'date'
+            , theme: 'molv'
+            , range: '|'
+        });
+    });
+
+</script>
+</body>
+
+</html>

@@ -272,6 +272,9 @@ function status($pay_status)
         case 2:
             return "<span style='color:#030'>成功,已返回</span>";
             break;
+        case 3:
+            return "<span style='color:#f00'>充值失败</span>";
+            break;
     }
 }
 
@@ -620,7 +623,7 @@ function sendForm($url,$data,$referer = ''){
         $headerArr[] = $n .':' . $v;
     }
     $ch = curl_init();
-    curl_setopt($ch, CURLOPT_TIMEOUT, 15);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 45);
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
     curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
@@ -636,14 +639,14 @@ function sendForm($url,$data,$referer = ''){
     return $data;
 }
 
-function sendJson( $url, $data, $referer ) {
+function sendJson( $url, $data, $referer = '' ) {
     $headers['Content-Type'] = "application/json; charset=utf-8";
     $headerArr = array();
     foreach( $headers as $n => $v ) {
         $headerArr[] = $n .':' . $v;
     }
     $ch = curl_init();
-    curl_setopt($ch, CURLOPT_TIMEOUT, 15);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 45);
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
     curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
@@ -1409,21 +1412,74 @@ function createSign($Md5key, $params){
     }
     $md5str .= "key=" . $Md5key;
 
-    logResult("md5str:". $md5str);
-
+//    logResult("md5str:". $md5str);
     $sign = md5($md5str);
-    logResult("md5:". $sign);
+//    logResult("md5:". $sign);
 
     return $sign;
 }
 
-function createUUID( $prefix = "" ) {
+function createUUID( $prefix = "",$length=24) {
     list($msec, $sec) = explode(' ', microtime());
-    return $prefix . date('YmdHis',$sec) . intval($msec * 1000);
+    $chars = array('a', 'b', 'c', 'd', 'e', 'f', 'g', 'h','i', 'j', 'k', 'l','m', 'n', 'o', 'p', 'q', 'r', 's', 
+'t', 'u', 'v', 'w', 'x', 'y','z', 'A', 'B', 'C', 'D','E', 'F', 'G', 'H', 'I', 'J', 'K', 'L','M', 'N', 'O', 
+'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y','Z'); 
+    $length =  $length - 23;//随机3位
+    $fix='';
+    for ( $i = 0; $i < $length; $i++ ) 
+    { 
+        $rand =mt_rand(0,51);
+        $fix .= $chars[$rand];
+    } 
+    return $prefix . date('YmdHis',$sec) .$fix.substr($msec, 2, 4) ;
 }
 
+function LogApiQuery($url, $request, $response) {
+    $log = [
+        'request'  => $request,
+        'response' => $response,
+        'action'   => 'request',
+        'url'      => $url,
+    ];
+    \Common\Lib\JsonLogLib::write($log, \Think\Log::INFO);
+}
+
+/*
+$str = '{"account":"15959209756",
+        "amount":"10.0",
+        "chanelcode":"YDCZ",
+        "chaneltype":"1",
+        "dealtime":"20190815210610",
+        "mchno":"188913",
+        "msg":"匹配失败",
+        "orderno":"PL20190815210502203",
+        "ordertime":"20190815210524",
+        "sign":"af8f342d3b0b51ad90dfac1a9e354c20",
+        "status":"-1",
+        "sysorderno":"",
+        "Method":"P361PhoneTranse"}';
+$request = json_decode($str, true);
 
 
+$data = [
+    'mchno'         => $request['mchno'],
+    'sysorderno'    => $request['sysorderno'],
+    'orderno'       => $request['orderno'],
+    'account'       => $request['account'],
+    'amount'        => $request['amount'],
+    'chanelcode'    => $request['chanelcode'],
+    'chaneltype'    => $request['chaneltype'],
+    'ordertime'     => $request['ordertime'],
+    'dealtime'      => $request['dealtime'],
+    'status'        => $request['status'],
+];
+print_r($data);
+$datas = $data;
+foreach ($datas as $key => $value) {
+    if (empty($value)) {
+        unset($datas[$key]);
+    }
+}
 
-
-?>
+print_r($datas);
+echo createSign('ab7a5a6e5b6849fca7d59687a3c8e5c0', $datas);*/

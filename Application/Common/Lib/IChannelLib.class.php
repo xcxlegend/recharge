@@ -29,9 +29,10 @@ class ChannelOrder {
         $this->wapUrl   = $wapUrl;
         $this->qrUrl    = $qrUrl;
         $this->poolId   = $poolId;
-        $this->poolPid  = $poolPid;
+        $this->poolPid  = $poolPid; 
     }
 }
+
 
 // 上游接口
 interface IChannelLib

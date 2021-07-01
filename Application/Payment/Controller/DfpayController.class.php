@@ -5,6 +5,7 @@
 namespace Payment\Controller;
 
 use Think\Controller;
+use \Think\Log;
 
 class DfpayController extends Controller
 {
@@ -27,6 +28,13 @@ class DfpayController extends Controller
      */
     public function add()
     {
+        $ip = get_client_ip();
+        $white_name = C('USER_WHITE_NAME');
+        if($white_name['status'] && !in_array($ip,$white_name['ip'])){
+            $this->showmessage('no auth');
+        }
+
+        Log::write('Dfpay notice:'json_encode(I('request.'));
         if (empty($_REQUEST)) {
             $this->showmessage('no data!');
         }

@@ -54,7 +54,7 @@
                         </div>
                       </form>
            
-                      <blockquote class="layui-elem-quote" style="font-size:14px;padding;8px;">
+                      <!-- <blockquote class="layui-elem-quote" style="font-size:14px;padding;8px;">
                             交易总额：<span class="label label-info"><{$count.total.money|format_money}>元</span>  
                             上月总额：<span class="label label-info"><{$count.month.money|format_money}>元</span>
                            上周总额：<span class="label label-info"><{$count.week.money|format_money}>元</span>
@@ -69,7 +69,7 @@
                          今日订单量：<span class="label label-info"><{$count.today.count}></span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                          成功订单总量：<span class="label label-info"><{$count.success_total.count}></span> 
                          今日成功订单量：<span class="label label-info"><{$count.success_today.count}></span>
-                      </blockquote>
+                      </blockquote> -->
     
     
                      <div class="list item">
@@ -101,12 +101,7 @@
                                     <td><{$paylist[$v['pay_code']]['name']}></td>
                                     <td><{$v.pay_applydate|date='Y-m-d H:i:s',###}></td>
                                     <td><{$v.pay_successdate|date='Y-m-d H:i:s',###}></td>
-                                    <td>
-                                        <if condition="$v.pay_status eq 0 ">未支付
-                                            <elseif condition="$v.pay_status eq 1"/>已支付，未返回
-                                            <else />已支付，已返回
-                                        </if>
-                                    </td>
+                                    <td style="text-align:center; color:#369"><{$vo['pay_status']|status=###}></td>
                                     <td>
                                         <a href="<{:U('Order/info',['id'=>$v[id]])}>" class="layui-btn layui-btn-mini layui-btn-success">订单详情</a>
                                     </td>
@@ -140,7 +135,7 @@
             , table = layui.table; //表格
         //日期时间范围
         laydate.render({
-            elem: '#createtime'
+            elem: '#create_time'
             , type: 'datetime'
             ,theme: 'molv'
             , range: '|'
